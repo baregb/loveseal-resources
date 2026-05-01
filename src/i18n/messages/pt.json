@@ -1,0 +1,67 @@
+{
+  "nav": {
+    "home": "Home",
+    "manuals": "Manuals",
+    "prophecies": "Prophecies",
+    "articles": "Articles",
+    "blog": "Blog",
+    "search": "Search",
+    "menu": "Menu",
+    "close": "Close"
+  },
+  "hero": {
+    "cta": "View all content",
+    "drag": "drag"
+  },
+  "content": {
+    "types": {
+      "manual": "Manual",
+      "prophecy": "Prophecy",
+      "article": "Article",
+      "blog": "Blog"
+    },
+    "readFull": "Full Text",
+    "readSummary": "Key Points",
+    "download": "Download PDF",
+    "share": "Share",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied!",
+    "readTime": "{minutes} min read",
+    "publishedOn": "Published {date}",
+    "noResults": "No content found",
+    "loadMore": "Load more"
+  },
+  "filters": {
+    "all": "All",
+    "search": "Search content...",
+    "category": "Category",
+    "type": "Type"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "upload": "Upload content",
+    "edit": "Edit",
+    "delete": "Delete",
+    "publish": "Publish",
+    "unpublish": "Unpublish",
+    "draft": "Draft",
+    "published": "Published",
+    "title": "Title",
+    "type": "Content type",
+    "category": "Category",
+    "tags": "Tags",
+    "language": "Language",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirmDelete": "Are you sure you want to delete this item?"
+  },
+  "errors": {
+    "notFound": "Page not found",
+    "serverError": "Something went wrong",
+    "tryAgain": "Try again"
+  },
+  "footer": {
+    "allRights": "All rights reserved",
+    "church": "Love Seal Church"
+  }
+}

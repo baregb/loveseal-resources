@@ -1,0 +1,225 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LOVE SEAL CHURCH — DESIGN TOKENS
+   All visual values live here. Change once → entire site updates.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@theme {
+  /* ── Fonts (set from layout.tsx via CSS variables) ── */
+  --font-display: var(--font-barlow), 'Barlow Condensed', sans-serif;
+  --font-body:    var(--font-dm-sans), 'DM Sans', sans-serif;
+
+  /* ── Brand Colours ── */
+  --color-dark:        #212529;
+  --color-dark-2:      #3C3C3C;
+  --color-blue:        #4498CC;
+  --color-red:         #C32126;
+  --color-gold:        #F5AE41;
+  --color-gray:        #808080;
+  --color-light-gray:  #D3D3D3;
+  --color-light-gray-2:#D6D6D6;
+  --color-bg:          #F8F9FA;
+  --color-smoke:       #F5F5F5;
+  --color-white:       #FFFFFF;
+  --color-mint:        #F7FDFF;
+
+  /* ── Content Type Colours ── */
+  --color-manual:    #4498CC;  /* Steel Blue */
+  --color-prophecy:  #C32126;  /* Firebrick  */
+  --color-article:   #F5AE41;  /* Sandy Gold */
+  --color-blog:      #3C3C3C;  /* Dark 2     */
+
+  /* ── Spacing Scale ── */
+  --spacing-xs:   4px;
+  --spacing-sm:   8px;
+  --spacing-md:  16px;
+  --spacing-lg:  24px;
+  --spacing-xl:  40px;
+  --spacing-2xl: 64px;
+  --spacing-3xl: 96px;
+
+  /* ── Border Radius ── */
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   16px;
+  --radius-xl:   24px;
+  --radius-full: 9999px;
+
+  /* ── Shadows ── */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:  0 4px 16px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06);
+  --shadow-lg:  0 12px 40px rgba(0,0,0,0.14), 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-card: 0 2px 12px rgba(33,37,41,0.08);
+
+  /* ── Transitions ── */
+  --transition-fast:   150ms ease;
+  --transition-base:   250ms ease;
+  --transition-slow:   400ms ease;
+  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Z-index layers ── */
+  --z-base:    0;
+  --z-raised:  10;
+  --z-overlay: 100;
+  --z-modal:   200;
+  --z-nav:     300;
+  --z-toast:   400;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   BASE STYLES
+   ───────────────────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-dark);
+  font-size: 16px;
+  line-height: 1.65;
+  min-height: 100dvh;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TYPOGRAPHY SCALE
+   ───────────────────────────────────────────────────────────────────────────── */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--color-dark);
+}
+
+/* Display — hero headlines */
+.text-display {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(56px, 10vw, 120px);
+  line-height: 0.92;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+/* Heading 1 */
+.text-h1 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(36px, 5vw, 64px);
+  text-transform: uppercase;
+  line-height: 1.0;
+}
+
+/* Heading 2 */
+.text-h2 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(28px, 3.5vw, 48px);
+  text-transform: uppercase;
+  line-height: 1.05;
+}
+
+/* Heading 3 */
+.text-h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(20px, 2.5vw, 28px);
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+/* Section eyebrow labels */
+.text-eyebrow {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-blue);
+}
+
+/* Body text */
+.text-body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--color-dark-2);
+}
+
+/* Small / caption */
+.text-sm {
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-gray);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   UTILITY CLASSES
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Content type badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+}
+
+.badge-manual    { background: rgba(68,152,204,0.12); color: var(--color-blue);  }
+.badge-prophecy  { background: rgba(195,33,38,0.10);  color: var(--color-red);   }
+.badge-article   { background: rgba(245,174,65,0.15); color: #8c5a00;            }
+.badge-blog      { background: rgba(60,60,60,0.08);   color: var(--color-dark-2);}
+
+/* Focus ring — accessibility */
+:focus-visible {
+  outline: 2px solid var(--color-blue);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* Scrollbar — subtle */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-light-gray); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-gray); }
+
+/* Selection */
+::selection {
+  background: var(--color-gold);
+  color: var(--color-dark);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   MOTION — respect user preferences
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
