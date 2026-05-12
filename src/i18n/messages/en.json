@@ -1,17 +1,85 @@
 {
+  "brand": {
+    "byline": "by LoveSeal Church",
+    "shortName": "Lively Resources",
+    "parent": "LoveSeal Church"
+  },
   "nav": {
     "home": "Home",
+    "all": "All",
     "manuals": "Manuals",
     "prophecies": "Prophecies",
     "articles": "Articles",
     "blog": "Blog",
-    "search": "Search",
-    "menu": "Menu",
-    "close": "Close"
+    "search": "Search content",
+    "menu": "Open menu",
+    "close": "Close",
+    "signin": "Sign in"
   },
   "hero": {
-    "cta": "View all content",
-    "drag": "drag"
+    "eyebrow": "From {parent}",
+    "headlinePart1": "What's",
+    "headlinePart2": "new",
+    "headlineHighlight": "now",
+    "viewAllLatest": "View all latest",
+    "drag": "drag",
+    "empty": "No content published yet. Check back soon."
+  },
+  "featured": {
+    "title": "Featured this week",
+    "allContent": "All content"
+  },
+  "about": {
+    "eyebrow": "About",
+    "headline": "A library of {highlight}, laid out simply for every season of faith.",
+    "highlight": "truth",
+    "body": "From {parent} — manuals on discipleship, prophetic words for the body of Christ, articles on faith and life, and a steady blog of teaching. Every word made shareable, in any language, on any device.",
+    "stats": {
+      "types": "Content types",
+      "languages": "Languages",
+      "readable": "Readable",
+      "cost": "Cost to access"
+    }
+  },
+  "sections": {
+    "manuals": "Latest Manuals",
+    "prophecies": "Prophecies",
+    "articles": "Articles",
+    "blog": "Blog",
+    "viewAll": "View all"
+  },
+  "closingCta": {
+    "title1": "Read.",
+    "title2": "Share.",
+    "title3": "Multiply.",
+    "body": "Every manual, prophecy, article and post is shareable in one tap. Send the truth to whoever needs it.",
+    "button": "Browse the library"
+  },
+  "library": {
+    "eyebrow": "Library",
+    "title": "All content",
+    "itemsCount": "{count, plural, =0 {no items} =1 {1 item} other {# items}} available"
+  },
+  "filters": {
+    "title": "Filters",
+    "search": "Search title, theme, scripture…",
+    "type": "Type",
+    "theme": "Theme",
+    "speaker": "Speaker",
+    "series": "Series",
+    "clearAll": "Clear all",
+    "showCount": "Show {count, plural, =0 {no items} =1 {1 item} other {# items}}",
+    "noMatches": "No content matches the current filters",
+    "noContent": "No content published yet",
+    "uploadFirst": "Upload first item"
+  },
+  "results": {
+    "showing": "Showing",
+    "of": "of",
+    "items": "{count, plural, =0 {items} =1 {item} other {items}}"
+  },
+  "card": {
+    "viewLabel": "View"
   },
   "content": {
     "types": {
@@ -20,48 +88,55 @@
       "article": "Article",
       "blog": "Blog"
     },
-    "readFull": "Full Text",
-    "readSummary": "Key Points",
-    "download": "Download PDF",
+    "lesson": "Lesson {number}",
+    "minRead": "{count} min read",
     "share": "Share",
     "copyLink": "Copy link",
-    "linkCopied": "Link copied!",
-    "readTime": "{minutes} min read",
-    "publishedOn": "Published {date}",
-    "noResults": "No content found",
-    "loadMore": "Load more"
-  },
-  "filters": {
-    "all": "All",
-    "search": "Search content...",
-    "category": "Category",
-    "type": "Type"
-  },
-  "admin": {
-    "dashboard": "Dashboard",
-    "upload": "Upload content",
-    "edit": "Edit",
-    "delete": "Delete",
-    "publish": "Publish",
-    "unpublish": "Unpublish",
-    "draft": "Draft",
-    "published": "Published",
-    "title": "Title",
-    "type": "Content type",
-    "category": "Category",
+    "linkCopied": "Link copied",
+    "copied": "Copied",
+    "downloadPdf": "Download PDF",
+    "fullText": "Full Text",
+    "keyPoints": "Key Points",
+    "pdfViewer": "PDF Viewer",
+    "plainText": "Plain Text",
+    "scriptureRefs": "Scripture references",
     "tags": "Tags",
-    "language": "Language",
-    "save": "Save",
-    "cancel": "Cancel",
-    "confirmDelete": "Are you sure you want to delete this item?"
+    "attachments": "Attachments",
+    "backToAll": "← Back to all content",
+    "pdfUnavailable": "PDF is currently unavailable.",
+    "breadcrumb": {
+      "home": "Home",
+      "content": "Content"
+    },
+    "translatedNotice": "This page was machine-translated. Some nuance may be lost.",
+    "pendingTranslationNotice": "This content is shown in its original language ({source}). A translation isn’t available yet."
   },
-  "errors": {
-    "notFound": "Page not found",
-    "serverError": "Something went wrong",
-    "tryAgain": "Try again"
+  "notFound": {
+    "label": "404",
+    "title": "Content not found",
+    "body": "The content you're looking for might have been removed or unpublished.",
+    "browse": "Browse all content"
   },
   "footer": {
-    "allRights": "All rights reserved",
-    "church": "Love Seal Church"
+    "tagline": "Manuals, prophecies, articles, and blog posts from {parent} — accessible, downloadable, and ready to share.",
+    "columns": {
+      "content": "Content",
+      "browse": "Browse",
+      "admin": "Admin"
+    },
+    "links": {
+      "manuals": "Manuals",
+      "prophecies": "Prophecies",
+      "articles": "Articles",
+      "blog": "Blog",
+      "allContent": "All content",
+      "home": "Home",
+      "signin": "Sign in"
+    },
+    "copyright": "© {year} {parent}. All rights reserved."
+  },
+  "languageSwitcher": {
+    "label": "Language",
+    "current": "Current language"
   }
 }

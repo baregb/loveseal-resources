@@ -13,9 +13,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    typedRoutes: true,
-  },
+  
 }
 
 export default withNextIntl(nextConfig)

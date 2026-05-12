@@ -1,67 +1,142 @@
 {
+  "brand": {
+    "byline": "بواسطة LoveSeal Church",
+    "shortName": "Lively Resources",
+    "parent": "LoveSeal Church"
+  },
   "nav": {
-    "home": "Home",
-    "manuals": "Manuals",
-    "prophecies": "Prophecies",
-    "articles": "Articles",
-    "blog": "Blog",
-    "search": "Search",
-    "menu": "Menu",
-    "close": "Close"
+    "home": "الرئيسية",
+    "all": "الكل",
+    "manuals": "أدلة",
+    "prophecies": "نبوءات",
+    "articles": "مقالات",
+    "blog": "المدونة",
+    "search": "البحث في المحتوى",
+    "menu": "افتح القائمة",
+    "close": "إغلاق",
+    "signin": "تسجيل الدخول"
   },
   "hero": {
-    "cta": "View all content",
-    "drag": "drag"
+    "eyebrow": "من {parent}",
+    "headlinePart1": "ما",
+    "headlinePart2": "الجديد",
+    "headlineHighlight": "الآن",
+    "viewAllLatest": "عرض كل الجديد",
+    "drag": "اسحب",
+    "empty": "لم يُنشر محتوى بعد. عُد قريبًا."
+  },
+  "featured": {
+    "title": "أبرز ما في هذا الأسبوع",
+    "allContent": "كل المحتوى"
+  },
+  "about": {
+    "eyebrow": "من نحن",
+    "headline": "مكتبة من {highlight}، مُعدّة ببساطة لكل موسم من مواسم الإيمان.",
+    "highlight": "الحقيقة",
+    "body": "من {parent} — أدلة عن التلمذة، كلمات نبوية لجسد المسيح، مقالات عن الإيمان والحياة، ومدونة تعليمية مستمرة. كل كلمة قابلة للمشاركة، بأي لغة، على أي جهاز.",
+    "stats": {
+      "types": "أنواع المحتوى",
+      "languages": "اللغات",
+      "readable": "قابل للقراءة",
+      "cost": "تكلفة الوصول"
+    }
+  },
+  "sections": {
+    "manuals": "أحدث الأدلة",
+    "prophecies": "النبوءات",
+    "articles": "المقالات",
+    "blog": "المدونة",
+    "viewAll": "عرض الكل"
+  },
+  "closingCta": {
+    "title1": "اقرأ.",
+    "title2": "شارك.",
+    "title3": "ضاعِف.",
+    "body": "كل دليل ونبوءة ومقال ومنشور قابل للمشاركة بضغطة واحدة. أرسل الحقيقة إلى من يحتاجها.",
+    "button": "تصفّح المكتبة"
+  },
+  "library": {
+    "eyebrow": "المكتبة",
+    "title": "كل المحتوى",
+    "itemsCount": "{count, plural, =0 {لا توجد عناصر} =1 {عنصر واحد} other {# عنصرًا}} متاح"
+  },
+  "filters": {
+    "title": "المرشّحات",
+    "search": "ابحث في العنوان والموضوع والآيات…",
+    "type": "النوع",
+    "theme": "الموضوع",
+    "speaker": "المتحدث",
+    "series": "السلسلة",
+    "clearAll": "مسح الكل",
+    "showCount": "عرض {count, plural, =0 {لا عناصر} =1 {عنصر واحد} other {# عنصرًا}}",
+    "noMatches": "لا يوجد محتوى يطابق المرشحات الحالية",
+    "noContent": "لم يُنشر محتوى بعد",
+    "uploadFirst": "ارفع العنصر الأول"
+  },
+  "results": {
+    "showing": "عرض",
+    "of": "من",
+    "items": "{count, plural, =0 {عناصر} =1 {عنصر} other {عناصر}}"
+  },
+  "card": {
+    "viewLabel": "عرض"
   },
   "content": {
     "types": {
-      "manual": "Manual",
-      "prophecy": "Prophecy",
-      "article": "Article",
-      "blog": "Blog"
+      "manual": "دليل",
+      "prophecy": "نبوءة",
+      "article": "مقال",
+      "blog": "مدونة"
     },
-    "readFull": "Full Text",
-    "readSummary": "Key Points",
-    "download": "Download PDF",
-    "share": "Share",
-    "copyLink": "Copy link",
-    "linkCopied": "Link copied!",
-    "readTime": "{minutes} min read",
-    "publishedOn": "Published {date}",
-    "noResults": "No content found",
-    "loadMore": "Load more"
+    "lesson": "الدرس {number}",
+    "minRead": "{count} دقيقة قراءة",
+    "share": "مشاركة",
+    "copyLink": "نسخ الرابط",
+    "linkCopied": "تم نسخ الرابط",
+    "copied": "تم النسخ",
+    "downloadPdf": "تنزيل PDF",
+    "fullText": "النص الكامل",
+    "keyPoints": "النقاط الرئيسية",
+    "pdfViewer": "عارض PDF",
+    "plainText": "نص عادي",
+    "scriptureRefs": "المراجع الكتابية",
+    "tags": "الوسوم",
+    "attachments": "المرفقات",
+    "backToAll": "→ العودة إلى كل المحتوى",
+    "pdfUnavailable": "ملف PDF غير متاح حاليًا.",
+    "breadcrumb": {
+      "home": "الرئيسية",
+      "content": "المحتوى"
+    },
+    "translatedNotice": "تمت ترجمة هذه الصفحة آليًا. قد تُفقد بعض الفروق الدقيقة.",
+    "pendingTranslationNotice": "يُعرض هذا المحتوى بلغته الأصلية ({source}). لا تتوفر ترجمة بعد."
   },
-  "filters": {
-    "all": "All",
-    "search": "Search content...",
-    "category": "Category",
-    "type": "Type"
-  },
-  "admin": {
-    "dashboard": "Dashboard",
-    "upload": "Upload content",
-    "edit": "Edit",
-    "delete": "Delete",
-    "publish": "Publish",
-    "unpublish": "Unpublish",
-    "draft": "Draft",
-    "published": "Published",
-    "title": "Title",
-    "type": "Content type",
-    "category": "Category",
-    "tags": "Tags",
-    "language": "Language",
-    "save": "Save",
-    "cancel": "Cancel",
-    "confirmDelete": "Are you sure you want to delete this item?"
-  },
-  "errors": {
-    "notFound": "Page not found",
-    "serverError": "Something went wrong",
-    "tryAgain": "Try again"
+  "notFound": {
+    "label": "404",
+    "title": "المحتوى غير موجود",
+    "body": "المحتوى الذي تبحث عنه ربما تمّ حذفه أو إلغاء نشره.",
+    "browse": "تصفّح كل المحتوى"
   },
   "footer": {
-    "allRights": "All rights reserved",
-    "church": "Love Seal Church"
+    "tagline": "أدلة ونبوءات ومقالات ومنشورات من {parent} — متاحة وقابلة للتنزيل وجاهزة للمشاركة.",
+    "columns": {
+      "content": "المحتوى",
+      "browse": "تصفّح",
+      "admin": "الإدارة"
+    },
+    "links": {
+      "manuals": "أدلة",
+      "prophecies": "نبوءات",
+      "articles": "مقالات",
+      "blog": "المدونة",
+      "allContent": "كل المحتوى",
+      "home": "الرئيسية",
+      "signin": "تسجيل الدخول"
+    },
+    "copyright": "© {year} {parent}. جميع الحقوق محفوظة."
+  },
+  "languageSwitcher": {
+    "label": "اللغة",
+    "current": "اللغة الحالية"
   }
 }

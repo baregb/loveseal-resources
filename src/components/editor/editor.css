@@ -1,0 +1,294 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   EDITOR STYLES
+   Applied to .lr-editor (the wrapper) and the ProseMirror content.
+   Uses theme tokens — works in both light and dark.
+   Uses logical properties (padding-inline-start, border-inline-start, etc.)
+   so published content renders correctly in RTL locales (Arabic).
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.lr-editor {
+  background: var(--bg-input);
+  border: 0.5px solid var(--border-strong);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  display: flex;
+  flex-direction: column;
+}
+
+.lr-editor:focus-within {
+  border-color: var(--brand-gold);
+}
+
+/* ── Toolbar ── */
+
+.lr-editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding: 6px 8px;
+  border-bottom: 0.5px solid var(--border-subtle);
+  flex-wrap: wrap;
+  position: sticky;
+  top: 60px;          /* sits below the admin topbar */
+  background: var(--bg-input);
+  z-index: 5;
+  border-radius: 8px 8px 0 0;
+}
+
+.lr-editor-toolbar button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: var(--text-tertiary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  transition: background 0.12s, color 0.12s;
+}
+
+.lr-editor-toolbar button:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.lr-editor-toolbar button.is-active {
+  background: var(--bg-elevated);
+  color: var(--brand-gold);
+}
+
+.lr-editor-toolbar button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.lr-editor-toolbar .toolbar-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border-subtle);
+  margin: 0 4px;
+}
+
+/* ── Content area ── */
+
+.lr-editor-content {
+  padding: 18px 22px;
+  min-height: 300px;
+  max-height: calc(100dvh - 280px);
+  overflow-y: auto;
+  color: var(--text-primary);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.lr-editor-content:focus {
+  outline: none;
+}
+
+.lr-editor-content > *:first-child { margin-top: 0; }
+.lr-editor-content > *:last-child  { margin-bottom: 0; }
+
+.lr-editor-content p {
+  margin: 0 0 0.75em;
+}
+
+.lr-editor-content h1,
+.lr-editor-content h2,
+.lr-editor-content h3,
+.lr-editor-content h4 {
+  font-family: var(--font-display), Barlow Condensed, sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 1.1;
+  margin: 1em 0 0.4em;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.lr-editor-content h1 { font-size: 28px; }
+.lr-editor-content h2 { font-size: 22px; }
+.lr-editor-content h3 { font-size: 18px; }
+.lr-editor-content h4 { font-size: 15px; letter-spacing: 0.04em; }
+
+.lr-editor-content ul,
+.lr-editor-content ol {
+  /* Logical property — flips automatically in RTL */
+  padding-inline-start: 24px;
+  margin: 0.5em 0 0.75em;
+}
+
+.lr-editor-content li {
+  margin: 0.2em 0;
+}
+
+.lr-editor-content li > p {
+  margin: 0;
+}
+
+.lr-editor-content blockquote {
+  /* Accent bar on the start side; flips in RTL */
+  border-inline-start: 3px solid var(--brand-gold);
+  padding: 8px 16px;
+  margin: 1em 0;
+  color: var(--text-secondary);
+  font-style: italic;
+  background: var(--bg-elevated);
+  /* Logical border-radius: end-start, end-end, start-end, start-start */
+  border-start-start-radius: 0;
+  border-start-end-radius: 6px;
+  border-end-end-radius: 6px;
+  border-end-start-radius: 0;
+}
+
+.lr-editor-content a {
+  color: var(--brand-blue);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.lr-editor-content code {
+  background: var(--bg-elevated);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.88em;
+  font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+  color: var(--brand-gold);
+}
+
+.lr-editor-content pre {
+  background: var(--bg-elevated);
+  padding: 14px 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1em 0;
+  border: 0.5px solid var(--border-subtle);
+}
+
+.lr-editor-content pre code {
+  background: transparent;
+  color: var(--text-primary);
+  padding: 0;
+}
+
+.lr-editor-content hr {
+  border: none;
+  border-top: 0.5px solid var(--border-strong);
+  margin: 2em 0;
+}
+
+.lr-editor-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1em 0;
+  display: block;
+}
+
+.lr-editor-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+  font-size: 0.92em;
+  border: 0.5px solid var(--border-strong);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.lr-editor-content th,
+.lr-editor-content td {
+  border: 0.5px solid var(--border-subtle);
+  padding: 8px 12px;
+  /* Logical — aligns to start edge of the writing direction */
+  text-align: start;
+  vertical-align: top;
+}
+
+.lr-editor-content th {
+  background: var(--bg-elevated);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* ── Task lists ── */
+
+.lr-editor-content ul[data-type="taskList"] {
+  list-style: none;
+  padding-inline-start: 4px;
+}
+
+.lr-editor-content ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.lr-editor-content ul[data-type="taskList"] input[type="checkbox"] {
+  margin-top: 5px;
+  cursor: pointer;
+  accent-color: var(--brand-gold);
+}
+
+/* ── Scripture callout ── */
+
+.lr-editor-content .scripture-callout {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, rgba(245,174,65,0.08) 0%, rgba(245,174,65,0.02) 100%);
+  border: 0.5px solid rgba(245,174,65,0.3);
+  border-inline-start: 3px solid var(--brand-gold);
+  /* Open corner on the start side, rounded on the end side */
+  border-start-start-radius: 0;
+  border-start-end-radius: 8px;
+  border-end-end-radius: 8px;
+  border-end-start-radius: 0;
+  margin: 1em 0;
+  font-style: normal;
+  color: var(--text-primary);
+}
+
+.lr-editor-content .scripture-ref {
+  font-family: var(--font-display), Barlow Condensed, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-gold);
+}
+
+.lr-editor-content .scripture-text {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+/* ── Placeholder ── */
+
+.lr-editor-content p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--text-faint);
+  pointer-events: none;
+  height: 0;
+  /* `float: inline-start` flips to the correct side in RTL.
+     Supported in all evergreen browsers since ~2021. */
+  float: inline-start;
+}
+
+/* ── Footer (word count) ── */
+
+.lr-editor-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border-top: 0.5px solid var(--border-subtle);
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  border-radius: 0 0 8px 8px;
+}

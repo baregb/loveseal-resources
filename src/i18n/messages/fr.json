@@ -1,67 +1,142 @@
 {
+  "brand": {
+    "byline": "par LoveSeal Church",
+    "shortName": "Lively Resources",
+    "parent": "LoveSeal Church"
+  },
   "nav": {
-    "home": "Home",
-    "manuals": "Manuals",
-    "prophecies": "Prophecies",
+    "home": "Accueil",
+    "all": "Tout",
+    "manuals": "Manuels",
+    "prophecies": "Prophéties",
     "articles": "Articles",
     "blog": "Blog",
-    "search": "Search",
-    "menu": "Menu",
-    "close": "Close"
+    "search": "Rechercher du contenu",
+    "menu": "Ouvrir le menu",
+    "close": "Fermer",
+    "signin": "Se connecter"
   },
   "hero": {
-    "cta": "View all content",
-    "drag": "drag"
+    "eyebrow": "De {parent}",
+    "headlinePart1": "Quoi de",
+    "headlinePart2": "neuf",
+    "headlineHighlight": "maintenant",
+    "viewAllLatest": "Voir toutes les nouveautés",
+    "drag": "glisser",
+    "empty": "Aucun contenu publié pour le moment. Revenez bientôt."
+  },
+  "featured": {
+    "title": "À la une cette semaine",
+    "allContent": "Tout le contenu"
+  },
+  "about": {
+    "eyebrow": "À propos",
+    "headline": "Une bibliothèque de {highlight}, présentée simplement pour chaque saison de la foi.",
+    "highlight": "vérité",
+    "body": "De {parent} — des manuels sur le discipulat, des paroles prophétiques pour le corps du Christ, des articles sur la foi et la vie, et un blog d'enseignement régulier. Chaque parole partageable, en n'importe quelle langue, sur n'importe quel appareil.",
+    "stats": {
+      "types": "Types de contenu",
+      "languages": "Langues",
+      "readable": "Lisible",
+      "cost": "Coût d'accès"
+    }
+  },
+  "sections": {
+    "manuals": "Derniers manuels",
+    "prophecies": "Prophéties",
+    "articles": "Articles",
+    "blog": "Blog",
+    "viewAll": "Voir tout"
+  },
+  "closingCta": {
+    "title1": "Lire.",
+    "title2": "Partager.",
+    "title3": "Multiplier.",
+    "body": "Chaque manuel, prophétie, article et publication peut être partagé d'un seul geste. Envoyez la vérité à qui en a besoin.",
+    "button": "Parcourir la bibliothèque"
+  },
+  "library": {
+    "eyebrow": "Bibliothèque",
+    "title": "Tout le contenu",
+    "itemsCount": "{count, plural, =0 {aucun élément} =1 {1 élément} other {# éléments}} disponibles"
+  },
+  "filters": {
+    "title": "Filtres",
+    "search": "Rechercher titre, thème, écriture…",
+    "type": "Type",
+    "theme": "Thème",
+    "speaker": "Orateur",
+    "series": "Série",
+    "clearAll": "Tout effacer",
+    "showCount": "Afficher {count, plural, =0 {aucun élément} =1 {1 élément} other {# éléments}}",
+    "noMatches": "Aucun contenu ne correspond aux filtres actuels",
+    "noContent": "Aucun contenu publié pour le moment",
+    "uploadFirst": "Importer le premier élément"
+  },
+  "results": {
+    "showing": "Affichage de",
+    "of": "sur",
+    "items": "{count, plural, =0 {éléments} =1 {élément} other {éléments}}"
+  },
+  "card": {
+    "viewLabel": "Voir"
   },
   "content": {
     "types": {
-      "manual": "Manual",
-      "prophecy": "Prophecy",
+      "manual": "Manuel",
+      "prophecy": "Prophétie",
       "article": "Article",
       "blog": "Blog"
     },
-    "readFull": "Full Text",
-    "readSummary": "Key Points",
-    "download": "Download PDF",
-    "share": "Share",
-    "copyLink": "Copy link",
-    "linkCopied": "Link copied!",
-    "readTime": "{minutes} min read",
-    "publishedOn": "Published {date}",
-    "noResults": "No content found",
-    "loadMore": "Load more"
+    "lesson": "Leçon {number}",
+    "minRead": "{count} min de lecture",
+    "share": "Partager",
+    "copyLink": "Copier le lien",
+    "linkCopied": "Lien copié",
+    "copied": "Copié",
+    "downloadPdf": "Télécharger le PDF",
+    "fullText": "Texte complet",
+    "keyPoints": "Points clés",
+    "pdfViewer": "Visionneuse PDF",
+    "plainText": "Texte brut",
+    "scriptureRefs": "Références bibliques",
+    "tags": "Étiquettes",
+    "attachments": "Pièces jointes",
+    "backToAll": "← Retour à tout le contenu",
+    "pdfUnavailable": "Le PDF n'est pas disponible actuellement.",
+    "breadcrumb": {
+      "home": "Accueil",
+      "content": "Contenu"
+    },
+    "translatedNotice": "Cette page a été traduite automatiquement. Certaines nuances peuvent être perdues.",
+    "pendingTranslationNotice": "Ce contenu est affiché dans sa langue d’origine ({source}). Aucune traduction n’est encore disponible."
   },
-  "filters": {
-    "all": "All",
-    "search": "Search content...",
-    "category": "Category",
-    "type": "Type"
-  },
-  "admin": {
-    "dashboard": "Dashboard",
-    "upload": "Upload content",
-    "edit": "Edit",
-    "delete": "Delete",
-    "publish": "Publish",
-    "unpublish": "Unpublish",
-    "draft": "Draft",
-    "published": "Published",
-    "title": "Title",
-    "type": "Content type",
-    "category": "Category",
-    "tags": "Tags",
-    "language": "Language",
-    "save": "Save",
-    "cancel": "Cancel",
-    "confirmDelete": "Are you sure you want to delete this item?"
-  },
-  "errors": {
-    "notFound": "Page not found",
-    "serverError": "Something went wrong",
-    "tryAgain": "Try again"
+  "notFound": {
+    "label": "404",
+    "title": "Contenu introuvable",
+    "body": "Le contenu que vous cherchez a peut-être été supprimé ou dépublié.",
+    "browse": "Parcourir tout le contenu"
   },
   "footer": {
-    "allRights": "All rights reserved",
-    "church": "Love Seal Church"
+    "tagline": "Manuels, prophéties, articles et publications de {parent} — accessibles, téléchargeables et prêts à être partagés.",
+    "columns": {
+      "content": "Contenu",
+      "browse": "Parcourir",
+      "admin": "Admin"
+    },
+    "links": {
+      "manuals": "Manuels",
+      "prophecies": "Prophéties",
+      "articles": "Articles",
+      "blog": "Blog",
+      "allContent": "Tout le contenu",
+      "home": "Accueil",
+      "signin": "Se connecter"
+    },
+    "copyright": "© {year} {parent}. Tous droits réservés."
+  },
+  "languageSwitcher": {
+    "label": "Langue",
+    "current": "Langue actuelle"
   }
 }
