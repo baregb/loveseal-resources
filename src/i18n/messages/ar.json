@@ -4,6 +4,14 @@
     "shortName": "Lively Resources",
     "parent": "LoveSeal Church"
   },
+  "meta": {
+    "homeTitle": "أدلة، نبوءات، مقالات ومدوّنة"
+  },
+  "manifest": {
+    "name": "Lively Resources — LoveSeal Church",
+    "shortName": "Lively Resources",
+    "description": "أدلة ونبوءات ومقالات ومدوّنة من LoveSeal Church."
+  },
   "nav": {
     "home": "الرئيسية",
     "all": "الكل",
@@ -31,8 +39,7 @@
   },
   "about": {
     "eyebrow": "من نحن",
-    "headline": "مكتبة من {highlight}، مُعدّة ببساطة لكل موسم من مواسم الإيمان.",
-    "highlight": "الحقيقة",
+    "headline": "مكتبة من <highlight>الحقيقة</highlight>، مُعدّة ببساطة لكل موسم من مواسم الإيمان.",
     "body": "من {parent} — أدلة عن التلمذة، كلمات نبوية لجسد المسيح، مقالات عن الإيمان والحياة، ومدونة تعليمية مستمرة. كل كلمة قابلة للمشاركة، بأي لغة، على أي جهاز.",
     "stats": {
       "types": "أنواع المحتوى",
@@ -138,5 +145,10 @@
   "languageSwitcher": {
     "label": "اللغة",
     "current": "اللغة الحالية"
+  },
+  "offline": {
+    "eyebrow": "لا يوجد اتصال",
+    "title": "أنت دون اتصال",
+    "body": "تحقق من اتصالك بالإنترنت وحاول مرة أخرى. الصفحات التي قرأتها من قبل ينبغي أن تبقى متاحة."
   }
 }

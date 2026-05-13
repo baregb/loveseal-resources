@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
 import { metadataAlternates, localeUrl } from '@/lib/locale-urls'
 import ContentReader from './ContentReader'
-import { ArticleSchema } from '@/components/brand/Schema'
+import { ArticlePageSchema } from '@/components/brand/Schema'
 import { BRAND } from '@/components/brand/Brand'
 import type { Locale } from '@/types'
 
@@ -114,6 +114,9 @@ export default async function PublicContentDetailPage({ params }: PageParams) {
   const { id, locale } = await params
   setRequestLocale(locale)
 
+  const tNav     = await getTranslations({ locale, namespace: 'nav' })
+  const tLibrary = await getTranslations({ locale, namespace: 'library' })
+
   const supabase = await createClient()
 
   const [{ data: rawItem }, { data: attachments }] = await Promise.all([
@@ -188,17 +191,29 @@ export default async function PublicContentDetailPage({ params }: PageParams) {
     description = item.extracted_text.replace(/\s+/g, ' ').trim().slice(0, 200)
   }
 
+  /* Breadcrumb: Home → Library → {article title}. The article title in the
+     last crumb reflects the translated title (item.title was overwritten
+     above if a translation exists). */
+  const articleUrl = localeUrl(locale, `/content/${item.id}`)
+  const breadcrumb = [
+    { name: tNav('home'),      url: localeUrl(locale, '') },
+    { name: tLibrary('title'), url: localeUrl(locale, '/content') },
+    { name: item.title,        url: articleUrl },
+  ]
+
   return (
     <>
-      <ArticleSchema
+      <ArticlePageSchema
         title={item.title}
         description={description || `${item.content_type} from ${BRAND.parent}`}
-        url={localeUrl(locale, `/content/${item.id}`)}
+        url={articleUrl}
         imageUrl={item.cover_image_url}
         authorName={item.speaker}
         publishedAt={item.created_at}
         updatedAt={item.updated_at}
         contentType={item.content_type}
+        breadcrumb={breadcrumb}
+        inLanguage={locale}
       />
       <ContentReader
         item={item}

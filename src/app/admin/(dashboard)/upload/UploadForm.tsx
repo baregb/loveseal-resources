@@ -201,6 +201,7 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
               minHeight: '110px', display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               {coverPreview ? (
+                // eslint-disable-next-line @next/next/no-img-element -- blob: URL from URL.createObjectURL, can't be optimized by next/image
                 <img src={coverPreview} alt="" style={{ width: '100%', height: '140px', objectFit: 'cover' }} />
               ) : (
                 <div style={{ textAlign: 'center', padding: '16px' }}>

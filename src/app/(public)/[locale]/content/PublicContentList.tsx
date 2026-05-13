@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo, useEffect } from 'react'
-import { useTranslations, useLocale } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { useSearchParams } from 'next/navigation'
 import ContentCard from '@/components/public/ContentCard'
 
@@ -33,9 +33,7 @@ export default function PublicContentList({ items }: { items: PublicItem[] }) {
   const t            = useTranslations('filters')
   const tResults     = useTranslations('results')
   const tContent     = useTranslations('content.types')
-  const locale       = useLocale()
   const searchParams = useSearchParams()
-  const isRtl        = locale === 'ar'
 
   const [layout, setLayout]                  = useState<Layout>('grid')
   const [search, setSearch]                  = useState('')

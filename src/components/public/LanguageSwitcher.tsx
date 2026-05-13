@@ -26,6 +26,8 @@ export default function LanguageSwitcher() {
   function changeLocale(next: AppLocale) {
     setOpen(false)
     startTransition(() => {
+      // @ts-expect-error -- next-intl typed router can't infer params from a
+      // generic pathname here; at runtime it derives them from the current URL.
       router.replace(pathname, { locale: next })
     })
   }

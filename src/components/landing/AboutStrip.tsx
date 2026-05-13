@@ -60,8 +60,11 @@ export default function AboutStrip() {
             maxWidth: '900px',
           }}>
             {t.rich('headline', {
-              highlight: () => (
-                <span style={{ color: 'var(--brand-gold)' }}>{t('highlight')}</span>
+              /* next-intl v4: rich-tag callbacks receive the inner content
+                 as `chunks` and must wrap it. The message uses
+                 <highlight>…</highlight> as a rich-text tag. */
+              highlight: (chunks) => (
+                <span style={{ color: 'var(--brand-gold)' }}>{chunks}</span>
               ),
             })}
           </p>

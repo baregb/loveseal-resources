@@ -4,6 +4,14 @@
     "shortName": "Lively Resources",
     "parent": "LoveSeal Church"
   },
+  "meta": {
+    "homeTitle": "Manuais, profecias, artigos e blog"
+  },
+  "manifest": {
+    "name": "Lively Resources — LoveSeal Church",
+    "shortName": "Lively Resources",
+    "description": "Manuais, profecias, artigos e blog da LoveSeal Church."
+  },
   "nav": {
     "home": "Início",
     "all": "Tudo",
@@ -31,8 +39,7 @@
   },
   "about": {
     "eyebrow": "Sobre",
-    "headline": "Uma biblioteca de {highlight}, apresentada de forma simples para cada estação de fé.",
-    "highlight": "verdade",
+    "headline": "Uma biblioteca de <highlight>verdade</highlight>, apresentada de forma simples para cada estação de fé.",
     "body": "De {parent} — manuais sobre discipulado, palavras proféticas para o corpo de Cristo, artigos sobre fé e vida, e um blog constante de ensino. Cada palavra compartilhável, em qualquer idioma, em qualquer dispositivo.",
     "stats": {
       "types": "Tipos de conteúdo",
@@ -83,10 +90,10 @@
   },
   "content": {
     "types": {
-      "manual":   "Manual",
+      "manual": "Manual",
       "prophecy": "Profecia",
-      "article":  "Artigo",
-      "blog":     "Blog"
+      "article": "Artigo",
+      "blog": "Blog"
     },
     "lesson": "Lição {number}",
     "minRead": "{count} min de leitura",
@@ -105,7 +112,7 @@
     "backToAll": "← Voltar a todo o conteúdo",
     "pdfUnavailable": "O PDF está indisponível no momento.",
     "breadcrumb": {
-      "home":    "Início",
+      "home": "Início",
       "content": "Conteúdo"
     }
   },
@@ -119,22 +126,27 @@
     "tagline": "Manuais, profecias, artigos e postagens de {parent} — acessíveis, baixáveis e prontos para compartilhar.",
     "columns": {
       "content": "Conteúdo",
-      "browse":  "Navegar",
-      "admin":   "Admin"
+      "browse": "Navegar",
+      "admin": "Admin"
     },
     "links": {
-      "manuals":     "Manuais",
-      "prophecies":  "Profecias",
-      "articles":    "Artigos",
-      "blog":        "Blog",
-      "allContent":  "Todo o conteúdo",
-      "home":        "Início",
-      "signin":      "Entrar"
+      "manuals": "Manuais",
+      "prophecies": "Profecias",
+      "articles": "Artigos",
+      "blog": "Blog",
+      "allContent": "Todo o conteúdo",
+      "home": "Início",
+      "signin": "Entrar"
     },
     "copyright": "© {year} {parent}. Todos os direitos reservados."
   },
   "languageSwitcher": {
     "label": "Idioma",
     "current": "Idioma atual"
+  },
+  "offline": {
+    "eyebrow": "Sem conexão",
+    "title": "Você está offline",
+    "body": "Verifique a sua conexão com a internet e tente novamente. As páginas que já leu devem continuar disponíveis."
   }
 }

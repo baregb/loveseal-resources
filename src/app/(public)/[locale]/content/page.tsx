@@ -1,7 +1,8 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
-import { metadataAlternates } from '@/lib/locale-urls'
+import { metadataAlternates, localeUrl } from '@/lib/locale-urls'
+import { CollectionPageSchema } from '@/components/brand/Schema'
 import PublicContentList from './PublicContentList'
 
 export const revalidate = 60
@@ -27,7 +28,8 @@ export default async function PublicContentPage({
   const { locale } = await params
   setRequestLocale(locale)
 
-  const t = await getTranslations({ locale, namespace: 'library' })
+  const tLibrary = await getTranslations({ locale, namespace: 'library' })
+  const tNav     = await getTranslations({ locale, namespace: 'nav' })
 
   const supabase = await createClient()
   const { data } = await supabase
@@ -42,12 +44,27 @@ export default async function PublicContentPage({
 
   const items = (data ?? []) as Parameters<typeof PublicContentList>[0]['items']
 
+  /* Breadcrumb: Home → Library. The final crumb (Library) points at this page. */
+  const pageUrl = localeUrl(locale, '/content')
+  const breadcrumb = [
+    { name: tNav('home'),         url: localeUrl(locale, '') },
+    { name: tLibrary('title'),    url: pageUrl },
+  ]
+
   return (
     <div style={{
       maxWidth: '1200px',
       margin: '0 auto',
       padding: '40px 24px 64px',
     }}>
+      <CollectionPageSchema
+        title={tLibrary('title')}
+        description={tLibrary('itemsCount', { count: items.length })}
+        url={pageUrl}
+        breadcrumb={breadcrumb}
+        inLanguage={locale}
+      />
+
       <div style={{ marginBottom: '28px' }}>
         <p style={{
           fontSize: '11px',
@@ -57,7 +74,7 @@ export default async function PublicContentPage({
           color: 'var(--brand-gold)',
           marginBottom: '10px',
         }}>
-          {t('eyebrow')}
+          {tLibrary('eyebrow')}
         </p>
         <h1 style={{
           fontFamily: 'var(--font-display), Barlow Condensed, sans-serif',
@@ -69,13 +86,13 @@ export default async function PublicContentPage({
           letterSpacing: '-0.02em',
           marginBottom: '8px',
         }}>
-          {t('title')}
+          {tLibrary('title')}
         </h1>
         <p style={{
           fontSize: '14px',
           color: 'var(--text-tertiary)',
         }}>
-          {t('itemsCount', { count: items.length })}
+          {tLibrary('itemsCount', { count: items.length })}
         </p>
       </div>
 

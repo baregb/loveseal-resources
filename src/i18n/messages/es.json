@@ -4,6 +4,14 @@
     "shortName": "Lively Resources",
     "parent": "LoveSeal Church"
   },
+  "meta": {
+    "homeTitle": "Manuales, profecías, artículos y blog"
+  },
+  "manifest": {
+    "name": "Lively Resources — LoveSeal Church",
+    "shortName": "Lively Resources",
+    "description": "Manuales, profecías, artículos y blog de LoveSeal Church."
+  },
   "nav": {
     "home": "Início",
     "all": "Tudo",
@@ -31,8 +39,7 @@
   },
   "about": {
     "eyebrow": "Sobre",
-    "headline": "Uma biblioteca de {highlight}, apresentada de forma simples para cada estação de fé.",
-    "highlight": "verdade",
+    "headline": "Uma biblioteca de <highlight>verdade</highlight>, apresentada de forma simples para cada estação de fé.",
     "body": "De {parent} — manuais sobre discipulado, palavras proféticas para o corpo de Cristo, artigos sobre fé e vida, e um blog constante de ensino. Cada palavra compartilhável, em qualquer idioma, em qualquer dispositivo.",
     "stats": {
       "types": "Tipos de conteúdo",
@@ -138,5 +145,10 @@
   "languageSwitcher": {
     "label": "Idioma",
     "current": "Idioma atual"
+  },
+  "offline": {
+    "eyebrow": "Sin conexión",
+    "title": "Estás sin conexión",
+    "body": "Comprueba tu conexión a internet e inténtalo de nuevo. Las páginas que ya has leído deberían seguir disponibles."
   }
 }

@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import Link from 'next/link'
 import EditForm from './EditForm'
 
 export const metadata = { title: 'Edit content' }
@@ -35,13 +36,13 @@ export default async function ContentEditPage({
   return (
     <div>
       <div style={{ marginBottom: '20px' }}>
-        <a href="/admin/content" style={{
+        <Link href="/admin/content" style={{
           fontSize: '12px',
           color: 'var(--text-tertiary)',
           textDecoration: 'none',
         }}>
           ← Back to content
-        </a>
+        </Link>
       </div>
       <div style={{ marginBottom: '24px' }}>
         <p style={{

@@ -16,12 +16,12 @@ export default function PublicHeader() {
 
   // Build nav links with translated labels (computed each render so locale switches refresh)
   const navLinks = [
-    { href: '/' as const,                                                     label: t('home') },
-    { href: '/content' as const,                                              label: t('all') },
-    { href: { pathname: '/content', query: { type: 'manual' } },              label: t('manuals') },
-    { href: { pathname: '/content', query: { type: 'prophecy' } },            label: t('prophecies') },
-    { href: { pathname: '/content', query: { type: 'article' } },             label: t('articles') },
-    { href: { pathname: '/content', query: { type: 'blog' } },                label: t('blog') },
+    { href: '/' as const,                                                          label: t('home') },
+    { href: '/content' as const,                                                   label: t('all') },
+    { href: { pathname: '/content' as const, query: { type: 'manual'   } },        label: t('manuals') },
+    { href: { pathname: '/content' as const, query: { type: 'prophecy' } },        label: t('prophecies') },
+    { href: { pathname: '/content' as const, query: { type: 'article'  } },        label: t('articles') },
+    { href: { pathname: '/content' as const, query: { type: 'blog'     } },        label: t('blog') },
   ]
 
   useEffect(() => {

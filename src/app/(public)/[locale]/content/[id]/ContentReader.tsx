@@ -69,7 +69,6 @@ export default function ContentReader({
   const tTypes   = useTranslations('content.types')
   const tBread   = useTranslations('content.breadcrumb')
   const locale   = useLocale()
-  const isRtl    = locale === 'ar'
 
   const [mode, setMode]             = useState<ReadMode>('full')
   const [linkCopied, setLinkCopied] = useState(false)

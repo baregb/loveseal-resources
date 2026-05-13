@@ -24,11 +24,11 @@ export async function generateMetadata({
   const { locale } = await params
   if (!hasLocale(routing.locales, locale)) return {}
 
-  const t = await getTranslations({ locale, namespace: 'hero' })
+  const t = await getTranslations({ locale, namespace: 'meta' })
 
   return {
     /* Title comes from the hero translations; fallback to the root template. */
-    title:      t('headline'),
+    title:      t('homeTitle'),
     alternates: metadataAlternates(locale, ''),
   }
 }

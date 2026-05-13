@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
+import NextLink from 'next/link'
 import { BrandName, BRAND } from '@/components/brand/Brand'
 
 export default function PublicFooter() {
@@ -54,8 +55,8 @@ export default function PublicFooter() {
               <FooterLink href="/">{t('links.home')}</FooterLink>
             </FooterColumn>
             <FooterColumn label={t('columns.admin')}>
-              {/* Admin is locale-agnostic - use plain anchor */}
-              <a href="/admin/login" style={footerLinkStyle}>{t('links.signin')}</a>
+              {/* Admin is locale-agnostic — use next/link directly */}
+              <NextLink href="/admin/login" style={footerLinkStyle}>{t('links.signin')}</NextLink>
             </FooterColumn>
           </div>
         </div>
@@ -109,14 +110,15 @@ function FooterColumn({ label, children }: { label: string; children: React.Reac
   )
 }
 
-interface FooterLinkProps {
-  href:     string | { pathname: string; query?: Record<string, string> }
+type FooterLinkProps = {
+  /* Mirror the typed Link's href shape so dynamic and query-bearing paths
+     are accepted without a directive. */
+  href:     React.ComponentProps<typeof Link>['href']
   children: React.ReactNode
 }
 
 function FooterLink({ href, children }: FooterLinkProps) {
   return (
-    // @ts-expect-error -- next-intl Link href accepts both strings and pathname objects at runtime
     <Link href={href} style={footerLinkStyle}>{children}</Link>
   )
 }

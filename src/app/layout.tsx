@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import { ThemeProvider } from '@/components/theme/ThemeProvider'
 import { themeScript } from '@/lib/theme-script'
+import ServiceWorkerRegister from '@/components/pwa/ServiceWorkerRegister'
 import '@/styles/globals.css'
 
 const barlowCondensed = Barlow_Condensed({
@@ -24,8 +25,26 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'),
-  title:       { default: 'Lively Resources', template: '%s | Lively Resources' },
-  description: 'Manuals, Prophecies, Articles, and Blog from LoveSeal Church — Lively Resources for the Body of Christ.',
+  title:        { default: 'Lively Resources', template: '%s | Lively Resources' },
+  description:  'Manuals, Prophecies, Articles, and Blog from LoveSeal Church — Lively Resources for the Body of Christ.',
+  manifest:     '/manifest.webmanifest',
+  applicationName: 'Lively Resources',
+  appleWebApp: {
+    capable:       true,
+    statusBarStyle: 'black-translucent',
+    title:         'Lively Resources',
+  },
+  icons: {
+    /* Standard tab favicon — multi-resolution .ico for broad legacy support. */
+    icon:     [{ url: '/icons/favicon.ico', sizes: 'any' }],
+    /* iOS home-screen icon. iOS ignores the manifest's `icons` array, so this
+       <link rel="apple-touch-icon"> is the only way to control its install image. */
+    apple:    [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
+  },
+  formatDetection: {
+    /* Stop iOS Safari auto-linking phone numbers in article text. */
+    telephone: false,
+  },
 }
 
 export const viewport: Viewport = {
@@ -63,6 +82,8 @@ export default async function RootLayout({
             {children}
           </NextIntlClientProvider>
         </ThemeProvider>
+        {/* Registers /sw.js in production only. Renders nothing. */}
+        <ServiceWorkerRegister />
       </body>
     </html>
   )

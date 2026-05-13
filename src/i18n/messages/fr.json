@@ -4,6 +4,14 @@
     "shortName": "Lively Resources",
     "parent": "LoveSeal Church"
   },
+  "meta": {
+    "homeTitle": "Manuels, prophéties, articles et blog"
+  },
+  "manifest": {
+    "name": "Lively Resources — LoveSeal Church",
+    "shortName": "Lively Resources",
+    "description": "Manuels, prophéties, articles et blog de LoveSeal Church."
+  },
   "nav": {
     "home": "Accueil",
     "all": "Tout",
@@ -31,8 +39,7 @@
   },
   "about": {
     "eyebrow": "À propos",
-    "headline": "Une bibliothèque de {highlight}, présentée simplement pour chaque saison de la foi.",
-    "highlight": "vérité",
+    "headline": "Une bibliothèque de <highlight>vérité</highlight>, présentée simplement pour chaque saison de la foi.",
     "body": "De {parent} — des manuels sur le discipulat, des paroles prophétiques pour le corps du Christ, des articles sur la foi et la vie, et un blog d'enseignement régulier. Chaque parole partageable, en n'importe quelle langue, sur n'importe quel appareil.",
     "stats": {
       "types": "Types de contenu",
@@ -138,5 +145,10 @@
   "languageSwitcher": {
     "label": "Langue",
     "current": "Langue actuelle"
+  },
+  "offline": {
+    "eyebrow": "Pas de connexion",
+    "title": "Vous êtes hors ligne",
+    "body": "Vérifiez votre connexion internet et réessayez. Les pages déjà consultées devraient rester accessibles."
   }
 }
