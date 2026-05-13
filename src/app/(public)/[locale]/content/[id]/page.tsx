@@ -8,7 +8,7 @@ import { ArticlePageSchema } from '@/components/brand/Schema'
 import { BRAND } from '@/components/brand/Brand'
 import type { Locale } from '@/types'
 
-export const revalidate = 60
+export const revalidate = 3600
 
 interface PageParams {
   params: Promise<{ id: string; locale: string }>

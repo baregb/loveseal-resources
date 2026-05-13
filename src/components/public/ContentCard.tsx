@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslations, useLocale } from 'next-intl'
+import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 
 interface ContentItemForCard {
@@ -56,19 +57,32 @@ export default function ContentCard({
         }}
       >
         <div style={{
+          /* `position: relative` is required by <Image fill>. The width/height
+             stays explicit so the image's intrinsic ratio doesn't drive layout. */
+          position: 'relative',
           width: '64px',
           height: '64px',
           borderRadius: '8px',
           overflow: 'hidden',
           flexShrink: 0,
           background: item.cover_image_url
-            ? `url(${item.cover_image_url}) center/cover`
+            ? undefined
             : `linear-gradient(135deg, ${typeColor}22 0%, ${typeColor}08 100%)`,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-          {!item.cover_image_url && (
+          {item.cover_image_url ? (
+            /* sizes hint matches the rendered width; Next picks the closest
+               srcset entry. List cover is a fixed 64px so the hint is exact. */
+            <Image
+              src={item.cover_image_url}
+              alt=""
+              fill
+              sizes="64px"
+              style={{ objectFit: 'cover' }}
+            />
+          ) : (
             <span style={{ fontSize: '24px', opacity: 0.4 }}>{typeIcon(item.content_type)}</span>
           )}
         </div>
@@ -129,17 +143,28 @@ export default function ContentCard({
       <div style={{
         aspectRatio: '4 / 3',
         background: item.cover_image_url
-          ? `url(${item.cover_image_url}) center/cover`
+          ? undefined
           : `linear-gradient(135deg, ${typeColor}33 0%, ${typeColor}0a 100%)`,
         position: 'relative',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        {!item.cover_image_url && (
+        {item.cover_image_url ? (
+          /* Grid cover is responsive (minmax(240px, 1fr) in PublicContentList).
+             At max screen width with 4-up layout that's ~280-300px wide; on
+             mobile it's ~340px. The sizes hint covers both viewports. */
+          <Image
+            src={item.cover_image_url}
+            alt=""
+            fill
+            sizes="(max-width: 820px) 100vw, (max-width: 1200px) 33vw, 25vw"
+            style={{ objectFit: 'cover' }}
+          />
+        ) : (
           <span style={{ fontSize: '48px', opacity: 0.35 }}>{typeIcon(item.content_type)}</span>
         )}
-        <div style={{ position: 'absolute', top: '10px', insetInlineStart: '10px' }}>
+        <div style={{ position: 'absolute', top: '10px', insetInlineStart: '10px', zIndex: 1 }}>
           <TypePill type={item.content_type} label={tTypes(item.content_type)} />
         </div>
       </div>

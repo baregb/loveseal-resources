@@ -5,7 +5,7 @@ import { metadataAlternates, localeUrl } from '@/lib/locale-urls'
 import { CollectionPageSchema } from '@/components/brand/Schema'
 import PublicContentList from './PublicContentList'
 
-export const revalidate = 60
+export const revalidate = 3600
 
 export async function generateMetadata({
   params,
@@ -96,7 +96,7 @@ export default async function PublicContentPage({
         </p>
       </div>
 
-      <PublicContentList items={items} />
+      <PublicContentList items={items} locale={locale} />
     </div>
   )
 }

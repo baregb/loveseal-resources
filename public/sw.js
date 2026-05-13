@@ -1,4 +1,3 @@
-/* eslint-disable no-restricted-globals */
 /**
  * Lively Resources — Service Worker
  *

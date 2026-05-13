@@ -173,6 +173,7 @@ export type Database = {
           translated_at: string
           created_at: string
           updated_at: string
+          search_vector: string | null
         }
         Insert: {
           id?: string
@@ -190,6 +191,7 @@ export type Database = {
           translated_at?: string
           created_at?: string
           updated_at?: string
+          search_vector?: string | null
         }
         Update: {
           id?: string
@@ -207,6 +209,7 @@ export type Database = {
           translated_at?: string
           created_at?: string
           updated_at?: string
+          search_vector?: string | null
         }
       }
       admin_users: {
@@ -281,7 +284,12 @@ export type Database = {
       }
     }
     Views: { [_ in never]: never }
-    Functions: { [_ in never]: never }
+    Functions: {
+      search_content: {
+        Args: { q: string; search_locale?: string }
+        Returns: { id: string; rank: number }[]
+      }
+    }
     Enums: {
       content_type: 'manual' | 'prophecy' | 'article' | 'blog'
       content_status: 'draft' | 'published'

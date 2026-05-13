@@ -7,12 +7,16 @@ import { themeScript } from '@/lib/theme-script'
 import ServiceWorkerRegister from '@/components/pwa/ServiceWorkerRegister'
 import '@/styles/globals.css'
 
+/* Barlow Condensed is the display font: hero headline, all H1s, all H2s, all
+   ContentCard titles, all section eyebrows. It IS the LCP-eligible text on
+   most pages, so preloading it is a real LCP win. The body font (DM Sans) is
+   used for everything else and isn't on the LCP path — leave it unpreloaded. */
 const barlowCondensed = Barlow_Condensed({
   weight: ['400', '700', '900'],
   subsets: ['latin'],
   variable: '--font-barlow',
   display: 'swap',
-  preload: false,
+  preload: true,
 })
 
 const dmSans = DM_Sans({

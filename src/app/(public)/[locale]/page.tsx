@@ -1,13 +1,39 @@
 import { getTranslations, setRequestLocale } from 'next-intl/server'
+import dynamic from 'next/dynamic'
 import { Link } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabase/server'
 import ContentCard from '@/components/public/ContentCard'
-import LandingHero from '@/components/landing/LandingHero'
 import AboutStrip from '@/components/landing/AboutStrip'
 import FeaturedSection from '@/components/landing/FeaturedSection'
 import RevealOnScroll from '@/components/landing/RevealOnScroll'
 
-export const revalidate = 60
+/* Dynamic-import LandingHero so framer-motion (~40KB gzipped) doesn't ship in
+   the initial bundle. SSR is preserved (no LCP regression on the hero markup),
+   but the client chunk is code-split and loads after the initial HTML/CSS,
+   unblocking hydration of the rest of the page. */
+const LandingHero = dynamic(() => import('@/components/landing/LandingHero'))
+
+/* HeroItem is duplicated locally because `Parameters<typeof LandingHero>` no
+   longer resolves once the component is wrapped by next/dynamic — the dynamic
+   wrapper type is opaque. Kept in shape sync with the interface in
+   LandingHero.tsx; if you add a field there, mirror it here. */
+interface HeroItem {
+  id:              string
+  title:           string
+  content_type:    'manual' | 'prophecy' | 'article' | 'blog'
+  theme:           string | null
+  speaker:         string | null
+  cover_image_url: string | null
+  created_at:      string
+}
+
+/* 1-hour ISR window. The public site is primarily refreshed on demand by
+   `revalidatePath` calls from admin content actions (publish/unpublish/update/
+   delete) and translate-actions — see docs/isr-and-revalidation.md. The 3600s
+   window is a safety net for any code path that mutates content without
+   calling revalidatePath. (Pure `force-static` would be cleaner but doesn't
+   work here because createClient() reads cookies, which is a dynamic API.) */
+export const revalidate = 3600
 
 export default async function HomePage({
   params,
@@ -29,7 +55,7 @@ export default async function HomePage({
     .order('created_at', { ascending: false })
     .limit(8)
 
-  const heroItems = (heroData ?? []) as Parameters<typeof LandingHero>[0]['items']
+  const heroItems = (heroData ?? []) as HeroItem[]
 
   const { data: featuredData } = await supabase
     .from('content')

@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslations, useLocale } from 'next-intl'
+import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import RevealOnScroll from './RevealOnScroll'
 
@@ -117,14 +118,24 @@ function PrimaryCard({ item, typeLabel, locale }: { item: FeaturedItem; typeLabe
         flex: 1.4,
         position: 'relative',
         background: item.cover_image_url
-          ? `url(${item.cover_image_url}) center/cover`
+          ? undefined
           : `linear-gradient(135deg, ${typeColor}55 0%, ${typeColor}11 100%)`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: '240px',
       }}>
-        {!item.cover_image_url && (
+        {item.cover_image_url ? (
+          /* Primary card spans 1.4fr of a 1200px max-width column → ~600px wide
+             on desktop, full width on mobile. */
+          <Image
+            src={item.cover_image_url}
+            alt=""
+            fill
+            sizes="(max-width: 820px) 100vw, 600px"
+            style={{ objectFit: 'cover' }}
+          />
+        ) : (
           <span style={{ fontSize: '72px', opacity: 0.35 }}>
             {item.content_type === 'manual'    ? '📘'
              : item.content_type === 'prophecy' ? '🕊'
@@ -144,6 +155,7 @@ function PrimaryCard({ item, typeLabel, locale }: { item: FeaturedItem; typeLabe
           textTransform: 'uppercase',
           padding: '4px 11px',
           borderRadius: '999px',
+          zIndex: 1,
         }}>
           {typeLabel}
         </span>
@@ -204,18 +216,28 @@ function SecondaryCard({ item, typeLabel, locale }: { item: FeaturedItem; typeLa
       }}
     >
       <div style={{
+        position: 'relative',
         width: '88px',
         height: '88px',
         borderRadius: '10px',
+        overflow: 'hidden',
         background: item.cover_image_url
-          ? `url(${item.cover_image_url}) center/cover`
+          ? undefined
           : `linear-gradient(135deg, ${typeColor}33 0%, ${typeColor}0a 100%)`,
         flexShrink: 0,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        {!item.cover_image_url && (
+        {item.cover_image_url ? (
+          <Image
+            src={item.cover_image_url}
+            alt=""
+            fill
+            sizes="88px"
+            style={{ objectFit: 'cover' }}
+          />
+        ) : (
           <span style={{ fontSize: '32px', opacity: 0.4 }}>
             {item.content_type === 'manual'    ? '📘'
              : item.content_type === 'prophecy' ? '🕊'
@@ -229,7 +251,7 @@ function SecondaryCard({ item, typeLabel, locale }: { item: FeaturedItem; typeLa
           display: 'inline-block',
           fontSize: '10px',
           fontWeight: 500,
-          letterSpacing: '0.06em',
+          letterSpacing: '0.08em',
           textTransform: 'uppercase',
           color: typeColor,
           marginBottom: '4px',
@@ -241,14 +263,14 @@ function SecondaryCard({ item, typeLabel, locale }: { item: FeaturedItem; typeLa
           fontSize: '14px',
           fontWeight: 500,
           color: 'var(--text-primary)',
+          marginBottom: '4px',
           lineHeight: 1.3,
-          margin: '0 0 4px',
           textTransform: 'none',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
           display: '-webkit-box',
           WebkitLineClamp: 2,
           WebkitBoxOrient: 'vertical',
-          overflow: 'hidden',
-          letterSpacing: 0,
         }}>
           {item.title}
         </h4>

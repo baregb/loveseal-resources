@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence, type PanInfo } from 'framer-motion'
 import { useTranslations, useLocale } from 'next-intl'
+import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { BRAND } from '@/components/brand/Brand'
 
@@ -337,14 +338,27 @@ function Card({
         position: 'absolute',
         inset: '14px',
         borderRadius: '14px',
+        overflow: 'hidden',
         background: item.cover_image_url
-          ? `url(${item.cover_image_url}) center/cover`
+          ? undefined
           : `linear-gradient(135deg, ${typeColor}66 0%, ${typeColor}22 100%)`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        {!item.cover_image_url && (
+        {item.cover_image_url ? (
+          /* Active card image gets `priority` so Next preloads it — it's the
+             LCP candidate on the home page. Inactive cards still load but
+             without priority (no preload <link> tag emitted for them). */
+          <Image
+            src={item.cover_image_url}
+            alt=""
+            fill
+            sizes="(max-width: 820px) 280px, 300px"
+            priority={isActive}
+            style={{ objectFit: 'cover' }}
+          />
+        ) : (
           <span style={{ fontSize: '64px', opacity: 0.4 }}>
             {item.content_type === 'manual'    ? '📘'
              : item.content_type === 'prophecy' ? '🕊'

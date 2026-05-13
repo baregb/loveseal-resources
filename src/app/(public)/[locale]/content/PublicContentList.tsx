@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { useSearchParams } from 'next/navigation'
 import ContentCard from '@/components/public/ContentCard'
+import { searchContentAction } from './search-action'
 
 interface PublicItem {
   id: string
@@ -29,7 +30,40 @@ const TYPE_COLORS: Record<string, string> = {
 
 type Layout = 'grid' | 'list'
 
-export default function PublicContentList({ items }: { items: PublicItem[] }) {
+/* Debounce window for the FTS server call. 250ms is the sweet spot: responsive
+   on a desktop keystroke, but not chatty enough to fire on every char during
+   sustained typing. */
+const SEARCH_DEBOUNCE_MS = 250
+
+/* Minimum query length before we hit the server. Single-char queries return
+   noise and waste round-trips. Mirrors the same guard inside searchContent(). */
+const SEARCH_MIN_CHARS = 2
+
+interface FtsState {
+  /** The query string the result was computed against. */
+  forQuery: string
+  /** Whether the server ran the FTS query (vs. returning empty due to short input). */
+  ran: boolean
+  /** Map of content_id → rank, for fast intersection in the filter memo. */
+  rankById: Map<string, number>
+  /** True while a request is in flight against the current query. */
+  loading: boolean
+}
+
+const FTS_INITIAL: FtsState = {
+  forQuery: '',
+  ran:      false,
+  rankById: new Map(),
+  loading:  false,
+}
+
+export default function PublicContentList({
+  items,
+  locale,
+}: {
+  items:  PublicItem[]
+  locale: string
+}) {
   const t            = useTranslations('filters')
   const tResults     = useTranslations('results')
   const tContent     = useTranslations('content.types')
@@ -42,6 +76,7 @@ export default function PublicContentList({ items }: { items: PublicItem[] }) {
   const [selectedSpeakers, setSelectedSpeakers] = useState<Set<string>>(new Set())
   const [selectedSeries, setSelectedSeries]  = useState<Set<string>>(new Set())
   const [filtersOpen, setFiltersOpen]        = useState(false)
+  const [fts, setFts]                        = useState<FtsState>(FTS_INITIAL)
 
   useEffect(() => {
     const saved = localStorage.getItem('lr-layout')
@@ -60,24 +95,72 @@ export default function PublicContentList({ items }: { items: PublicItem[] }) {
     }
   }, [searchParams])
 
+  /* ── FTS effect ──────────────────────────────────────────────────────────
+     Debounce keystrokes, then call the server. The cancellation pattern
+     guards against a slow earlier request landing after a faster later
+     request and overwriting fresher results.                                 */
+  useEffect(() => {
+    const trimmed = search.trim()
+
+    // Short / empty input: reset to "no server search". The facet filter
+    // logic alone takes over.
+    if (trimmed.length < SEARCH_MIN_CHARS) {
+      setFts(prev => prev === FTS_INITIAL ? prev : FTS_INITIAL)
+      return
+    }
+
+    let cancelled = false
+    setFts(s => ({ ...s, loading: true }))
+
+    const timer = setTimeout(async () => {
+      const result = await searchContentAction(trimmed, locale)
+      if (cancelled) return
+
+      const rankById = new Map<string, number>()
+      result.hits.forEach(h => rankById.set(h.id, h.rank))
+
+      setFts({
+        forQuery: trimmed,
+        ran:      result.ran,
+        rankById,
+        loading:  false,
+      })
+    }, SEARCH_DEBOUNCE_MS)
+
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [search, locale])
+
   const filteredItems = useMemo(() => {
-    const q = search.toLowerCase().trim()
-    return items.filter(item => {
+    /* When an FTS search has run, intersect items with the matched ID set
+       and sort by rank (descending). When no FTS search has run (empty/short
+       input), keep the original `items` order (already sorted by created_at
+       descending from the server query). */
+    const ftsApplies = fts.ran && fts.forQuery === search.trim()
+
+    const facetFiltered = items.filter(item => {
       if (selectedTypes.size    && !selectedTypes.has(item.content_type)) return false
       if (selectedThemes.size   && (!item.theme   || !selectedThemes.has(item.theme)))     return false
       if (selectedSpeakers.size && (!item.speaker || !selectedSpeakers.has(item.speaker))) return false
       if (selectedSeries.size   && (!item.series  || !selectedSeries.has(item.series)))    return false
-      if (q) {
-        const haystack = [
-          item.title, item.theme ?? '', item.speaker ?? '', item.series ?? '',
-          ...item.tags, ...item.scripture_refs,
-        ].join(' ').toLowerCase()
-        if (!haystack.includes(q)) return false
-      }
+      if (ftsApplies && !fts.rankById.has(item.id))                                        return false
       return true
     })
-  }, [items, search, selectedTypes, selectedThemes, selectedSpeakers, selectedSeries])
 
+    if (ftsApplies) {
+      // Sort by rank desc; items not in the rank map can't appear here (filtered above).
+      return facetFiltered.sort((a, b) =>
+        (fts.rankById.get(b.id) ?? 0) - (fts.rankById.get(a.id) ?? 0)
+      )
+    }
+    return facetFiltered
+  }, [items, search, selectedTypes, selectedThemes, selectedSpeakers, selectedSeries, fts])
+
+  /* Facet counts are computed on the in-memory items (not FTS-filtered) so
+     the sidebar always reflects the true corpus shape, not just current
+     search hits. This matches the existing behavior. */
   const facets = useMemo(() => {
     function buildCount(key: keyof PublicItem, ignoredFilter: Set<string>, predicate: (i: PublicItem) => boolean) {
       const result: Record<string, number> = {}
@@ -141,25 +224,44 @@ export default function PublicContentList({ items }: { items: PublicItem[] }) {
       maxHeight: 'calc(100dvh - 88px)',
       overflowY: 'auto',
     }}>
-      <input
-        type="text"
-        placeholder={t('search')}
-        value={search}
-        onChange={e => setSearch(e.target.value)}
-        style={{
-          width: '100%',
-          padding: '9px 12px',
-          background: 'var(--bg-input)',
-          border: '0.5px solid var(--border-strong)',
-          borderRadius: '7px',
-          color: 'var(--text-primary)',
-          fontSize: '13px',
-          fontFamily: 'var(--font-body)',
-          outline: 'none',
-          marginBottom: '20px',
-          textAlign: 'start',
-        }}
-      />
+      <div style={{ position: 'relative', marginBottom: '20px' }}>
+        <input
+          type="text"
+          placeholder={t('search')}
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '9px 12px',
+            paddingInlineEnd: fts.loading ? '34px' : '12px',
+            background: 'var(--bg-input)',
+            border: '0.5px solid var(--border-strong)',
+            borderRadius: '7px',
+            color: 'var(--text-primary)',
+            fontSize: '13px',
+            fontFamily: 'var(--font-body)',
+            outline: 'none',
+            textAlign: 'start',
+          }}
+        />
+        {fts.loading && (
+          <span
+            aria-hidden
+            style={{
+              position: 'absolute',
+              insetInlineEnd: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              width: '12px',
+              height: '12px',
+              border: '1.5px solid var(--text-muted)',
+              borderTopColor: 'transparent',
+              borderRadius: '50%',
+              animation: 'lr-search-spin 0.7s linear infinite',
+            }}
+          />
+        )}
+      </div>
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
         <span style={{
@@ -424,6 +526,7 @@ export default function PublicContentList({ items }: { items: PublicItem[] }) {
           .content-grid-wrapper    { grid-template-columns: 1fr !important; }
         }
         @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes lr-search-spin { from { transform: translateY(-50%) rotate(0deg) } to { transform: translateY(-50%) rotate(360deg) } }
       `}</style>
     </div>
   )

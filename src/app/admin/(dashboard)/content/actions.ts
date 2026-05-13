@@ -12,6 +12,20 @@ interface ActionResult {
 }
 
 /**
+ * Invalidates the entire public site. Used by content mutations that change
+ * what visitors see. Heavier than per-page invalidation, but bulletproof: it
+ * catches every locale + the home/list/detail variants + the sitemap.
+ *
+ * Trade-off: a single admin click rebuilds-on-next-visit the whole public
+ * site rather than one page. For a content site at this scale (≤dozens of
+ * edits per day) that's fine; per-path revalidation would be fiddly to keep
+ * in sync as new public routes get added.
+ */
+function revalidatePublicSite() {
+  revalidatePath('/', 'layout')
+}
+
+/**
  * Toggle a content item's status between draft and published.
  * Logs the action to audit_log.
  */
@@ -51,6 +65,7 @@ export async function toggleContentStatus(id: string): Promise<ActionResult> {
 
   revalidatePath('/admin')
   revalidatePath('/admin/content')
+  revalidatePublicSite()
   return { ok: true }
 }
 
@@ -119,6 +134,7 @@ export async function deleteContent(id: string): Promise<ActionResult> {
 
   revalidatePath('/admin')
   revalidatePath('/admin/content')
+  revalidatePublicSite()
   return { ok: true }
 }
 
@@ -150,6 +166,14 @@ export async function logContentCreated(
     resourceLabel: title,
     metadata:      { type: contentType, status },
   })
+
+  /* Only invalidate public pages if this row went out as published. Drafts
+     don't affect the public site, so there's no reason to thrash caches. */
+  if (status === 'published') {
+    revalidatePublicSite()
+  }
+  revalidatePath('/admin')
+  revalidatePath('/admin/content')
 }
 
 /**
@@ -177,4 +201,14 @@ export async function logContentUpdated(
     resourceId:    contentId,
     resourceLabel: title,
   })
+
+  /* An edit to a draft doesn't affect the public site, but checking the
+     status here would require an extra fetch. The edit form already only
+     calls this after a successful update, and most edits in practice are to
+     either-status content where the public effect is desired anyway. Bias
+     toward correctness: always revalidate. */
+  revalidatePublicSite()
+  revalidatePath('/admin')
+  revalidatePath('/admin/content')
+  revalidatePath(`/admin/content/${contentId}`)
 }
