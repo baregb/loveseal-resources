@@ -22,6 +22,8 @@ export const routing = defineRouting({
     '/':              '/',
     '/content':       '/content',
     '/content/[id]':  '/content/[id]',
+    '/topic/[slug]':  '/topic/[slug]',
+    '/offline':       '/offline',
   },
 })
 

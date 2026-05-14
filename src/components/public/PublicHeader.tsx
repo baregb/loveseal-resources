@@ -1,56 +1,67 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Link, usePathname } from '@/i18n/navigation'
-import { BrandName } from '@/components/brand/Brand'
-import { useTheme } from '@/components/theme/ThemeProvider'
-import LanguageSwitcher from './LanguageSwitcher'
+import BrandLogo from '@/components/brand/BrandLogo'
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Header structure (desktop):
+
+       [logo tile] [date]            [─── nav pill ───]            [search]
+
+   Mobile (≤880px): logo + search + hamburger. Date hidden, pill collapses
+   into the inline drawer until Pass 6 ships the proper Menu Overlay.
+   ───────────────────────────────────────────────────────────────────────── */
 
 export default function PublicHeader() {
-  const t = useTranslations('nav')
+  const t        = useTranslations('nav')
+  const locale   = useLocale()
   const pathname = usePathname()
-  const { mode, setMode, resolved } = useTheme()
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [scrolled, setScrolled]     = useState(false)
+  const [scrolled,   setScrolled]   = useState(false)
+  const [now,        setNow]        = useState<Date | null>(null)
 
-  // Build nav links with translated labels (computed each render so locale switches refresh)
+  /* Live date stamp. We start with null (server) and set to `new Date()` on
+     mount, then tick every 60s. Setting on mount instead of at render time
+     prevents an SSR/CSR hydration mismatch — the server has no concept of
+     "now" and would otherwise mismatch the client. */
+  useEffect(() => {
+    setNow(new Date())
+    const id = setInterval(() => setNow(new Date()), 60_000)
+    return () => clearInterval(id)
+  }, [])
+
+  /* Nav links — built each render so the locale switch refreshes labels. */
   const navLinks = [
-    { href: '/' as const,                                                          label: t('home') },
-    { href: '/content' as const,                                                   label: t('all') },
-    { href: { pathname: '/content' as const, query: { type: 'manual'   } },        label: t('manuals') },
-    { href: { pathname: '/content' as const, query: { type: 'prophecy' } },        label: t('prophecies') },
-    { href: { pathname: '/content' as const, query: { type: 'article'  } },        label: t('articles') },
-    { href: { pathname: '/content' as const, query: { type: 'blog'     } },        label: t('blog') },
+    { href: '/' as const,                              label: t('whatsNew') },
+    { href: { pathname: '/topic/[slug]' as const, params: { slug: 'manuals' } },    label: t('manuals') },
+    { href: { pathname: '/topic/[slug]' as const, params: { slug: 'prophecies' } }, label: t('prophecies') },
+    { href: { pathname: '/topic/[slug]' as const, params: { slug: 'articles' } },   label: t('articles') },
+    { href: { pathname: '/topic/[slug]' as const, params: { slug: 'blog' } },       label: t('blog') },
   ]
 
   useEffect(() => {
-    function handleScroll() {
-      setScrolled(window.scrollY > 8)
-    }
+    function handleScroll() { setScrolled(window.scrollY > 8) }
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  /* Close the mobile drawer on route change. */
   useEffect(() => { setMobileOpen(false) }, [pathname])
 
-  function cycleTheme() {
-    const next = mode === 'light' ? 'dark' : mode === 'dark' ? 'system' : 'light'
-    setMode(next)
-  }
-
   function isLinkActive(href: typeof navLinks[number]['href']): boolean {
-    if (typeof href === 'string') {
-      return pathname === href || (href !== '/' && pathname?.startsWith(href as string))
-    }
-    if (typeof window !== 'undefined') {
-      return (
-        pathname === href.pathname &&
-        new URLSearchParams(window.location.search).get('type') === href.query.type
-      )
+    if (typeof href === 'string') return pathname === href
+    if (href && typeof href === 'object' && 'params' in href) {
+      const expected = `/topic/${href.params.slug}`
+      return pathname === expected
     }
     return false
   }
+
+  const dateString = now
+    ? now.toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase()
+    : ''
 
   return (
     <>
@@ -64,35 +75,64 @@ export default function PublicHeader() {
         backdropFilter: scrolled ? 'blur(12px)' : 'none',
       }}>
         <div style={{
-          maxWidth: '1200px',
+          maxWidth: '1440px',
           margin: '0 auto',
-          padding: '0 24px',
-          height: '64px',
-          display: 'flex',
+          padding: '16px 28px',
+          display: 'grid',
+          gridTemplateColumns: '1fr auto 1fr',
           alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '16px',
-        }}>
-          <Link href="/" style={{ textDecoration: 'none', flexShrink: 0 }}>
-            <BrandName size="sm" color="var(--text-primary)" />
-          </Link>
+          gap: '20px',
+        }}
+        className="public-header-grid"
+        >
+          {/* ── LEFT: logo + date ──────────────────────────────────────── */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', minWidth: 0 }}>
+            <Link href="/" aria-label={t('home')} style={{ display: 'block', textDecoration: 'none', flexShrink: 0 }}>
+              <BrandLogo size={48} />
+            </Link>
+            <span
+              className="header-date"
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '12px',
+                fontWeight: 500,
+                letterSpacing: '0.12em',
+                color: 'var(--text-primary)',
+                whiteSpace: 'nowrap',
+              }}
+              suppressHydrationWarning
+            >
+              {dateString}
+            </span>
+          </div>
 
-          <nav className="public-nav-desktop" style={{ display: 'flex', gap: '4px', flex: 1, justifyContent: 'center' }}>
+          {/* ── CENTER: dark nav pill ─────────────────────────────────── */}
+          <nav
+            className="public-nav-pill"
+            style={{
+              justifySelf: 'center',
+              display: 'flex',
+              gap: '4px',
+              background: '#1A1A1A',
+              borderRadius: '999px',
+              padding: '8px 12px',
+            }}
+          >
             {navLinks.map((link, idx) => {
-              const isActive = isLinkActive(link.href)
+              const active = isLinkActive(link.href)
               return (
                 <Link
                   key={idx}
                   href={link.href}
                   style={{
-                    padding: '7px 14px',
-                    borderRadius: '7px',
-                    fontSize: '13px',
-                    fontWeight: isActive ? 500 : 400,
-                    color: isActive ? 'var(--text-primary)' : 'var(--text-tertiary)',
-                    background: isActive ? 'var(--bg-elevated)' : 'transparent',
+                    padding: '8px 18px',
+                    borderRadius: '999px',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '14px',
+                    fontWeight: active ? 500 : 400,
+                    color: active ? '#FFFFFF' : 'rgba(255,255,255,0.55)',
                     textDecoration: 'none',
-                    transition: 'background 0.12s, color 0.12s',
+                    transition: 'color 0.12s',
                     whiteSpace: 'nowrap',
                   }}
                 >
@@ -102,64 +142,48 @@ export default function PublicHeader() {
             })}
           </nav>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+          {/* ── RIGHT: search icon + (mobile) hamburger ───────────────── */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', justifyContent: 'flex-end' }}>
             <Link
               href="/content"
               title={t('search')}
+              aria-label={t('search')}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: '34px',
-                height: '34px',
+                width: '44px',
+                height: '44px',
                 borderRadius: '50%',
-                color: 'var(--text-tertiary)',
-                background: 'transparent',
+                background: '#1A1A1A',
+                color: '#FFFFFF',
                 textDecoration: 'none',
-                transition: 'background 0.12s, color 0.12s',
+                flexShrink: 0,
+                transition: 'transform 0.12s',
               }}
             >
               <SearchIcon />
             </Link>
 
-            <LanguageSwitcher />
-
             <button
-              onClick={cycleTheme}
-              title={`Theme: ${mode}`}
-              style={{
-                width: '34px',
-                height: '34px',
-                borderRadius: '50%',
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'var(--text-tertiary)',
-                fontFamily: 'var(--font-body)',
-              }}
-            >
-              {resolved === 'dark' ? <MoonIcon /> : <SunIcon />}
-            </button>
-
-            <button
+              type="button"
               className="public-nav-hamburger"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label={t('menu')}
+              aria-expanded={mobileOpen}
               style={{
-                width: '34px',
-                height: '34px',
+                width: '44px',
+                height: '44px',
                 borderRadius: '50%',
-                background: mobileOpen ? 'var(--bg-elevated)' : 'transparent',
-                border: 'none',
+                background: mobileOpen ? '#1A1A1A' : 'transparent',
+                color: mobileOpen ? '#FFFFFF' : 'var(--text-primary)',
+                border: '0.5px solid var(--border-strong)',
                 cursor: 'pointer',
                 display: 'none',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'var(--text-tertiary)',
                 fontFamily: 'var(--font-body)',
+                flexShrink: 0,
               }}
             >
               {mobileOpen ? <CloseIcon /> : <MenuIcon />}
@@ -167,6 +191,7 @@ export default function PublicHeader() {
           </div>
         </div>
 
+        {/* Mobile inline drawer — placeholder until Pass 6 ships the full overlay */}
         {mobileOpen && (
           <div style={{
             background: 'var(--bg-base)',
@@ -181,7 +206,8 @@ export default function PublicHeader() {
                   style={{
                     padding: '12px 16px',
                     borderRadius: '8px',
-                    fontSize: '14px',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '15px',
                     color: 'var(--text-primary)',
                     background: 'transparent',
                     textDecoration: 'none',
@@ -196,9 +222,13 @@ export default function PublicHeader() {
       </header>
 
       <style>{`
+        @media (max-width: 1024px) {
+          .public-header-grid    { grid-template-columns: auto 1fr auto !important; gap: 12px !important; }
+          .header-date           { display: none !important; }
+        }
         @media (max-width: 880px) {
-          .public-nav-desktop   { display: none !important; }
-          .public-nav-hamburger { display: inline-flex !important; }
+          .public-nav-pill       { display: none !important; }
+          .public-nav-hamburger  { display: inline-flex !important; }
         }
       `}</style>
     </>
@@ -209,48 +239,28 @@ export default function PublicHeader() {
 
 function SearchIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="7"/>
-      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="7" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
     </svg>
   )
 }
+
 function MenuIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="3" y1="12" x2="21" y2="12"/>
-      <line x1="3" y1="6"  x2="21" y2="6"/>
-      <line x1="3" y1="18" x2="21" y2="18"/>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="3" y1="12" x2="21" y2="12" />
+      <line x1="3" y1="6"  x2="21" y2="6" />
+      <line x1="3" y1="18" x2="21" y2="18" />
     </svg>
   )
 }
+
 function CloseIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="6"  x2="6"  y2="18"/>
-      <line x1="6"  y1="6"  x2="18" y2="18"/>
-    </svg>
-  )
-}
-function SunIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="4"/>
-      <line x1="12" y1="2" x2="12" y2="4"/>
-      <line x1="12" y1="20" x2="12" y2="22"/>
-      <line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/>
-      <line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/>
-      <line x1="2" y1="12" x2="4" y2="12"/>
-      <line x1="20" y1="12" x2="22" y2="12"/>
-      <line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/>
-      <line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/>
-    </svg>
-  )
-}
-function MoonIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="6"  x2="6"  y2="18" />
+      <line x1="6"  y1="6"  x2="18" y2="18" />
     </svg>
   )
 }
