@@ -13,13 +13,17 @@ export default async function ContentEditPage({
   const { id } = await params
   const supabase = await createClient()
 
+  /* Pass 5c — added the authors fetch alongside content/categories/attachments.
+     Four parallel queries. */
   const [
     { data: item },
     { data: categories },
+    { data: authors },
     { data: attachments },
   ] = await Promise.all([
     supabase.from('content').select('*').eq('id', id).single(),
     supabase.from('categories').select('id, name, slug, content_type').order('name'),
+    supabase.from('authors').select('id, name, slug, avatar_url').order('name'),
     supabase
       .from('content_attachments')
       .select('id, file_url, file_name, file_type, mime_type, size_bytes')
@@ -30,8 +34,9 @@ export default async function ContentEditPage({
   if (!item) notFound()
 
   const itemTyped         = item as Parameters<typeof EditForm>[0]['item']
-  const categoriesTyped   = (categories ?? []) as Parameters<typeof EditForm>[0]['categories']
-  const attachmentsTyped  = (attachments ?? []) as Parameters<typeof EditForm>[0]['existingAttachments']
+  const categoriesTyped   = (categories ?? [])   as Parameters<typeof EditForm>[0]['categories']
+  const authorsTyped      = (authors ?? [])      as Parameters<typeof EditForm>[0]['authors']
+  const attachmentsTyped  = (attachments ?? [])  as Parameters<typeof EditForm>[0]['existingAttachments']
 
   return (
     <div>
@@ -69,6 +74,7 @@ export default async function ContentEditPage({
       <EditForm
         item={itemTyped}
         categories={categoriesTyped}
+        authors={authorsTyped}
         existingAttachments={attachmentsTyped}
       />
     </div>

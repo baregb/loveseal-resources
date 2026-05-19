@@ -1,8 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useCallback, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Link } from '@/i18n/navigation'
+import { readTimeMinutes } from '@/lib/read-time'
+import Breadcrumb       from '@/components/reader/Breadcrumb'
+import ReaderToggle     from '@/components/reader/ReaderToggle'
+import BylineCard       from '@/components/reader/BylineCard'
+import ReaderIconActions from '@/components/reader/ReaderIconActions'
+import QuickStoryView   from '@/components/reader/QuickStoryView'
 import '@/components/editor/editor.css'
 
 interface Item {
@@ -24,6 +31,17 @@ interface Item {
   pdf_url: string | null
   cover_image_url: string | null
   language: string
+  read_time_minutes: number | null
+  /* Pass 5c — joined author row. NULL when content has no author_id
+     (legacy rows where speaker text didn't match any backfilled author,
+     or where the author was later deleted via ON DELETE SET NULL). When
+     null, BylineCard falls back to `speaker` text and initials. */
+  author: {
+    id:         string
+    name:       string
+    slug:       string
+    avatar_url: string | null
+  } | null
   created_at: string
   updated_at: string
 }
@@ -41,12 +59,7 @@ const TYPE_COLORS: Record<string, string> = {
   manual: '#4498CC', prophecy: '#C32126', article: '#F5AE41', blog: '#3C3C3C',
 }
 
-type ReadMode = 'full' | 'key'
-
-function countWords(text: string | null): number {
-  if (!text) return 0
-  return text.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/g, ' ').trim().split(/\s+/).filter(Boolean).length
-}
+type ReadMode = 'full' | 'quick'
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
@@ -54,7 +67,26 @@ function formatBytes(bytes: number): string {
   return `${(bytes / 1048576).toFixed(1)} MB`
 }
 
-export default function ContentReader({
+/* The exported default wraps the inner component in <Suspense> because
+   `useSearchParams()` requires it under Next.js 15's static-rendering
+   model. Without the Suspense boundary the whole page deopts to dynamic.
+   We render `null` as the fallback (the article is hydrated client-side
+   anyway — there's no visible flash). */
+export default function ContentReader(props: {
+  item:              Item
+  attachments:       Attachment[]
+  signedPdfUrl:      string | null
+  translationStatus?: 'native' | 'translated' | 'pending'
+  sourceLanguage?:    string
+}) {
+  return (
+    <Suspense fallback={null}>
+      <ContentReaderInner {...props} />
+    </Suspense>
+  )
+}
+
+function ContentReaderInner({
   item, attachments, signedPdfUrl,
   translationStatus = 'native',
   sourceLanguage,
@@ -68,98 +100,120 @@ export default function ContentReader({
   const t        = useTranslations('content')
   const tTypes   = useTranslations('content.types')
   const tBread   = useTranslations('content.breadcrumb')
+  const tReader  = useTranslations('content.reader')
   const locale   = useLocale()
 
-  const [mode, setMode]             = useState<ReadMode>('full')
-  const [linkCopied, setLinkCopied] = useState(false)
+  /* Mode is driven by the `?view=quick|full` search param so deep links
+     to either view work and reload behaviour is predictable. Anything
+     other than 'quick' resolves to 'full' (default). */
+  const router       = useRouter()
+  const searchParams = useSearchParams()
+  const viewParam    = searchParams.get('view')
+  const mode: ReadMode = viewParam === 'quick' ? 'quick' : 'full'
 
-  const hasKeyPoints = item.summary_points && item.summary_points.length > 0
+  const hasKeyPoints = !!(item.summary_points && item.summary_points.length > 0)
   const isPdfMode    = item.source_mode === 'pdf'
-  const wordCount    = isPdfMode ? countWords(item.extracted_text) : countWords(item.body_html)
-  const readMin      = Math.max(1, Math.ceil(wordCount / 220))
+  const readMin = item.read_time_minutes ?? readTimeMinutes(isPdfMode ? item.extracted_text : item.body_html)
+
+  /* If Quick is requested but the item has no summary points, silently
+     fall back to Full — the Quick view would be empty anyway. */
+  const effectiveMode: ReadMode = mode === 'quick' && hasKeyPoints ? 'quick' : 'full'
+
+  const setMode = useCallback((next: ReadMode) => {
+    const sp = new URLSearchParams(searchParams.toString())
+    if (next === 'full') sp.delete('view')
+    else                  sp.set('view', next)
+    const qs = sp.toString()
+    router.replace(qs ? `?${qs}` : '?', { scroll: false })
+  }, [router, searchParams])
+
+  /* If the URL says `?view=quick` but the article has no summary points,
+     strip the param so a refresh stays clean. Side-effect, not render-time. */
+  useEffect(() => {
+    if (mode === 'quick' && !hasKeyPoints) {
+      const sp = new URLSearchParams(searchParams.toString())
+      sp.delete('view')
+      const qs = sp.toString()
+      router.replace(qs ? `?${qs}` : '?', { scroll: false })
+    }
+  }, [mode, hasKeyPoints, router, searchParams])
 
   const dateString = item.date_preached
     ? new Date(item.date_preached).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
     : new Date(item.created_at).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
 
-  async function handleShare() {
-    const url = typeof window !== 'undefined' ? window.location.href : ''
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: item.title, url })
-      } catch { /* cancelled */ }
-    } else {
-      await handleCopyLink()
-    }
-  }
-
-  async function handleCopyLink() {
-    const url = typeof window !== 'undefined' ? window.location.href : ''
-    try {
-      await navigator.clipboard.writeText(url)
-      setLinkCopied(true)
-      setTimeout(() => setLinkCopied(false), 1800)
-    } catch {
-      alert(url)
-    }
-  }
-
   return (
     <article style={{
-      maxWidth: '780px',
-      margin: '0 auto',
-      padding: '40px 24px 80px',
+      /* Long-form prose article — uses --width-prose (780px), the
+         typographic sweet spot for sustained reading (~70-80 chars
+         per line at body font size). */
+      maxWidth: 'var(--width-prose)',
+      margin:   '0 auto',
+      padding:  '2.5rem var(--page-inline-padding) 5rem',
     }}>
-      {/* Breadcrumb */}
-      <nav style={{ marginBottom: '20px', fontSize: '12px', color: 'var(--text-muted)' }}>
-        <Link href="/" style={breadcrumbLink}>{tBread('home')}</Link>
-        <span style={{ margin: '0 6px', color: 'var(--text-faint)' }}>/</span>
-        <Link href="/content" style={breadcrumbLink}>{tBread('content')}</Link>
-        <span style={{ margin: '0 6px', color: 'var(--text-faint)' }}>/</span>
-        <Link
-          href={{ pathname: '/content', query: { type: item.content_type } }}
-          style={breadcrumbLink}
+      {/* Breadcrumb — Home / Topics / Type / Title.
+          "Topics" is a Pass 4 label-only rename; the link still routes to
+          /content. Pass 5 will introduce the real /topic index and repoint. */}
+      <Breadcrumb
+        homeLabel={tBread('home')}
+        topicsLabel={tReader('breadcrumb.topics')}
+        typeLabel={tTypes(item.content_type)}
+        title={item.title}
+        contentType={item.content_type}
+      />
+
+      {/* Translation banner — unchanged. Shows in both Quick and Full modes
+          since translation status is about the content itself, not the view. */}
+      {translationStatus !== 'native' && (
+        <div
+          role="note"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            padding: '10px 14px',
+            marginBottom: '20px',
+            background: translationStatus === 'pending'
+              ? 'var(--warning-bg, rgba(245, 174, 65, 0.10))'
+              : 'var(--info-bg, rgba(68, 152, 204, 0.08))',
+            border: `0.5px solid ${
+              translationStatus === 'pending'
+                ? 'var(--warning-border, rgba(245, 174, 65, 0.35))'
+                : 'var(--info-border, rgba(68, 152, 204, 0.30))'
+            }`,
+            borderRadius: '8px',
+            fontSize: '12px',
+            color: 'var(--text-secondary)',
+            lineHeight: 1.5,
+          }}
         >
-          {tTypes(item.content_type)}
-        </Link>
-      </nav>
+          <span style={{ fontSize: '14px', flexShrink: 0 }} aria-hidden>
+            {translationStatus === 'pending' ? '⚠' : '🌐'}
+          </span>
+          <span style={{ flex: 1 }}>
+            {translationStatus === 'translated'
+              ? t('translatedNotice')
+              : t('pendingTranslationNotice', { source: sourceLanguage ?? '' })}
+          </span>
+        </div>
+      )}
 
-      {/* Translation banner (only when content is being read in a non-source locale) */}
-        {translationStatus !== 'native' && (
-          <div
-            role="note"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '10px 14px',
-              marginBottom: '20px',
-              background: translationStatus === 'pending'
-                ? 'var(--warning-bg, rgba(245, 174, 65, 0.10))'
-                : 'var(--info-bg, rgba(68, 152, 204, 0.08))',
-              border: `0.5px solid ${
-                translationStatus === 'pending'
-                  ? 'var(--warning-border, rgba(245, 174, 65, 0.35))'
-                  : 'var(--info-border, rgba(68, 152, 204, 0.30))'
-              }`,
-              borderRadius: '8px',
-              fontSize: '12px',
-              color: 'var(--text-secondary)',
-              lineHeight: 1.5,
-            }}
-          >
-            <span style={{ fontSize: '14px', flexShrink: 0 }} aria-hidden>
-              {translationStatus === 'pending' ? '⚠' : '🌐'}
-            </span>
-            <span style={{ flex: 1 }}>
-              {translationStatus === 'translated'
-                ? t('translatedNotice')
-                : t('pendingTranslationNotice', { source: sourceLanguage ?? '' })}
-            </span>
-          </div>
-        )}
+      {/* Full / Quick toggle — only when summary points exist (otherwise
+          Quick view would be empty). Sits above the title in both modes
+          per the design. Works for editor mode AND pdf mode (Pass 4 Q7 = b
+          unifies the two: dropping the old inner Plain Text / PDF Viewer
+          sub-toggle that used to live inside PdfViewer). */}
+      {hasKeyPoints && (
+        <ReaderToggle
+          mode={effectiveMode}
+          onChange={setMode}
+          fullLabel={tReader('toggleFull')}
+          quickLabel={tReader('toggleQuick')}
+        />
+      )}
 
-      {/* Type pill + lesson badge */}
+      {/* Type pill + lesson badge + theme/series eyebrow + title — both
+          modes show these as orientation. */}
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
         <span style={{
           display: 'inline-flex', alignItems: 'center', gap: '5px',
@@ -190,7 +244,6 @@ export default function ContentReader({
         )}
       </div>
 
-      {/* Theme + Series */}
       {(item.theme || item.series) && (
         <div style={{
           fontSize: '11px',
@@ -206,7 +259,6 @@ export default function ContentReader({
         </div>
       )}
 
-      {/* Title */}
       <h1 style={{
         fontFamily: 'var(--font-display), Barlow Condensed, sans-serif',
         fontSize: 'clamp(32px, 5vw, 52px)',
@@ -220,266 +272,192 @@ export default function ContentReader({
         {item.title}
       </h1>
 
-      {/* Meta */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '14px',
-        marginBottom: '24px',
-        paddingBottom: '20px',
-        borderBottom: '0.5px solid var(--border-subtle)',
-        fontSize: '13px',
-        color: 'var(--text-tertiary)',
-      }}>
-        {item.speaker && (
-          <span style={{ color: 'var(--text-secondary)' }}>{item.speaker}</span>
-        )}
-        <span>{dateString}</span>
-        {wordCount > 0 && (
-          <span>· {t('minRead', { count: readMin })}</span>
-        )}
-      </div>
+      {/* Byline card — avatar + name · date · read-time, single row.
+          Pass 5c: when the content row has a joined author, we pass
+          their avatar URL (renders inside the circle) and their slug
+          (turns the name into a Link to /authors/[slug]). Legacy rows
+          without an author_id fall back to initials and plain text via
+          item.speaker — see BylineCard for the branch logic. */}
+      <BylineCard
+        name={item.author?.name ?? item.speaker}
+        date={dateString}
+        readTimeLabel={tReader('byline.readTime', { minutes: readMin })}
+        avatarUrl={item.author?.avatar_url ?? null}
+        authorSlug={item.author?.slug ?? null}
+      />
 
-      {/* Action bar */}
-      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '28px' }}>
-        <ActionButton onClick={handleShare} icon={<ShareIcon />}>{t('share')}</ActionButton>
-        <ActionButton onClick={handleCopyLink} icon={linkCopied ? <CheckIcon /> : <LinkIcon />}>
-          {linkCopied ? t('linkCopied') : t('copyLink')}
-        </ActionButton>
-        {isPdfMode && signedPdfUrl && (
-          <a
-            href={signedPdfUrl}
-            download
-            style={{
-              ...actionBtnStyle,
-              background: 'var(--brand-gold)',
-              color: 'var(--text-inverse)',
-              borderColor: 'var(--brand-gold)',
+      {/* Icon actions — link / share / (PDF) download as small circular
+          icon buttons on their own row. Replaces the old text-button
+          action bar above the cover and the duplicate action group at
+          the page footer. */}
+      <ReaderIconActions
+        shareTitle={item.title}
+        copyLinkLabel={tReader('actions.copyLink')}
+        copiedLabel={tReader('actions.copied')}
+        shareLabel={tReader('actions.share')}
+        downloadLabel={tReader('actions.downloadPdf')}
+        downloadUrl={isPdfMode ? signedPdfUrl : null}
+      />
+
+      {/* ────────────────────────────────────────────────────────────
+          QUICK MODE: only the cover + paginated summary cards.
+          Skips body, scripture refs, tags, attachments. Final card's
+          "Read full story" pill flips us to Full mode (handled inside
+          QuickStoryView via the onReadFull callback).
+          ──────────────────────────────────────────────────────────── */}
+      {effectiveMode === 'quick' && hasKeyPoints ? (
+        <>
+          <QuickStoryView
+            points={item.summary_points!}
+            coverImageUrl={item.cover_image_url}
+            paginationLabel={(current, total) =>
+              tReader('quick.pagination', { current, total })
+            }
+            nextLabel={tReader('quick.next')}
+            prevLabel={tReader('quick.prev')}
+            readFullLabel={tReader('quick.readFull')}
+            pointFallbackLabel={(n) => tReader('quick.pointFallback', { n })}
+            onReadFull={() => setMode('full')}
+          />
+
+          {/* Minimal footer — just "Back to all content". Action icons live
+              at the top of the page (icon row); no duplicates here. */}
+          <section style={{
+            marginTop: '48px',
+            paddingTop: '24px',
+            borderTop: '0.5px solid var(--border-subtle)',
+          }}>
+            <Link href="/content" style={{
+              fontSize: '13px',
+              color: 'var(--text-tertiary)',
               textDecoration: 'none',
-            }}
-          >
-            <DownloadIcon /> {t('downloadPdf')}
-          </a>
-        )}
-      </div>
-
-      {item.cover_image_url && (
-        <div style={{
-          aspectRatio: '16 / 9',
-          background: `url(${item.cover_image_url}) center/cover`,
-          borderRadius: '12px',
-          marginBottom: '32px',
-          overflow: 'hidden',
-        }} />
-      )}
-
-      {hasKeyPoints && !isPdfMode && (
-        <div style={{
-          display: 'inline-flex',
-          background: 'var(--bg-raised)',
-          border: '0.5px solid var(--border-subtle)',
-          borderRadius: '8px',
-          padding: '3px',
-          marginBottom: '20px',
-        }}>
-          <ModeBtn active={mode === 'full'} onClick={() => setMode('full')}>{t('fullText')}</ModeBtn>
-          <ModeBtn active={mode === 'key'}  onClick={() => setMode('key')}>{t('keyPoints')}</ModeBtn>
-        </div>
-      )}
-
-      {isPdfMode ? (
-        <PdfViewer
-          signedUrl={signedPdfUrl}
-          title={item.title}
-          extractedText={item.extracted_text}
-          tPdfViewer={t('pdfViewer')}
-          tPlainText={t('plainText')}
-          tUnavailable={t('pdfUnavailable')}
-        />
-      ) : mode === 'key' && hasKeyPoints ? (
-        <KeyPointsView points={item.summary_points!} />
+            }}>
+              {t('backToAll')}
+            </Link>
+          </section>
+        </>
       ) : (
-        <div className="lr-editor-content" style={{
-          background: 'transparent',
-          padding: 0,
-          minHeight: 'auto',
-          maxHeight: 'none',
-          fontSize: '17px',
-          lineHeight: 1.75,
-          textAlign: 'start',
-        }}
-        dangerouslySetInnerHTML={{ __html: item.body_html ?? '' }}
-        />
-      )}
+        <>
+          {/* ──────────────────────────────────────────────────────────
+              FULL MODE: cover image + body + scripture refs + tags +
+              attachments + minimal footer.
+              ────────────────────────────────────────────────────────── */}
+          {item.cover_image_url && (
+            <div style={{
+              aspectRatio: '16 / 9',
+              background: `url(${item.cover_image_url}) center/cover`,
+              borderRadius: '12px',
+              marginBottom: '32px',
+              overflow: 'hidden',
+            }} />
+          )}
 
-      {item.scripture_refs.length > 0 && (
-        <section style={{ marginTop: '40px', paddingTop: '24px', borderTop: '0.5px solid var(--border-subtle)' }}>
-          <h2 style={sectionHeadingStyle}>{t('scriptureRefs')}</h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-            {item.scripture_refs.map(ref => (
-              <span key={ref} style={{
-                padding: '5px 11px',
-                background: 'rgba(245,174,65,0.08)',
-                border: '0.5px solid rgba(245,174,65,0.3)',
-                borderRadius: '20px',
-                fontSize: '12px',
-                color: 'var(--brand-gold)',
-                fontWeight: 500,
-              }}>
-                {ref}
-              </span>
-            ))}
-          </div>
-        </section>
-      )}
+          {isPdfMode ? (
+            <PdfViewer
+              signedUrl={signedPdfUrl}
+              title={item.title}
+              tUnavailable={t('pdfUnavailable')}
+            />
+          ) : (
+            <div className="lr-editor-content" style={{
+              background: 'transparent',
+              padding: 0,
+              minHeight: 'auto',
+              maxHeight: 'none',
+              fontSize: '17px',
+              lineHeight: 1.75,
+              textAlign: 'start',
+            }}
+            dangerouslySetInnerHTML={{ __html: item.body_html ?? '' }}
+            />
+          )}
 
-      {item.tags.length > 0 && (
-        <section style={{ marginTop: '24px' }}>
-          <h2 style={sectionHeadingStyle}>{t('tags')}</h2>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-            {item.tags.map(tag => (
-              <span key={tag} style={{
-                padding: '4px 10px',
-                background: 'var(--bg-elevated)',
-                borderRadius: '20px',
-                fontSize: '11px',
-                color: 'var(--text-secondary)',
-              }}>
-                #{tag}
-              </span>
-            ))}
-          </div>
-        </section>
-      )}
+          {item.scripture_refs.length > 0 && (
+            <section style={{ marginTop: '40px', paddingTop: '24px', borderTop: '0.5px solid var(--border-subtle)' }}>
+              <h2 style={sectionHeadingStyle}>{t('scriptureRefs')}</h2>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {item.scripture_refs.map(ref => (
+                  <span key={ref} style={{
+                    padding: '5px 11px',
+                    background: 'rgba(245,174,65,0.08)',
+                    border: '0.5px solid rgba(245,174,65,0.3)',
+                    borderRadius: '20px',
+                    fontSize: '12px',
+                    color: 'var(--brand-gold)',
+                    fontWeight: 500,
+                  }}>
+                    {ref}
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
 
-      {attachments.length > 0 && (
-        <section style={{ marginTop: '40px', paddingTop: '24px', borderTop: '0.5px solid var(--border-subtle)' }}>
-          <h2 style={sectionHeadingStyle}>{t('attachments')}</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-            {attachments.map(att => <AttachmentRow key={att.id} att={att} />)}
-          </div>
-        </section>
-      )}
+          {item.tags.length > 0 && (
+            <section style={{ marginTop: '24px' }}>
+              <h2 style={sectionHeadingStyle}>{t('tags')}</h2>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {item.tags.map(tag => (
+                  <span key={tag} style={{
+                    padding: '4px 10px',
+                    background: 'var(--bg-elevated)',
+                    borderRadius: '20px',
+                    fontSize: '11px',
+                    color: 'var(--text-secondary)',
+                  }}>
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
 
-      <section style={{
-        marginTop: '48px',
-        paddingTop: '24px',
-        borderTop: '0.5px solid var(--border-subtle)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: '12px',
-      }}>
-        <Link href="/content" style={{
-          fontSize: '13px',
-          color: 'var(--text-tertiary)',
-          textDecoration: 'none',
-        }}>
-          {t('backToAll')}
-        </Link>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <ActionButton onClick={handleShare} icon={<ShareIcon />}>{t('share')}</ActionButton>
-          <ActionButton onClick={handleCopyLink} icon={linkCopied ? <CheckIcon /> : <LinkIcon />}>
-            {linkCopied ? t('copied') : t('copyLink')}
-          </ActionButton>
-        </div>
-      </section>
+          {attachments.length > 0 && (
+            <section style={{ marginTop: '40px', paddingTop: '24px', borderTop: '0.5px solid var(--border-subtle)' }}>
+              <h2 style={sectionHeadingStyle}>{t('attachments')}</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {attachments.map(att => <AttachmentRow key={att.id} att={att} />)}
+              </div>
+            </section>
+          )}
+
+          {/* Minimal footer — just "Back to all content". Action icons live
+              at the top of the page (icon row); no duplicates here. */}
+          <section style={{
+            marginTop: '48px',
+            paddingTop: '24px',
+            borderTop: '0.5px solid var(--border-subtle)',
+          }}>
+            <Link href="/content" style={{
+              fontSize: '13px',
+              color: 'var(--text-tertiary)',
+              textDecoration: 'none',
+            }}>
+              {t('backToAll')}
+            </Link>
+          </section>
+        </>
+      )}
     </article>
   )
 }
 
-function ModeBtn({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      style={{
-        padding: '7px 14px',
-        background: active ? 'var(--bg-elevated)' : 'transparent',
-        color: active ? 'var(--brand-gold)' : 'var(--text-tertiary)',
-        border: 'none',
-        borderRadius: '6px',
-        fontSize: '12px',
-        fontWeight: active ? 500 : 400,
-        cursor: 'pointer',
-        fontFamily: 'var(--font-body)',
-        letterSpacing: '0.02em',
-        transition: 'all 0.12s',
-      }}
-    >
-      {children}
-    </button>
-  )
-}
-
-function ActionButton({
-  onClick, icon, children,
-}: {
-  onClick: () => void
-  icon:    React.ReactNode
-  children: React.ReactNode
-}) {
-  return (
-    <button type="button" onClick={onClick} style={actionBtnStyle}>
-      {icon} {children}
-    </button>
-  )
-}
-
-function KeyPointsView({ points }: { points: string[] }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-      {points.map((p, idx) => (
-        <div
-          key={idx}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '32px 1fr',
-            gap: '14px',
-            padding: '16px 18px',
-            background: 'var(--bg-raised)',
-            border: '0.5px solid var(--border-subtle)',
-            borderRadius: '10px',
-            alignItems: 'flex-start',
-          }}
-        >
-          <span style={{
-            fontFamily: 'var(--font-display), Barlow Condensed, sans-serif',
-            fontSize: '20px',
-            fontWeight: 900,
-            color: 'var(--brand-gold)',
-            lineHeight: 1,
-          }}>
-            {String(idx + 1).padStart(2, '0')}
-          </span>
-          <p style={{
-            fontSize: '15px',
-            color: 'var(--text-primary)',
-            lineHeight: 1.6,
-            margin: 0,
-          }}>
-            {p}
-          </p>
-        </div>
-      ))}
-    </div>
-  )
-}
-
+/**
+ * PDF viewer — Pass 4 simplified.
+ *
+ * Previously had an inner "PDF Viewer / Plain Text" toggle, which Pass 4
+ * dropped (Q7 = b unifies the two views: PDF mode's Quick view becomes the
+ * summary cards via QuickStoryView, and PDF mode's Full view is just the
+ * iframe). Extracted text is still stored in the DB and used for read-time
+ * computation upstream — it's just no longer surfaced as a user toggle.
+ */
 function PdfViewer({
-  signedUrl, title, extractedText, tPdfViewer, tPlainText, tUnavailable,
+  signedUrl, title, tUnavailable,
 }: {
-  signedUrl:     string | null
-  title:         string
-  extractedText: string | null
-  tPdfViewer:    string
-  tPlainText:    string
-  tUnavailable:  string
+  signedUrl:    string | null
+  title:        string
+  tUnavailable: string
 }) {
-  const [showText, setShowText] = useState(false)
-
   if (!signedUrl) {
     return (
       <div style={{
@@ -497,48 +475,19 @@ function PdfViewer({
   }
 
   return (
-    <div>
-      <div style={{
-        display: 'inline-flex',
+    <iframe
+      src={signedUrl}
+      title={title}
+      style={{
+        width: '100%',
+        aspectRatio: '8.5 / 11',
+        maxHeight: '85dvh',
         background: 'var(--bg-raised)',
         border: '0.5px solid var(--border-subtle)',
-        borderRadius: '8px',
-        padding: '3px',
-        marginBottom: '14px',
-      }}>
-        <ModeBtn active={!showText} onClick={() => setShowText(false)}>{tPdfViewer}</ModeBtn>
-        <ModeBtn active={showText} onClick={() => setShowText(true)}>{tPlainText}</ModeBtn>
-      </div>
-
-      {showText && extractedText ? (
-        <div style={{
-          padding: '24px',
-          background: 'var(--bg-raised)',
-          border: '0.5px solid var(--border-subtle)',
-          borderRadius: '12px',
-          fontSize: '15px',
-          lineHeight: 1.75,
-          color: 'var(--text-primary)',
-          whiteSpace: 'pre-wrap',
-        }}>
-          {extractedText}
-        </div>
-      ) : (
-        <iframe
-          src={signedUrl}
-          title={title}
-          style={{
-            width: '100%',
-            aspectRatio: '8.5 / 11',
-            maxHeight: '85dvh',
-            background: 'var(--bg-raised)',
-            border: '0.5px solid var(--border-subtle)',
-            borderRadius: '12px',
-            display: 'block',
-          }}
-        />
-      )}
-    </div>
+        borderRadius: '12px',
+        display: 'block',
+      }}
+    />
   )
 }
 
@@ -602,27 +551,6 @@ function AttachmentRow({ att }: { att: Attachment }) {
   )
 }
 
-const breadcrumbLink: React.CSSProperties = {
-  color: 'var(--text-tertiary)',
-  textDecoration: 'none',
-}
-
-const actionBtnStyle: React.CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: '6px',
-  padding: '8px 14px',
-  background: 'transparent',
-  color: 'var(--text-primary)',
-  border: '0.5px solid var(--border-strong)',
-  borderRadius: '8px',
-  fontSize: '12px',
-  fontWeight: 500,
-  cursor: 'pointer',
-  fontFamily: 'var(--font-body)',
-  textDecoration: 'none',
-}
-
 const sectionHeadingStyle: React.CSSProperties = {
   fontSize: '11px',
   fontWeight: 500,
@@ -633,32 +561,8 @@ const sectionHeadingStyle: React.CSSProperties = {
   fontFamily: 'var(--font-body)',
 }
 
-function ShareIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="18" cy="5" r="3"/>
-      <circle cx="6"  cy="12" r="3"/>
-      <circle cx="18" cy="19" r="3"/>
-      <line x1="8.59"  y1="13.51" x2="15.42" y2="17.49"/>
-      <line x1="15.41" y1="6.51"  x2="8.59"  y2="10.49"/>
-    </svg>
-  )
-}
-function LinkIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-    </svg>
-  )
-}
-function CheckIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <polyline points="20 6 9 17 4 12"/>
-    </svg>
-  )
-}
+/* DownloadIcon is still used by <AttachmentRow>; the share/copy/check icons
+   that used to live here moved into <ReaderIconActions>. */
 function DownloadIcon() {
   return (
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

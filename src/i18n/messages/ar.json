@@ -26,13 +26,14 @@
     "signin": "تسجيل الدخول"
   },
   "hero": {
-    "eyebrow": "من {parent}",
-    "headlinePart1": "ما",
-    "headlinePart2": "الجديد",
-    "headlineHighlight": "الآن",
     "viewAllLatest": "عرض كل الجديد",
     "drag": "اسحب",
-    "empty": "لم يُنشر محتوى بعد. عُد قريبًا."
+    "empty": "لم يُنشر محتوى بعد. عُد قريبًا.",
+    "peace": {
+      "line1": "السلام",
+      "line2": "معك.",
+      "subline": "هذا ما يتحرّك في الجسد اليوم — وما تأخذه إلى مخدع صلاتك."
+    }
   },
   "featured": {
     "title": "أبرز ما في هذا الأسبوع",
@@ -50,18 +51,16 @@
     }
   },
   "sections": {
-    "manuals": "أحدث الأدلة",
-    "prophecies": "النبوءات",
-    "articles": "المقالات",
+    "manuals": "أدلة",
+    "prophecies": "نبوءات",
+    "articles": "مقالات",
     "blog": "المدونة",
-    "viewAll": "عرض الكل"
-  },
-  "closingCta": {
-    "title1": "اقرأ.",
-    "title2": "شارك.",
-    "title3": "ضاعِف.",
-    "body": "كل دليل ونبوءة ومقال ومنشور قابل للمشاركة بضغطة واحدة. أرسل الحقيقة إلى من يحتاجها.",
-    "button": "تصفّح المكتبة"
+    "viewAll": "عرض الكل",
+    "latest": "{type} الأحدث",
+    "inFocus": {
+      "label": "في البؤرة هذا الأسبوع"
+    },
+    "joinUs": "انضمّ إلينا"
   },
   "library": {
     "eyebrow": "المكتبة",
@@ -119,18 +118,93 @@
     "translatedNotice": "تمت ترجمة هذه الصفحة آليًا. قد تُفقد بعض الفروق الدقيقة.",
     "pendingTranslationNotice": "يُعرض هذا المحتوى بلغته الأصلية ({source}). لا تتوفر ترجمة بعد."
   },
+  "topic": {
+    "_todo_translation": true,
+    "eyebrow": {
+      "type": "Topic"
+    },
+    "typeBody": "Every published {type} in the library, newest first.",
+    "emptyType": "No {type} content yet. Check back soon."
+  },
+  "topics": {
+    "_todo_translation": true,
+    "eyebrow": "Browse",
+    "title": "Topics",
+    "body": "Every tag and theme used across the library. Tap one to see all the manuals, prophecies, articles, and blog posts that touch it.",
+    "tagEyebrow": "Topic",
+    "tagBody": "Everything tagged #{tag} across the library, newest first.",
+    "tagsCount": "{count, plural, =0 {no topics yet} =1 {1 topic} other {# topics}}",
+    "itemsCount": "{count, plural, =0 {no items} =1 {1 item} other {# items}}",
+    "empty": "No topics yet. Once content is published with tags, they'll appear here.",
+    "emptyTag": "No content tagged #{tag} yet."
+  },
+  "authors": {
+    "_todo_translation": true,
+    "eyebrow": "Author",
+    "indexTitle": "Authors",
+    "indexBody": "Speakers and writers behind the manuals, prophecies, articles, and blog posts. Tap a name to see everything they've contributed.",
+    "authorsCount": "{count, plural, =0 {no authors yet} =1 {1 author} other {# authors}}",
+    "itemsCount": "{count, plural, =0 {no items} =1 {1 item} other {# items}}",
+    "empty": "No authors yet. Once content is published with attributed authors, they'll appear here.",
+    "emptyForAuthor": "{name} hasn't published anything in this category yet.",
+    "profileFallbackBody": "Content by {name}"
+  },
   "notFound": {
     "label": "404",
     "title": "المحتوى غير موجود",
     "body": "المحتوى الذي تبحث عنه ربما تمّ حذفه أو إلغاء نشره.",
-    "browse": "تصفّح كل المحتوى"
+    "browse": "تصفّح كل المحتوى",
+    "root": {
+      "_todo_translation": true,
+      "label": "404",
+      "title": "Page not found",
+      "body": "The page you're looking for doesn't exist or has been moved.",
+      "home": "Go home",
+      "browse": "Browse the library"
+    },
+    "topic": {
+      "_todo_translation": true,
+      "label": "404",
+      "title": "Topic not found",
+      "body": "That isn't one of our content types. Try manuals, prophecies, articles, or blog.",
+      "browse": "Browse all content"
+    },
+    "tag": {
+      "_todo_translation": true,
+      "label": "404",
+      "title": "Topic not found",
+      "body": "We couldn't find anything tagged with that. The tag may have been removed, or no content uses it yet.",
+      "browse": "All topics"
+    },
+    "author": {
+      "_todo_translation": true,
+      "label": "404",
+      "title": "Author not found",
+      "body": "We couldn't find an author at that link. They may have been removed, or the URL might be mistyped.",
+      "browse": "All authors"
+    }
   },
   "footer": {
-    "tagline": "أدلة ونبوءات ومقالات ومنشورات من {parent} — متاحة وقابلة للتنزيل وجاهزة للمشاركة.",
+    "navLabel": "تذييل الصفحة",
+    "display": {
+      "read": "اقرأ.",
+      "share": "شارك.",
+      "multiply": "انشُر."
+    },
+    "tagline": "كلّ دليلٍ ونبوءةٍ ومقالٍ ومنشورٍ قابلٌ للمشاركة بلمسةٍ واحدة. أرسل الحقّ إلى من يحتاجه — بخمس لغاتٍ، على أيّ جهاز، متّصلاً كنت أم لا.",
+    "cta": {
+      "browse": "تصفّح المكتبة"
+    },
+    "subscribe": {
+      "button": "اشترك بالبريد الإلكتروني",
+      "placeholder": "بريدك@الإلكتروني.com",
+      "submit": "اشترك",
+      "success": "شكراً — سنتواصل معك قريباً."
+    },
     "columns": {
       "content": "المحتوى",
       "browse": "تصفّح",
-      "admin": "الإدارة"
+      "about": "نبذة"
     },
     "links": {
       "manuals": "أدلة",
@@ -138,9 +212,16 @@
       "articles": "مقالات",
       "blog": "المدونة",
       "allContent": "كل المحتوى",
-      "home": "الرئيسية",
-      "signin": "تسجيل الدخول"
+      "latest": "الأحدث",
+      "topics": "المواضيع",
+      "authors": "المؤلفون",
+      "loveseal": "كنيسة لوف سيل",
+      "story": "قصّتنا",
+      "contact": "اتصل بنا",
+      "give": "تبرّع"
     },
+    "joinUs": "انضمّ إلينا",
+    "langs": "EN · ES · FR · PT · AR",
     "copyright": "© {year} {parent}. جميع الحقوق محفوظة."
   },
   "languageSwitcher": {

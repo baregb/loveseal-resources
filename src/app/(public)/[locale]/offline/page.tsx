@@ -26,16 +26,19 @@ export default async function OfflinePage({ params }: PageParams) {
 
   return (
     <div style={{
-      maxWidth:    '560px',
+      /* Narrow centered status page — uses --width-narrow (640px).
+         Was 560px before consolidation; bumped to the token value for
+         consistency with the not-found and content-list-sheet caps. */
+      maxWidth:    'var(--width-narrow)',
       margin:      '0 auto',
-      padding:     'clamp(48px, 10vw, 96px) 24px',
+      padding:     'clamp(3rem, 10vw, 6rem) var(--page-inline-padding)',
       textAlign:   'center',
       minHeight:   '60dvh',
       display:     'flex',
       flexDirection: 'column',
       alignItems:  'center',
       justifyContent: 'center',
-      gap:         '16px',
+      gap:         '1rem',
     }}>
       <div style={{
         fontSize:    '11px',

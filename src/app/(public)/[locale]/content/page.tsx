@@ -53,9 +53,10 @@ export default async function PublicContentPage({
 
   return (
     <div style={{
-      maxWidth: '1200px',
-      margin: '0 auto',
-      padding: '40px 24px 64px',
+      /* Library index — centered, capped at --width-content (1280px). */
+      maxWidth: 'var(--width-content)',
+      margin:   '0 auto',
+      padding:  '2.5rem var(--page-inline-padding) 4rem',
     }}>
       <CollectionPageSchema
         title={tLibrary('title')}

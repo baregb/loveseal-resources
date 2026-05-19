@@ -32,9 +32,10 @@ export default function FeaturedSection({ items }: { items: FeaturedItem[] }) {
 
   return (
     <section style={{
-      maxWidth: '1200px',
-      margin: '0 auto',
-      padding: '40px 24px 80px',
+      /* Centered section, capped at --width-content (1280px). */
+      maxWidth: 'var(--width-content)',
+      margin:   '0 auto',
+      padding:  '2.5rem var(--page-inline-padding) 5rem',
     }}>
       <RevealOnScroll>
         <div style={{

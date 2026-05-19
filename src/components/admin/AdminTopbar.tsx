@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { useTheme, type ThemeMode } from '@/components/theme/ThemeProvider'
+import { useTheme } from '@/components/theme/ThemeProvider'
+import ThemeToggleGrid from '@/components/theme/ThemeToggleGrid'
 
 export default function AdminTopbar({
   userEmail,
@@ -118,19 +119,7 @@ export default function AdminTopbar({
               }}>
                 Appearance
               </div>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr 1fr',
-                gap: '4px',
-                background: 'var(--bg-base)',
-                padding: '3px',
-                borderRadius: '7px',
-                border: '0.5px solid var(--border-subtle)',
-              }}>
-                <ThemeOption current={mode} value="light"  onSelect={setMode} icon={<SunIcon/>} label="Light"  />
-                <ThemeOption current={mode} value="dark"   onSelect={setMode} icon={<MoonIcon/>} label="Dark"  />
-                <ThemeOption current={mode} value="system" onSelect={setMode} icon={<MonitorIcon/>} label="Auto" />
-              </div>
+              <ThemeToggleGrid mode={mode} onSelectMode={setMode} />
             </div>
 
             <div style={{ height: '0.5px', background: 'var(--border-subtle)', margin: '6px 0' }} />
@@ -143,43 +132,6 @@ export default function AdminTopbar({
         )}
       </div>
     </header>
-  )
-}
-
-function ThemeOption({
-  current, value, onSelect, icon, label,
-}: {
-  current: ThemeMode
-  value:   ThemeMode
-  onSelect:(v: ThemeMode) => void
-  icon:    React.ReactNode
-  label:   string
-}) {
-  const active = current === value
-  return (
-    <button
-      onClick={() => onSelect(value)}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: '5px',
-        padding: '7px 4px',
-        background: active ? 'var(--bg-raised)' : 'transparent',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer',
-        fontFamily: 'var(--font-body)',
-        fontSize: '11px',
-        fontWeight: active ? 500 : 400,
-        color: active ? 'var(--brand-gold)' : 'var(--text-tertiary)',
-        boxShadow: active ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
-        transition: 'all 0.12s',
-      }}
-    >
-      {icon}
-      {label}
-    </button>
   )
 }
 
@@ -209,40 +161,6 @@ function ChevronIcon({ open }: { open: boolean }) {
       }}
     >
       <polyline points="6 9 12 15 18 9"/>
-    </svg>
-  )
-}
-
-function SunIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="4"/>
-      <line x1="12" y1="2"  x2="12" y2="4"/>
-      <line x1="12" y1="20" x2="12" y2="22"/>
-      <line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/>
-      <line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/>
-      <line x1="2"  y1="12" x2="4"  y2="12"/>
-      <line x1="20" y1="12" x2="22" y2="12"/>
-      <line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/>
-      <line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/>
-    </svg>
-  )
-}
-
-function MoonIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-    </svg>
-  )
-}
-
-function MonitorIcon() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="3" width="20" height="14" rx="2"/>
-      <line x1="8"  y1="21" x2="16" y2="21"/>
-      <line x1="12" y1="17" x2="12" y2="21"/>
     </svg>
   )
 }

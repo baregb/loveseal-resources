@@ -10,6 +10,7 @@ const baseNavLinks = [
   { href: '/admin',            label: 'Dashboard',  icon: HomeIcon       },
   { href: '/admin/content',    label: 'Content',    icon: ContentIcon    },
   { href: '/admin/upload',     label: 'Upload',     icon: UploadIcon     },
+  { href: '/admin/authors',    label: 'Authors',    icon: AuthorsIcon    },
   { href: '/admin/categories', label: 'Categories', icon: CategoriesIcon },
 ]
 
@@ -266,7 +267,14 @@ function AdminsIcon({ style }: { style?: React.CSSProperties }) {
     </svg>
   )
 }
-
+function AuthorsIcon({ style }: { style?: React.CSSProperties }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+  )
+}
 function SignOutIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>

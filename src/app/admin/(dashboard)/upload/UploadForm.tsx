@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { extractTextFromPDF } from '@/lib/pdf'
 import RichEditor from '@/components/editor/RichEditor'
 import AttachmentsPanel, { type PendingAttachment, uploadAttachments } from '@/components/editor/AttachmentsPanel'
+import AuthorPicker, { type AuthorPickerOption } from '@/components/admin/AuthorPicker'
 import type { ContentType, Locale } from '@/types'
 import { logContentCreated } from '../content/actions'
 
@@ -28,7 +29,14 @@ const LOCALES: { value: Locale; label: string }[] = [
 
 type SourceMode = 'pdf' | 'editor'
 
-export default function UploadForm({ categories }: { categories: Category[] }) {
+export default function UploadForm({
+  categories,
+  authors,
+}: {
+  categories: Category[]
+  /* Pass 5c — supplied by the upload/page.tsx server fetch. */
+  authors:    AuthorPickerOption[]
+}) {
   const pdfRef = useRef<HTMLInputElement>(null)
   const imgRef = useRef<HTMLInputElement>(null)
   const [title, setTitle]               = useState('')
@@ -43,7 +51,11 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
   const [theme, setTheme]               = useState('')
   const [series, setSeries]             = useState('')
   const [lessonNumber, setLessonNumber] = useState('')
-  const [speaker, setSpeaker]           = useState('')
+  /* Pass 5c — paired state: relational author_id + denormalised display
+     name. The display name lives on `content.speaker` so the byline still
+     works if the author is later deleted. */
+  const [authorId, setAuthorId]                   = useState<string | null>(null)
+  const [speakerDisplayName, setSpeakerDisplayName] = useState<string>('')
   const [datePreached, setDatePreached] = useState('')
   const [category, setCategory]         = useState('')
   const [tags, setTags]                 = useState('')
@@ -140,7 +152,12 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
           language,
           theme:           theme.trim() || null,
           lesson_number:   lessonNumber.trim() || null,
-          speaker:         speaker.trim() || null,
+          /* Pass 5c — write both. `author_id` is the relational link;
+             `speaker` is denormalised so legacy code paths (e.g. the
+             content_translations table's speaker column) and the
+             "deleted author" fallback continue to work. */
+          author_id:       authorId,
+          speaker:         speakerDisplayName.trim() || null,
           series:          series.trim() || null,
           date_preached:   datePreached || null,
           scripture_refs:  scriptureRefs.split(';').map(s => s.trim()).filter(Boolean),
@@ -165,7 +182,7 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
       }
 
       await logContentCreated(inserted.id, title.trim(), contentType, status)
- 
+
       /* Fire-and-forget translation. We don't await it because translating into
          4 locales can take 5-15s and we don't want to block the redirect. The
          endpoint logs its own audit row on completion. */
@@ -175,7 +192,7 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
         body:    JSON.stringify({ contentId: inserted.id }),
         keepalive: true,
       }).catch(() => { /* silent — admins can retry from the edit screen */ })
- 
+
       window.location.href = '/admin/content'
 
     } catch (err) {
@@ -361,8 +378,18 @@ export default function UploadForm({ categories }: { categories: Category[] }) {
                 <input type="date" value={datePreached} onChange={e => setDatePreached(e.target.value)} style={inputStyle} />
               </Field>
             </div>
-            <Field label="Speaker">
-              <input type="text" value={speaker} onChange={e => setSpeaker(e.target.value)} placeholder="e.g. Pastor John" style={inputStyle} />
+            {/* Pass 5c — Speaker is now the author picker. Free-text fallback
+                kicks in automatically via the AuthorPicker's "+ Create" path. */}
+            <Field label="Speaker / Author">
+              <AuthorPicker
+                authors={authors}
+                value={authorId}
+                displayName={speakerDisplayName}
+                onChange={({ authorId: nextId, displayName }) => {
+                  setAuthorId(nextId)
+                  setSpeakerDisplayName(displayName)
+                }}
+              />
             </Field>
           </div>
 

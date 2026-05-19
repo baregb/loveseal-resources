@@ -458,8 +458,10 @@ export default function PublicContentList({
               maxHeight: '85dvh',
               overflowY: 'auto',
               width: '100%',
-              maxWidth: '600px',
-              padding: '16px',
+              /* Modal/sheet cap — uses --width-narrow (640px) to keep
+                 a comfortable reading width on wide viewports. */
+              maxWidth: 'var(--width-narrow)',
+              padding: '1rem',
               border: '0.5px solid var(--border-strong)',
             }}
           >

@@ -14,6 +14,7 @@ export type AuditAction =
   | 'category.created' | 'category.updated' | 'category.deleted'
   | 'admin.invited' | 'admin.accepted' | 'admin.removed' | 'admin.role_changed'
   | 'attachment.uploaded' | 'attachment.deleted'
+  | 'author.created' | 'author.updated' | 'author.deleted'
 
 export type Database = {
   public: {
@@ -63,6 +64,9 @@ export type Database = {
           status: 'draft' | 'published'
           language: 'en' | 'es' | 'fr' | 'pt' | 'ar'
           search_vector: string | null
+          /** Pass 5a — trigger-maintained 220wpm estimate. NULL on legacy rows;
+           *  readers should fall back to lib/read-time.ts when null. */
+          read_time_minutes: number | null
           created_by: string | null
           last_edited_by: string | null
           created_at: string
@@ -89,6 +93,9 @@ export type Database = {
           status?: 'draft' | 'published'
           language?: 'en' | 'es' | 'fr' | 'pt' | 'ar'
           search_vector?: string | null
+          /** Pass 5a — usually omit; the trigger computes it. Optional override
+           *  only present for completeness / forwards-compat with backfills. */
+          read_time_minutes?: number | null
           created_by?: string | null
           last_edited_by?: string | null
           created_at?: string
@@ -115,6 +122,9 @@ export type Database = {
           status?: 'draft' | 'published'
           language?: 'en' | 'es' | 'fr' | 'pt' | 'ar'
           search_vector?: string | null
+          /** Pass 5a — typically not written by app code; the trigger
+           *  recomputes on changes to extracted_text or body_html. */
+          read_time_minutes?: number | null
           created_by?: string | null
           last_edited_by?: string | null
           created_at?: string
@@ -282,12 +292,43 @@ export type Database = {
           created_at?: string
         }
       }
+      recent_searches: {
+        Row: {
+          id: number
+          query: string
+          locale: 'en' | 'es' | 'fr' | 'pt' | 'ar'
+          occurred_at: string
+        }
+        Insert: {
+          id?: number
+          query: string
+          locale: 'en' | 'es' | 'fr' | 'pt' | 'ar'
+          occurred_at?: string
+        }
+        Update: {
+          id?: number
+          query?: string
+          locale?: 'en' | 'es' | 'fr' | 'pt' | 'ar'
+          occurred_at?: string
+        }
+      }
     }
     Views: { [_ in never]: never }
     Functions: {
       search_content: {
         Args: { q: string; search_locale?: string }
         Returns: { id: string; rank: number }[]
+      }
+      top_recent_search_terms: {
+        Args: { window_hours?: number; n?: number }
+        Returns: { term: string; occurrences: number }[]
+      }
+      /** Pass 5a — pure 220 wpm read-time helper. Used by the
+       *  content_read_time trigger; exposed here in case any future RPC
+       *  needs to call it directly. */
+      compute_read_time_minutes: {
+        Args: { input: string | null }
+        Returns: number
       }
     }
     Enums: {

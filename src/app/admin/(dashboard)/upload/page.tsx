@@ -5,12 +5,19 @@ export const metadata = { title: 'Upload Content' }
 
 export default async function UploadPage() {
   const supabase = await createClient()
-  const { data: categories } = await supabase
-    .from('categories')
-    .select('id, name, slug, content_type')
-    .order('name')
+  const [{ data: categories }, { data: authors }] = await Promise.all([
+    supabase
+      .from('categories')
+      .select('id, name, slug, content_type')
+      .order('name'),
+    supabase
+      .from('authors')
+      .select('id, name, slug, avatar_url')
+      .order('name'),
+  ])
 
-  const cats = (categories ?? []) as Parameters<typeof UploadForm>[0]['categories']
+  const cats    = (categories ?? []) as Parameters<typeof UploadForm>[0]['categories']
+  const authorList = (authors ?? []) as Parameters<typeof UploadForm>[0]['authors']
 
   return (
     <div>
@@ -25,7 +32,7 @@ export default async function UploadPage() {
           color: 'var(--text-primary)', lineHeight: 1.0,
         }}>Upload</h1>
       </div>
-      <UploadForm categories={cats} />
+      <UploadForm categories={cats} authors={authorList} />
     </div>
   )
 }

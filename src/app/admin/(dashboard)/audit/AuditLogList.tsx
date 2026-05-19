@@ -19,6 +19,9 @@ const ACTION_LABELS: Record<AuditAction, string> = {
   'admin.role_changed':     'Changed admin role',
   'attachment.uploaded':    'Uploaded attachment',
   'attachment.deleted':     'Deleted attachment',
+  'author.created':         'Created author',
+  'author.updated':         'Updated author',
+  'author.deleted':         'Deleted author',
 }
 
 const ACTION_GROUPS: Record<string, { label: string; color: string }> = {
@@ -26,6 +29,7 @@ const ACTION_GROUPS: Record<string, { label: string; color: string }> = {
   category:   { label: 'Category',   color: '#F5AE41' },
   admin:      { label: 'Admin',      color: '#C32126' },
   attachment: { label: 'Attachment', color: '#7B5EA7' },
+  author:     { label: 'Author',     color: '#5BAA6E' },
 }
 
 export default function AuditLogList({ entries }: { entries: AuditLogRow[] }) {

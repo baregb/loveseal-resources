@@ -26,13 +26,14 @@
     "signin": "Entrar"
   },
   "hero": {
-    "eyebrow": "De {parent}",
-    "headlinePart1": "O que há",
-    "headlinePart2": "de novo",
-    "headlineHighlight": "agora",
     "viewAllLatest": "Ver todos os mais recentes",
     "drag": "arrastar",
-    "empty": "Nenhum conteúdo publicado ainda. Volte em breve."
+    "empty": "Nenhum conteúdo publicado ainda. Volte em breve.",
+    "peace": {
+      "line1": "A paz",
+      "line2": "esteja contigo.",
+      "subline": "Eis o que está se movendo hoje no corpo — e o que levar ao teu lugar de oração."
+    }
   },
   "featured": {
     "title": "Em destaque esta semana",
@@ -50,18 +51,16 @@
     }
   },
   "sections": {
-    "manuals": "Manuais recentes",
+    "manuals": "Manuais",
     "prophecies": "Profecias",
     "articles": "Artigos",
     "blog": "Blog",
-    "viewAll": "Ver tudo"
-  },
-  "closingCta": {
-    "title1": "Leia.",
-    "title2": "Compartilhe.",
-    "title3": "Multiplique.",
-    "body": "Cada manual, profecia, artigo e postagem é compartilhável com um toque. Envie a verdade a quem precisa dela.",
-    "button": "Explorar a biblioteca"
+    "viewAll": "Ver tudo",
+    "latest": "{type} recentes",
+    "inFocus": {
+      "label": "Em foco esta semana"
+    },
+    "joinUs": "JUNTE-SE A NÓS"
   },
   "library": {
     "eyebrow": "Biblioteca",
@@ -117,18 +116,93 @@
       "content": "Conteúdo"
     }
   },
+  "topic": {
+    "_todo_translation": true,
+    "eyebrow": {
+      "type": "Topic"
+    },
+    "typeBody": "Every published {type} in the library, newest first.",
+    "emptyType": "No {type} content yet. Check back soon."
+  },
+  "topics": {
+    "_todo_translation": true,
+    "eyebrow": "Browse",
+    "title": "Topics",
+    "body": "Every tag and theme used across the library. Tap one to see all the manuals, prophecies, articles, and blog posts that touch it.",
+    "tagEyebrow": "Topic",
+    "tagBody": "Everything tagged #{tag} across the library, newest first.",
+    "tagsCount": "{count, plural, =0 {no topics yet} =1 {1 topic} other {# topics}}",
+    "itemsCount": "{count, plural, =0 {no items} =1 {1 item} other {# items}}",
+    "empty": "No topics yet. Once content is published with tags, they'll appear here.",
+    "emptyTag": "No content tagged #{tag} yet."
+  },
+  "authors": {
+    "_todo_translation": true,
+    "eyebrow": "Author",
+    "indexTitle": "Authors",
+    "indexBody": "Speakers and writers behind the manuals, prophecies, articles, and blog posts. Tap a name to see everything they've contributed.",
+    "authorsCount": "{count, plural, =0 {no authors yet} =1 {1 author} other {# authors}}",
+    "itemsCount": "{count, plural, =0 {no items} =1 {1 item} other {# items}}",
+    "empty": "No authors yet. Once content is published with attributed authors, they'll appear here.",
+    "emptyForAuthor": "{name} hasn't published anything in this category yet.",
+    "profileFallbackBody": "Content by {name}"
+  },
   "notFound": {
     "label": "404",
     "title": "Conteúdo não encontrado",
     "body": "O conteúdo que você procura pode ter sido removido ou despublicado.",
-    "browse": "Explorar todo o conteúdo"
+    "browse": "Explorar todo o conteúdo",
+    "root": {
+      "_todo_translation": true,
+      "label": "404",
+      "title": "Page not found",
+      "body": "The page you're looking for doesn't exist or has been moved.",
+      "home": "Go home",
+      "browse": "Browse the library"
+    },
+    "topic": {
+      "_todo_translation": true,
+      "label": "404",
+      "title": "Topic not found",
+      "body": "That isn't one of our content types. Try manuals, prophecies, articles, or blog.",
+      "browse": "Browse all content"
+    },
+    "tag": {
+      "_todo_translation": true,
+      "label": "404",
+      "title": "Topic not found",
+      "body": "We couldn't find anything tagged with that. The tag may have been removed, or no content uses it yet.",
+      "browse": "All topics"
+    },
+    "author": {
+      "_todo_translation": true,
+      "label": "404",
+      "title": "Author not found",
+      "body": "We couldn't find an author at that link. They may have been removed, or the URL might be mistyped.",
+      "browse": "All authors"
+    }
   },
   "footer": {
-    "tagline": "Manuais, profecias, artigos e postagens de {parent} — acessíveis, baixáveis e prontos para compartilhar.",
+    "navLabel": "Rodapé",
+    "display": {
+      "read": "Leia.",
+      "share": "Compartilhe.",
+      "multiply": "Multiplique."
+    },
+    "tagline": "Cada manual, profecia, artigo e postagem pode ser compartilhado com um toque. Envie a verdade para quem precisa — em cinco idiomas, em qualquer dispositivo, online ou offline.",
+    "cta": {
+      "browse": "Explorar a biblioteca"
+    },
+    "subscribe": {
+      "button": "Inscrever-se por email",
+      "placeholder": "seu@email.com",
+      "submit": "Inscrever",
+      "success": "Obrigado — entraremos em contato."
+    },
     "columns": {
       "content": "Conteúdo",
       "browse": "Navegar",
-      "admin": "Admin"
+      "about": "Sobre"
     },
     "links": {
       "manuals": "Manuais",
@@ -136,9 +210,16 @@
       "articles": "Artigos",
       "blog": "Blog",
       "allContent": "Todo o conteúdo",
-      "home": "Início",
-      "signin": "Entrar"
+      "latest": "Recentes",
+      "topics": "Temas",
+      "authors": "Autores",
+      "loveseal": "LoveSeal Church",
+      "story": "Nossa história",
+      "contact": "Contato",
+      "give": "Contribuir"
     },
+    "joinUs": "JUNTE-SE A NÓS",
+    "langs": "EN · ES · FR · PT · AR",
     "copyright": "© {year} {parent}. Todos os direitos reservados."
   },
   "languageSwitcher": {

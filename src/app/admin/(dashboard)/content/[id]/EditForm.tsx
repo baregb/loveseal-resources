@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import RichEditor from '@/components/editor/RichEditor'
 import AttachmentsPanel, { type PendingAttachment, uploadAttachments } from '@/components/editor/AttachmentsPanel'
+import AuthorPicker, { type AuthorPickerOption } from '@/components/admin/AuthorPicker'
 import type { ContentType, Locale } from '@/types'
 import { logContentUpdated } from '../actions'
 import { translateContent } from '../translate-actions'
@@ -18,6 +19,11 @@ interface Item {
   summary_points: string[] | null; language: Locale; status: 'draft' | 'published'
   body_html: string | null
   pdf_url: string | null
+  /* Pass 5a — server-computed 220 wpm read-time. Read-only here; the
+     SQL trigger refreshes it on every save that touches the body. */
+  read_time_minutes: number | null
+  /* Pass 5c — relational link to the authors table. */
+  author_id: string | null
 }
 
 interface AttachmentRow {
@@ -47,10 +53,12 @@ const LOCALE_LABEL: Record<Locale, string> = {
 }
 
 export default function EditForm({
-  item, categories, existingAttachments,
+  item, categories, authors, existingAttachments,
 }: {
   item: Item
   categories: Category[]
+  /* Pass 5c — supplied by the content/[id]/page.tsx server fetch. */
+  authors: AuthorPickerOption[]
   existingAttachments: AttachmentRow[]
 }) {
   const router = useRouter()
@@ -62,7 +70,10 @@ export default function EditForm({
   const [theme, setTheme]               = useState(item.theme ?? '')
   const [series, setSeries]             = useState(item.series ?? '')
   const [lessonNumber, setLessonNumber] = useState(item.lesson_number ?? '')
-  const [speaker, setSpeaker]           = useState(item.speaker ?? '')
+  /* Pass 5c — paired state: relational author_id + denormalised display
+     name. Initialised from the row's existing values. */
+  const [authorId, setAuthorId]                   = useState<string | null>(item.author_id)
+  const [speakerDisplayName, setSpeakerDisplayName] = useState<string>(item.speaker ?? '')
   const [datePreached, setDatePreached] = useState(item.date_preached ?? '')
   const [category, setCategory]         = useState(item.category)
   const [tags, setTags]                 = useState(item.tags.join(', '))
@@ -117,7 +128,9 @@ export default function EditForm({
         language,
         theme:         theme.trim() || null,
         lesson_number: lessonNumber.trim() || null,
-        speaker:       speaker.trim() || null,
+        /* Pass 5c — write both. See UploadForm for the rationale. */
+        author_id:     authorId,
+        speaker:       speakerDisplayName.trim() || null,
         series:        series.trim() || null,
         date_preached: datePreached || null,
         scripture_refs: scriptureRefs.split(';').map(s => s.trim()).filter(Boolean),
@@ -363,9 +376,50 @@ export default function EditForm({
                 <input type="date" value={datePreached} onChange={e => setDatePreached(e.target.value)} style={inputStyle} />
               </Field>
             </div>
-            <Field label="Speaker">
-              <input type="text" value={speaker} onChange={e => setSpeaker(e.target.value)} style={inputStyle} />
+            {/* Pass 5c — Speaker is now the author picker. */}
+            <Field label="Speaker / Author">
+              <AuthorPicker
+                authors={authors}
+                value={authorId}
+                displayName={speakerDisplayName}
+                onChange={({ authorId: nextId, displayName }) => {
+                  setAuthorId(nextId)
+                  setSpeakerDisplayName(displayName)
+                }}
+              />
             </Field>
+
+            {/* Pass 5a — read-only display of the trigger-computed read-time. Auto-refreshes on save. */}
+            <div style={{
+              marginTop:    '0.875rem',
+              padding:      '0.5rem 0.75rem',
+              background:   'var(--bg-elevated)',
+              border:       '0.0625rem solid var(--border-subtle)',
+              borderRadius: '0.375rem',
+              display:      'inline-flex',
+              alignItems:   'center',
+              gap:          '0.5rem',
+              fontSize:     '0.75rem',
+              color:        'var(--text-tertiary)',
+              fontFamily:   'var(--font-body)',
+            }}>
+              <span style={{
+                textTransform:  'uppercase',
+                letterSpacing:  '0.08em',
+                fontWeight:     500,
+                color:          'var(--text-muted)',
+              }}>
+                Auto read time
+              </span>
+              <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>
+                {item.read_time_minutes != null
+                  ? `${item.read_time_minutes} min`
+                  : '—'}
+              </span>
+              <span style={{ color: 'var(--text-faint)' }}>
+                · recomputed on save
+              </span>
+            </div>
           </div>
 
           <div style={cardStyle}>

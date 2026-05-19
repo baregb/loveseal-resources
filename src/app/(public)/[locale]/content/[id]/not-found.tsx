@@ -8,9 +8,10 @@ export default function NotFound() {
 
   return (
     <div style={{
-      maxWidth: '600px',
-      margin: '0 auto',
-      padding: '80px 24px',
+      /* Narrow centered block — uses --width-narrow (640px). */
+      maxWidth:  'var(--width-narrow)',
+      margin:    '0 auto',
+      padding:   '5rem var(--page-inline-padding)',
       textAlign: 'center',
     }}>
       <p style={{

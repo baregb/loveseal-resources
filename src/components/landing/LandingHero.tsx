@@ -5,7 +5,6 @@ import { motion, AnimatePresence, type PanInfo } from 'framer-motion'
 import { useTranslations, useLocale } from 'next-intl'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
-import { BRAND } from '@/components/brand/Brand'
 
 interface HeroItem {
   id:              string
@@ -68,16 +67,17 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
 
   return (
     <section style={{
-      maxWidth: '1240px',
-      margin: '0 auto',
-      padding: '40px 24px 60px',
+      /* No max-width: hero spans full viewport. Horizontal padding via the
+         shared --page-inline-padding token so the "PEACE BE WITH YOU"
+         headline aligns to the same left gridline as the header logo. */
+      padding: '2.5rem var(--page-inline-padding) 3.75rem',
     }}>
       <div className="lr-hero-grid" style={{
         display: 'grid',
         gridTemplateColumns: '1.1fr 1.3fr 0.9fr',
-        gap: '32px',
+        gap: '2rem',
         alignItems: 'center',
-        minHeight: '500px',
+        minHeight: '31.25rem',
       }}>
 
         <div>
@@ -86,69 +86,71 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             style={{
-              fontFamily: 'var(--font-display), Barlow Condensed, sans-serif',
-              fontSize: 'clamp(56px, 9vw, 128px)',
-              fontWeight: 900,
-              lineHeight: 0.88,
+              fontFamily:    'var(--font-display), "Barlow Condensed", sans-serif',
+              fontSize:      'clamp(2.5rem, 7vw, 6rem)',
+              fontWeight:    900,
+              lineHeight:    0.92,
+              color:         'var(--text-primary)',
+              letterSpacing: '-0.018em',
+              marginBottom:  '1rem',
               textTransform: 'uppercase',
-              color: 'var(--text-primary)',
-              letterSpacing: '-0.025em',
-              marginBottom: '28px',
             }}
           >
-            {t('headlinePart1')}<br/>{t('headlinePart2')}<br/>
-            <span style={{ color: 'var(--brand-gold)' }}>{t('headlineHighlight')}</span>
+            {t('peace.line1')}
+            <br />
+            <span style={{ color: 'var(--brand-red)' }}>{t('peace.line2')}</span>
           </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            style={{
+              fontFamily:   'var(--font-body), system-ui, sans-serif',
+              fontSize:     'clamp(0.9375rem, 1.4vw, 1.125rem)',
+              lineHeight:   1.5,
+              color:        'var(--text-secondary)',
+              maxWidth:     '32rem',
+              marginBottom: '1.75rem',
+            }}
+          >
+            {t('peace.subline')}
+          </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            style={{ marginBottom: '32px' }}
+            transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            style={{ marginBottom: '0.5rem' }}
           >
             <Link
               href="/content"
               style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '14px 22px',
-                background: 'var(--brand-gold)',
-                color: 'var(--text-inverse)',
-                borderRadius: '999px',
-                fontSize: '14px',
-                fontWeight: 500,
+                display:        'inline-flex',
+                alignItems:     'center',
+                gap:            '0.625rem',
+                padding:        '0.875rem 1.375rem',
+                background:     'var(--brand-red)',
+                color:          '#FFFFFF',
+                borderRadius:   '999rem',
+                fontSize:       '0.875rem',
+                fontWeight:     500,
                 textDecoration: 'none',
               }}
             >
               {t('viewAllLatest')}
               <span style={{
-                width: '24px',
-                height: '24px',
-                borderRadius: '50%',
-                background: 'var(--text-inverse)',
-                color: 'var(--brand-gold)',
-                display: 'inline-flex',
-                alignItems: 'center',
+                width:          '1.5rem',
+                height:         '1.5rem',
+                borderRadius:   '50%',
+                background:     '#FFFFFF',
+                color:          'var(--brand-red)',
+                display:        'inline-flex',
+                alignItems:     'center',
                 justifyContent: 'center',
-                fontSize: '13px',
+                fontSize:       '0.8125rem',
               }}>→</span>
             </Link>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            style={{
-              fontSize: '11px',
-              color: 'var(--text-muted)',
-              letterSpacing: '0.14em',
-              textTransform: 'uppercase',
-              marginBottom: '8px',
-            }}
-          >
-            {t('eyebrow', { parent: BRAND.parent })}
           </motion.div>
         </div>
 
@@ -215,10 +217,10 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
         </div>
 
         <div className="lr-hero-cats" style={{
-          display: 'flex',
+          display:       'flex',
           flexDirection: 'column',
-          alignItems: 'flex-end',
-          gap: '4px',
+          alignItems:    'flex-end',
+          gap:           '0.125rem',
         }}>
           {TYPE_ORDER.map((type, idx) => {
             const isActive = idx === activeTypeIdx
@@ -240,21 +242,23 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
         </div>
       </div>
 
-      <Marquee />
-
       <style>{`
-        @media (max-width: 900px) {
+        @media (max-width: 56.25rem) {
           .lr-hero-grid {
             grid-template-columns: 1fr !important;
-            gap: 16px !important;
+            gap: 1rem !important;
             min-height: 0 !important;
           }
           .lr-hero-cats {
             flex-direction: row !important;
             flex-wrap: wrap !important;
-            justify-content: center !important;
-            gap: 8px 14px !important;
-            font-size: 16px !important;
+            justify-content: flex-start !important;
+            align-items: baseline !important;
+            gap: 0.5rem 1rem !important;
+          }
+          .lr-hero-cats button {
+            font-size: 1.5rem !important;
+            text-align: left !important;
           }
         }
       `}</style>
@@ -499,95 +503,26 @@ function CategoryRow({
       type="button"
       onClick={onClick}
       style={{
-        position: 'relative',
-        background: 'transparent',
-        border: 'none',
-        cursor: 'pointer',
-        padding: '4px 8px',
-        fontFamily: 'var(--font-display), Barlow Condensed, sans-serif',
-        fontSize: 'clamp(28px, 4vw, 48px)',
-        fontWeight: 900,
+        position:      'relative',
+        background:    'transparent',
+        border:        'none',
+        cursor:        'pointer',
+        padding:       '0',
+        fontFamily:    'var(--font-display), "Barlow Condensed", sans-serif',
+        fontSize:      'clamp(2.5rem, 4.5vw, 4.25rem)',
+        fontWeight:    900,
         textTransform: 'uppercase',
-        lineHeight: 1,
-        letterSpacing: '-0.01em',
-        color: isActive ? 'var(--text-primary)' : 'var(--text-faint)',
-        transition: 'color 0.3s',
+        lineHeight:    0.98,
+        letterSpacing: '-0.012em',
+        color:         isActive
+          ? 'var(--brand-red)'
+          : 'color-mix(in srgb, var(--text-primary) 32%, transparent)',
+        textAlign:     'right',
+        transition:    'color 0.3s',
       }}
     >
-      {isActive && (
-        <motion.span
-          layoutId="cat-highlight"
-          transition={{ type: 'spring', stiffness: 280, damping: 30 }}
-          style={{
-            position: 'absolute',
-            inset: '8px -4px 6px -4px',
-            background: 'rgba(245, 174, 65, 0.35)',
-            borderRadius: '4px',
-            zIndex: -1,
-          }}
-        />
-      )}
       {label}
     </button>
-  )
-}
-
-function Marquee() {
-  const items = [
-    'Lively Resources',
-    'Manuals',
-    'Prophecies',
-    'Articles',
-    'Blog',
-    'LoveSeal Church',
-    'Word made simple',
-  ]
-  const doubled = [...items, ...items]
-
-  return (
-    <div style={{
-      marginTop: '40px',
-      background: 'var(--brand-gold)',
-      padding: '14px 0',
-      borderRadius: '12px',
-      overflow: 'hidden',
-      position: 'relative',
-    }}>
-      <div className="lr-marquee-track" style={{
-        display: 'flex',
-        gap: '40px',
-        whiteSpace: 'nowrap',
-        animation: 'lr-marquee 32s linear infinite',
-        fontFamily: 'var(--font-display), Barlow Condensed, sans-serif',
-        fontWeight: 700,
-        fontSize: '18px',
-        textTransform: 'uppercase',
-        letterSpacing: '0.06em',
-        color: 'var(--text-inverse)',
-        width: 'max-content',
-      }}>
-        {doubled.map((item, idx) => (
-          <span key={idx} style={{ display: 'inline-flex', alignItems: 'center', gap: '40px' }}>
-            {item}
-            <span style={{
-              width: '6px',
-              height: '6px',
-              background: 'var(--text-inverse)',
-              borderRadius: '50%',
-              flexShrink: 0,
-            }} />
-          </span>
-        ))}
-      </div>
-
-      <style>{`
-        @keyframes lr-marquee {
-          0%   { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-        .lr-marquee-track:hover { animation-play-state: paused; }
-      `}</style>
-    </div>
   )
 }
 

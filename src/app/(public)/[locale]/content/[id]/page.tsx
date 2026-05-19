@@ -122,7 +122,17 @@ export default async function PublicContentDetailPage({ params }: PageParams) {
   const [{ data: rawItem }, { data: attachments }] = await Promise.all([
     supabase
       .from('content')
-      .select('*')
+      .select(`
+        id, title, content_type, source_mode, category, tags,
+        theme, lesson_number, speaker, series, date_preached,
+        scripture_refs, extracted_text, body_html, summary_points,
+        pdf_url, cover_image_url, status, language, search_vector,
+        read_time_minutes, author_id, created_by, last_edited_by,
+        created_at, updated_at,
+        author:authors!content_author_id_fkey (
+          id, name, slug, avatar_url
+        )
+      `)
       .eq('id', id)
       .eq('status', 'published')
       .single(),

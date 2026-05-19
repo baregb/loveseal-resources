@@ -9,9 +9,13 @@ export default function AboutStrip() {
 
   return (
     <section style={{
-      maxWidth: '1200px',
-      margin: '0 auto',
-      padding: '80px 24px',
+      /* Centered section, capped at --width-content (1280px). Horizontal
+         padding from --page-inline-padding so the section's edges align
+         with the rest of the site chrome below the cap; on viewports
+         wider than 1280px the side margin grows naturally. */
+      maxWidth: 'var(--width-content)',
+      margin:   '0 auto',
+      padding:  '5rem var(--page-inline-padding)',
     }}>
       <div style={{
         background: 'var(--bg-raised)',
@@ -57,7 +61,10 @@ export default function AboutStrip() {
             color: 'var(--text-primary)',
             letterSpacing: '-0.015em',
             marginBottom: '24px',
-            maxWidth: '900px',
+            /* Component-local headline cap (~900px). Not promoted to a
+               global token because no other component shares this need;
+               adding `--width-headline` for a single consumer is overkill. */
+            maxWidth: '56.25rem',
           }}>
             {t.rich('headline', {
               /* next-intl v4: rich-tag callbacks receive the inner content
@@ -75,7 +82,7 @@ export default function AboutStrip() {
             fontSize: '16px',
             color: 'var(--text-secondary)',
             lineHeight: 1.7,
-            maxWidth: '640px',
+            maxWidth: 'var(--width-narrow)',
             marginBottom: '28px',
           }}>
             {t('body', { parent: BRAND.parent })}

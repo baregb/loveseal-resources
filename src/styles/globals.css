@@ -7,6 +7,15 @@
 
 :root,
 [data-theme="dark"] {
+  
+  --font-display:   var(--font-barlow);
+  --font-body:      var(--font-dm-sans);
+  --page-inline-padding: 0.875rem;
+  --width-prose:   48.75rem;
+  --width-narrow:  40rem;
+  --width-content: 80rem;
+
+
   /* Brand — same in both themes */
   --brand-gold:     #F5AE41;
   --brand-blue:     #4498CC;
@@ -75,11 +84,41 @@
   --topbar-bg:      #FFFFFF;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   FOOTER — scoped tokens (theme-independent)
+   The public footer always renders on Ink-dark regardless of [data-theme].
+   These tokens are intentionally NOT remapped per theme; they're fixed values
+   that match the design templates. Used only by PublicFooter and children.
+   ───────────────────────────────────────────────────────────────────────────── */
+:root {
+  --footer-bg:          #14110D;                  /* Ink — solid base */
+  --footer-red:         #C32126;                  /* Primary accent for "SHARE." and Browse pill */
+  --footer-text:        #FFFFFF;                  /* Full white — display text */
+  --footer-text-muted:  rgba(255, 255, 255, 0.85);/* Nav links */
+  --footer-text-soft:   rgba(255, 255, 255, 0.7); /* Tagline body */
+  --footer-text-faint:  rgba(255, 255, 255, 0.6); /* Byline */
+  --footer-text-dim:    rgba(255, 255, 255, 0.55);/* Copyright row */
+  --footer-text-label:  rgba(255, 255, 255, 0.5); /* Eyebrow labels */
+  --footer-divider:     rgba(255, 255, 255, 0.1); /* 1px hairline rule */
+  --footer-pill-outline:rgba(255, 255, 255, 0.25);/* Subscribe outline pill */
+  --footer-input-bg:    rgba(255, 255, 255, 0.08);/* Subscribe form input background */
+  --footer-input-border:rgba(255, 255, 255, 0.18);/* Subscribe form input border */
+}
+
 /* Smooth transition between themes */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+/* Responsive page padding — slightly more breathing room on desktop while
+   staying close to the edge-to-edge feel requested for the design. */
+@media (min-width: 64rem) {
+  :root { --page-inline-padding: 1.25rem; }
+}
+@media (min-width: 90rem) {
+  :root { --page-inline-padding: 1.5rem; }
 }
 
 body {
