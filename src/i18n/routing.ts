@@ -50,6 +50,6 @@ export const LOCALES_META: Record<AppLocale, { label: string; native: string; fl
   en: { label: 'English',     native: 'English',     flag: '🇬🇧', dir: 'ltr' },
   es: { label: 'Spanish',     native: 'Español',     flag: '🇪🇸', dir: 'ltr' },
   fr: { label: 'French',      native: 'Français',    flag: '🇫🇷', dir: 'ltr' },
-  pt: { label: 'Portuguese',  native: 'Português',   flag: '🇧🇷', dir: 'ltr' },
+  pt: { label: 'Portuguese',  native: 'Português',   flag: '🇵🇹', dir: 'ltr' },
   ar: { label: 'Arabic',      native: 'العربية',     flag: '🇸🇦', dir: 'rtl' },
 }
