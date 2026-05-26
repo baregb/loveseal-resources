@@ -15,6 +15,7 @@ export type AuditAction =
   | 'admin.invited' | 'admin.accepted' | 'admin.removed' | 'admin.role_changed'
   | 'attachment.uploaded' | 'attachment.deleted'
   | 'author.created' | 'author.updated' | 'author.deleted'
+  | 'editorial_tag.created' | 'editorial_tag.updated' | 'editorial_tag.deleted'
 
 export type Database = {
   public: {
@@ -311,6 +312,32 @@ export type Database = {
           locale?: 'en' | 'es' | 'fr' | 'pt' | 'ar'
           occurred_at?: string
         }
+        editorial_tags: {
+        Row: {
+          id: string
+          tag: string
+          position: number
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          tag: string
+          position?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          tag?: string
+          position?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
       }
     }
     Views: { [_ in never]: never }

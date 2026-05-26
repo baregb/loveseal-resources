@@ -7,11 +7,12 @@ import { createClient } from '@/lib/supabase/client'
 import { BrandName } from '@/components/brand/Brand'
 
 const baseNavLinks = [
-  { href: '/admin',            label: 'Dashboard',  icon: HomeIcon       },
-  { href: '/admin/content',    label: 'Content',    icon: ContentIcon    },
-  { href: '/admin/upload',     label: 'Upload',     icon: UploadIcon     },
-  { href: '/admin/authors',    label: 'Authors',    icon: AuthorsIcon    },
-  { href: '/admin/categories', label: 'Categories', icon: CategoriesIcon },
+  { href: '/admin',                 label: 'Dashboard',     icon: HomeIcon            },
+  { href: '/admin/content',         label: 'Content',       icon: ContentIcon         },
+  { href: '/admin/upload',          label: 'Upload',        icon: UploadIcon          },
+  { href: '/admin/authors',         label: 'Authors',       icon: AuthorsIcon         },
+  { href: '/admin/categories',      label: 'Categories',    icon: CategoriesIcon      },
+  { href: '/admin/editorial-tags',  label: 'In-focus tags', icon: EditorialTagsIcon   },
 ]
 
 const superAdminNavLinks = [
@@ -272,6 +273,14 @@ function AuthorsIcon({ style }: { style?: React.CSSProperties }) {
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={style}>
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
       <circle cx="12" cy="7" r="4"/>
+    </svg>
+  )
+}
+function EditorialTagsIcon({ style }: { style?: React.CSSProperties }) {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={style}>
+      <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+      <line x1="7" y1="7" x2="7.01" y2="7"/>
     </svg>
   )
 }

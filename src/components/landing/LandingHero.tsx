@@ -16,14 +16,13 @@ interface HeroItem {
   created_at:      string
 }
 
-const TYPE_COLORS: Record<string, string> = {
-  manual:   '#4498CC',
-  prophecy: '#C32126',
-  article:  '#F5AE41',
-  blog:     '#3C3C3C',
-}
-
 const TYPE_ORDER: HeroItem['content_type'][] = ['manual', 'prophecy', 'article', 'blog']
+
+/* Pastel tints that appear BEHIND the active card as the stack fans out.
+   Offset 0 = active card (no tint applied; cover takes over). Offsets 1+ are
+   the cards peeking out behind. Pink / blue / mint / soft-yellow approximates
+   the design template's fan. */
+const STACK_TINTS = ['#FFFFFF', '#F5C9D6', '#B8E0E6', '#C5E8C8', '#F2D89C']
 
 export default function LandingHero({ items }: { items: HeroItem[] }) {
   const t       = useTranslations('hero')
@@ -31,8 +30,8 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
   const tTypes  = useTranslations('content.types')
   const locale  = useLocale()
 
-  const [activeIdx, setActiveIdx]   = useState(0)
-  const [showHint, setShowHint]     = useState(true)
+  const [activeIdx, setActiveIdx] = useState(0)
+  const [showHint, setShowHint]   = useState(true)
   const cardCount = items.length
 
   useEffect(() => {
@@ -63,23 +62,28 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
 
   const activeItem    = items[activeIdx]
   const activeType    = activeItem?.content_type
+  /* Active row in the right column is driven by the active card's
+     content_type — TYPE_ORDER index resolution. Matches the locked
+     answer: "Drive from active card, keep current top-down order". */
   const activeTypeIdx = activeType ? TYPE_ORDER.indexOf(activeType) : 0
 
   return (
-    <section style={{
-      /* No max-width: hero spans full viewport. Horizontal padding via the
-         shared --page-inline-padding token so the "PEACE BE WITH YOU"
-         headline aligns to the same left gridline as the header logo. */
-      padding: '2.5rem var(--page-inline-padding) 3.75rem',
-    }}>
-      <div className="lr-hero-grid" style={{
-        display: 'grid',
-        gridTemplateColumns: '1.1fr 1.3fr 0.9fr',
-        gap: '2rem',
-        alignItems: 'center',
-        minHeight: '31.25rem',
-      }}>
-
+    <section
+      style={{
+        padding: '2.5rem var(--page-inline-padding) 3.75rem',
+      }}
+    >
+      <div
+        className="lr-hero-grid"
+        style={{
+          display:             'grid',
+          gridTemplateColumns: '1.1fr 1.3fr 0.9fr',
+          gap:                 '2rem',
+          alignItems:          'center',
+          minHeight:           '31.25rem',
+        }}
+      >
+        {/* ── LEFT: headline + view-all CTA ──────────────────────────── */}
         <div>
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
@@ -139,89 +143,70 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
               }}
             >
               {t('viewAllLatest')}
-              <span style={{
-                width:          '1.5rem',
-                height:         '1.5rem',
-                borderRadius:   '50%',
-                background:     '#FFFFFF',
-                color:          'var(--brand-red)',
-                display:        'inline-flex',
-                alignItems:     'center',
-                justifyContent: 'center',
-                fontSize:       '0.8125rem',
-              }}>→</span>
+              <span
+                style={{
+                  width:          '1.5rem',
+                  height:         '1.5rem',
+                  borderRadius:   '50%',
+                  background:     '#FFFFFF',
+                  color:          'var(--brand-red)',
+                  display:        'inline-flex',
+                  alignItems:     'center',
+                  justifyContent: 'center',
+                  fontSize:       '0.8125rem',
+                }}
+              >→</span>
             </Link>
           </motion.div>
         </div>
 
-        <div style={{
-          position: 'relative',
-          height: '420px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
+        {/* ── CENTER: fanned card stack ─────────────────────────────── */}
+        <div
+          style={{
+            position:       'relative',
+            height:         '26.25rem',
+            display:        'flex',
+            alignItems:     'center',
+            justifyContent: 'center',
+          }}
+        >
           {cardCount === 0 ? (
             <EmptyStack message={t('empty')} />
           ) : (
-            <>
-              <AnimatePresence mode="popLayout">
-                {items.map((item, idx) => {
-                  const offset = (idx - activeIdx + cardCount) % cardCount
-                  if (offset > 3) return null
+            <AnimatePresence mode="popLayout">
+              {items.map((item, idx) => {
+                const offset = (idx - activeIdx + cardCount) % cardCount
+                if (offset > 3) return null
 
-                  return (
-                    <Card
-                      key={item.id}
-                      item={item}
-                      offset={offset}
-                      isActive={offset === 0}
-                      onDragEnd={offset === 0 ? handleDragEnd : undefined}
-                      onClick={offset === 0 ? next : undefined}
-                      typeLabel={tTypes(item.content_type)}
-                      locale={locale}
-                    />
-                  )
-                })}
-              </AnimatePresence>
-
-              <AnimatePresence>
-                {showHint && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.4, delay: 0.6 }}
-                    style={{
-                      position: 'absolute',
-                      bottom: '24px',
-                      insetInlineEnd: '12px',
-                      background: 'var(--brand-gold)',
-                      color: 'var(--text-inverse)',
-                      fontSize: '11px',
-                      fontWeight: 500,
-                      padding: '5px 14px',
-                      borderRadius: '999px',
-                      letterSpacing: '0.04em',
-                      pointerEvents: 'none',
-                      zIndex: 50,
-                      boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
-                    }}
-                  >
-                    {t('drag')}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </>
+                return (
+                  <Card
+                    key={item.id}
+                    item={item}
+                    offset={offset}
+                    isActive={offset === 0}
+                    onDragEnd={offset === 0 ? handleDragEnd : undefined}
+                    onClick={offset === 0 ? next : undefined}
+                    typeLabel={tTypes(item.content_type)}
+                    locale={locale}
+                    showHint={offset === 0 && showHint}
+                    hintLabel={t('drag')}
+                  />
+                )
+              })}
+            </AnimatePresence>
           )}
         </div>
 
-        <div className="lr-hero-cats" style={{
-          display:       'flex',
-          flexDirection: 'column',
-          alignItems:    'flex-end',
-          gap:           '0.125rem',
-        }}>
+        {/* ── RIGHT: type column, active = brand-red + underline ─────── */}
+        <div
+          className="lr-hero-cats"
+          style={{
+            display:       'flex',
+            flexDirection: 'column',
+            alignItems:    'flex-end',
+            gap:           '0.125rem',
+          }}
+        >
           {TYPE_ORDER.map((type, idx) => {
             const isActive = idx === activeTypeIdx
             return (
@@ -230,10 +215,10 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
                 label={tNav(typeNavKey(type))}
                 isActive={isActive}
                 onClick={() => {
-                  const next = items.findIndex((i, j) => i.content_type === type && j !== activeIdx)
-                  if (next !== -1) {
+                  const nextIdx = items.findIndex((i, j) => i.content_type === type && j !== activeIdx)
+                  if (nextIdx !== -1) {
                     setShowHint(false)
-                    setActiveIdx(next)
+                    setActiveIdx(nextIdx)
                   }
                 }}
               />
@@ -252,13 +237,8 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
           .lr-hero-cats {
             flex-direction: row !important;
             flex-wrap: wrap !important;
-            justify-content: flex-start !important;
-            align-items: baseline !important;
-            gap: 0.5rem 1rem !important;
-          }
-          .lr-hero-cats button {
-            font-size: 1.5rem !important;
-            text-align: left !important;
+            justify-content: center !important;
+            align-items: center !important;
           }
         }
       `}</style>
@@ -275,8 +255,17 @@ function typeNavKey(type: HeroItem['content_type']): 'manuals' | 'prophecies' | 
   }
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   Card — single fan card. Layout per design:
+     · Background tint shows on offset 1+ (the cards peeking behind active)
+     · Active card: cover image fills the entire body. White meta bar pinned
+       to the bottom with eyebrow (timeAgo · content_type) + title + arrow.
+     · Drag hint pill anchored to the active card's bottom-right CORNER,
+       overlapping the card edge — not floating in the container.
+   ───────────────────────────────────────────────────────────────────────── */
 function Card({
   item, offset, isActive, onDragEnd, onClick, typeLabel, locale,
+  showHint, hintLabel,
 }: {
   item:       HeroItem
   offset:     number
@@ -285,18 +274,19 @@ function Card({
   onClick?:   () => void
   typeLabel:  string
   locale:     string
+  showHint:   boolean
+  hintLabel:  string
 }) {
+  /* Stronger fan vs the previous values so the stack reads at-a-glance the
+     way it does in the design — visible peek of each tint, distinct tilt. */
   const layoutOffsets = [
-    { rotate: 0,    x: 0,    y: 0,   scale: 1 },
-    { rotate: 4,    x: 14,   y: 6,   scale: 0.96 },
-    { rotate: -5,   x: -14,  y: 12,  scale: 0.92 },
-    { rotate: 3,    x: 28,   y: 18,  scale: 0.88 },
+    { rotate:  0,   x:   0, y:   0, scale: 1    },
+    { rotate:  6,   x:  22, y:  10, scale: 0.95 },
+    { rotate: -7,   x: -22, y:  18, scale: 0.91 },
+    { rotate:  4,   x:  34, y:  26, scale: 0.87 },
   ]
   const layout = layoutOffsets[offset]
-  const typeColor = TYPE_COLORS[item.content_type]
-
-  const tints = ['#D4C4F8', '#F8C4D4', '#C4D8F8', '#C4F8D8']
-  const tint  = tints[offset]
+  const tint   = STACK_TINTS[offset] ?? '#FFFFFF'
 
   return (
     <motion.div
@@ -315,176 +305,186 @@ function Card({
         opacity: 1,
       }}
       exit={{ opacity: 0, scale: 0.8 }}
-      transition={{
-        type:     'spring',
-        stiffness: 240,
-        damping:   24,
-        mass:      0.8,
-      }}
+      transition={{ type: 'spring', stiffness: 240, damping: 24, mass: 0.8 }}
       whileHover={isActive ? { scale: 1.02 } : undefined}
       whileTap={isActive   ? { scale: 0.98 } : undefined}
       style={{
-        position: 'absolute',
-        width: '300px',
-        height: '380px',
-        borderRadius: '20px',
-        background: tint,
-        cursor: isActive ? 'grab' : 'pointer',
-        userSelect: 'none',
+        position:         'absolute',
+        width:            '18.75rem',
+        height:           '23.75rem',
+        borderRadius:     '1.25rem',
+        background:       tint,
+        cursor:           isActive ? 'grab' : 'pointer',
+        userSelect:       'none',
         WebkitUserSelect: 'none',
-        boxShadow: isActive
-          ? '0 18px 50px rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.08)'
-          : '0 6px 20px rgba(0,0,0,0.10)',
-        overflow: 'hidden',
+        boxShadow:        isActive
+          ? '0 1.125rem 3.125rem rgba(0,0,0,0.18), 0 0.25rem 0.75rem rgba(0,0,0,0.08)'
+          : '0 0.375rem 1.25rem rgba(0,0,0,0.10)',
+        overflow:         'visible',
       }}
     >
-      <div style={{
-        position: 'absolute',
-        inset: '14px',
-        borderRadius: '14px',
-        overflow: 'hidden',
-        background: item.cover_image_url
-          ? undefined
-          : `linear-gradient(135deg, ${typeColor}66 0%, ${typeColor}22 100%)`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
+      {/* Cover image area — fills the entire card body. The white meta bar
+          at the bottom overlays the image; no separate inset frame the way
+          the previous version had. */}
+      <div
+        style={{
+          position:        'absolute',
+          inset:           0,
+          borderRadius:    '1.25rem',
+          overflow:        'hidden',
+          background:      item.cover_image_url
+            ? undefined
+            /* Empty-state: diagonal stripe placeholder pattern that matches
+               the design's "placeholder · cover photo (asset)" boxes. Drawn
+               as a repeating linear-gradient on top of a warm cream so it
+               reads identically across themes. */
+            : `repeating-linear-gradient(
+                135deg,
+                #E8D9B8 0 1rem,
+                #D4C19A 1rem 2rem
+              )`,
+          display:         'flex',
+          alignItems:      'center',
+          justifyContent:  'center',
+        }}
+      >
         {item.cover_image_url ? (
-          /* Active card image gets `priority` so Next preloads it — it's the
-             LCP candidate on the home page. Inactive cards still load but
-             without priority (no preload <link> tag emitted for them). */
           <Image
             src={item.cover_image_url}
             alt=""
             fill
-            sizes="(max-width: 820px) 280px, 300px"
+            sizes="(max-width: 51.25rem) 17.5rem, 18.75rem"
             priority={isActive}
             style={{ objectFit: 'cover' }}
           />
-        ) : (
-          <span style={{ fontSize: '64px', opacity: 0.4 }}>
-            {item.content_type === 'manual'    ? '📘'
-             : item.content_type === 'prophecy' ? '🕊'
-             : item.content_type === 'article'  ? '📄'
-             : '✍'}
-          </span>
-        )}
+        ) : null}
       </div>
 
-      <div style={{
-        position: 'absolute',
-        top: '24px',
-        insetInlineStart: '24px',
-        insetInlineEnd: '24px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        zIndex: 2,
-      }}>
-        <span style={{
-          background: '#FFFFFF',
-          color: '#212529',
-          fontSize: '11px',
-          fontWeight: 500,
-          padding: '5px 11px',
-          borderRadius: '999px',
-        }}>
-          {typeLabel}
-        </span>
-        {item.theme && (
-          <span style={{
-            background: 'rgba(255,255,255,0.8)',
-            color: '#212529',
-            fontSize: '10px',
-            fontWeight: 500,
-            padding: '4px 10px',
-            borderRadius: '999px',
-            backdropFilter: 'blur(6px)',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            maxWidth: '120px',
-          }}>
-            {item.theme}
-          </span>
-        )}
-      </div>
-
-      <div style={{
-        position: 'absolute',
-        bottom: '14px',
-        insetInlineStart: '14px',
-        insetInlineEnd: '14px',
-        background: '#FFFFFF',
-        borderRadius: '12px',
-        padding: '14px 16px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '6px',
-        zIndex: 2,
-      }}>
-        <div style={{ fontSize: '10px', color: '#5a5a5a', letterSpacing: '0.04em' }}>
-          {item.speaker ? `${item.speaker} · ` : ''}
-          {timeAgo(item.created_at, locale)}
+      {/* Bottom meta bar — eyebrow (time · type) + title + arrow. Pinned
+          to the card's bottom inset, white on cover, follows the design
+          exactly. No top type pill — the type is mentioned in the eyebrow. */}
+      <div
+        style={{
+          position:         'absolute',
+          bottom:           '0.875rem',
+          insetInlineStart: '0.875rem',
+          insetInlineEnd:   '0.875rem',
+          background:       '#FFFFFF',
+          borderRadius:     '0.75rem',
+          padding:          '0.875rem 1rem',
+          display:          'flex',
+          flexDirection:    'column',
+          gap:              '0.375rem',
+          zIndex:           2,
+        }}
+      >
+        <div
+          style={{
+            fontSize:      '0.625rem',
+            fontWeight:    600,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color:         '#5a5a5a',
+          }}
+        >
+          {timeAgo(item.created_at, locale)} · {typeLabel}
         </div>
-        <div style={{
-          fontFamily: 'var(--font-body)',
-          fontSize: '15px',
-          fontWeight: 500,
-          color: '#212529',
-          lineHeight: 1.25,
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-          overflow: 'hidden',
-        }}>
+
+        <div
+          style={{
+            fontFamily:      'var(--font-body)',
+            fontSize:        '0.9375rem',
+            fontWeight:      600,
+            color:           '#212529',
+            lineHeight:      1.25,
+            display:         '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow:        'hidden',
+            paddingInlineEnd: '2.25rem',
+          }}
+        >
           {item.title}
         </div>
+
         <Link
           href={{ pathname: '/content/[id]', params: { id: item.id } }}
           onClick={(e) => e.stopPropagation()}
           style={{
-            position: 'absolute',
-            insetInlineEnd: '14px',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
-            background: '#212529',
-            color: '#FFFFFF',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            textDecoration: 'none',
-            fontSize: '14px',
+            position:        'absolute',
+            insetInlineEnd:  '0.875rem',
+            top:             '50%',
+            transform:       'translateY(-50%)',
+            width:           '2rem',
+            height:          '2rem',
+            borderRadius:    '50%',
+            background:      '#212529',
+            color:           '#FFFFFF',
+            display:         'flex',
+            alignItems:      'center',
+            justifyContent:  'center',
+            textDecoration:  'none',
+            fontSize:        '0.875rem',
           }}
         >
           →
         </Link>
       </div>
+
+      {/* Drag hint — anchored to the ACTIVE CARD's bottom-right CORNER,
+          overlapping the card edge, gold pill. Matches the design exactly.
+          AnimatePresence is on the outside so the pill can fade out the
+          moment the user starts swiping. */}
+      <AnimatePresence>
+        {showHint && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.85 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.85 }}
+            transition={{ duration: 0.4, delay: 0.6 }}
+            style={{
+              position:       'absolute',
+              bottom:         '-0.5rem',
+              insetInlineEnd: '-0.5rem',
+              background:     'var(--brand-gold)',
+              color:          'var(--text-inverse)',
+              fontSize:       '0.6875rem',
+              fontWeight:     600,
+              padding:        '0.3125rem 0.875rem',
+              borderRadius:   '999rem',
+              letterSpacing:  '0.04em',
+              pointerEvents:  'none',
+              zIndex:         50,
+              boxShadow:      '0 0.25rem 0.875rem rgba(0,0,0,0.15)',
+            }}
+          >
+            {hintLabel}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }
 
 function EmptyStack({ message }: { message: string }) {
   return (
-    <div style={{
-      width: '300px',
-      height: '380px',
-      borderRadius: '20px',
-      background: 'var(--bg-raised)',
-      border: '0.5px solid var(--border-subtle)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '32px',
-      textAlign: 'center',
-    }}>
-      <div style={{ fontSize: '40px', opacity: 0.3, marginBottom: '14px' }}>📚</div>
-      <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', marginBottom: '12px', lineHeight: 1.5 }}>
+    <div
+      style={{
+        width:          '18.75rem',
+        height:         '23.75rem',
+        borderRadius:   '1.25rem',
+        background:     'var(--bg-raised)',
+        border:         '0.03125rem solid var(--border-subtle)',
+        display:        'flex',
+        flexDirection:  'column',
+        alignItems:     'center',
+        justifyContent: 'center',
+        padding:        '2rem',
+        textAlign:      'center',
+      }}
+    >
+      <div style={{ fontSize: '2.5rem', opacity: 0.3, marginBottom: '0.875rem' }}>📚</div>
+      <p style={{ fontSize: '0.8125rem', color: 'var(--text-tertiary)', marginBottom: '0.75rem', lineHeight: 1.5 }}>
         {message}
       </p>
     </div>
@@ -503,22 +503,25 @@ function CategoryRow({
       type="button"
       onClick={onClick}
       style={{
-        position:      'relative',
-        background:    'transparent',
-        border:        'none',
-        cursor:        'pointer',
-        padding:       '0',
-        fontFamily:    'var(--font-display), "Barlow Condensed", sans-serif',
-        fontSize:      'clamp(2.5rem, 4.5vw, 4.25rem)',
-        fontWeight:    900,
-        textTransform: 'uppercase',
-        lineHeight:    0.98,
-        letterSpacing: '-0.012em',
-        color:         isActive
+        position:       'relative',
+        background:     'transparent',
+        border:         'none',
+        cursor:         'pointer',
+        padding:        '0',
+        fontFamily:     'var(--font-display), "Barlow Condensed", sans-serif',
+        fontSize:       'clamp(2.5rem, 4.5vw, 4.25rem)',
+        fontWeight:     900,
+        textTransform:  'uppercase',
+        lineHeight:     0.98,
+        letterSpacing:  '-0.012em',
+        color:          isActive
           ? 'var(--brand-red)'
           : 'color-mix(in srgb, var(--text-primary) 32%, transparent)',
-        textAlign:     'right',
-        transition:    'color 0.3s',
+        textAlign:       'right',
+        textDecoration:  isActive ? 'underline' : 'none',
+        textUnderlineOffset: isActive ? '0.25rem' : undefined,
+        textDecorationThickness: isActive ? '0.125rem' : undefined,
+        transition:      'color 0.3s',
       }}
     >
       {label}
@@ -529,8 +532,8 @@ function CategoryRow({
 function timeAgo(dateString: string, locale: string): string {
   const d = new Date(dateString)
   const diff = (Date.now() - d.getTime()) / 60000
-  if (diff < 60)     return `${Math.max(1, Math.floor(diff))} min`
-  if (diff < 1440)   return `${Math.floor(diff / 60)} hr`
-  if (diff < 10080)  return `${Math.floor(diff / 1440)} d`
+  if (diff < 60)     return `${Math.max(1, Math.floor(diff))} min ago`
+  if (diff < 1440)   return `${Math.floor(diff / 60)} hr ago`
+  if (diff < 10080)  return `${Math.floor(diff / 1440)} d ago`
   return d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: '2-digit' })
 }
