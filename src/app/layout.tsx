@@ -1,10 +1,13 @@
 import type { Metadata, Viewport } from 'next'
+import { Suspense } from 'react'
 import { Barlow_Condensed, DM_Sans } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import { ThemeProvider } from '@/components/theme/ThemeProvider'
 import { themeScript } from '@/lib/theme-script'
 import ServiceWorkerRegister from '@/components/pwa/ServiceWorkerRegister'
+import Toaster from '@/components/ui/Toaster'
+import RouteProgressBar from '@/components/ui/RouteProgressBar'
 import '@/styles/globals.css'
 
 /* Barlow Condensed is the display font: hero headline, all H1s, all H2s, all
@@ -86,6 +89,18 @@ export default async function RootLayout({
             {children}
           </NextIntlClientProvider>
         </ThemeProvider>
+
+        {/* Global UI primitives — mounted once at the root so they're
+            available on every page (public + admin). Toaster surfaces
+            toasts triggered from anywhere via the `toast.*` API in
+            `lib/toast.ts`. RouteProgressBar intercepts link clicks and
+            renders a thin red progress bar at the top during route
+            transitions. Both must mount client-side. */}
+        <Toaster />
+        <Suspense fallback={null}>
+          <RouteProgressBar />
+        </Suspense>
+
         {/* Registers /sw.js in production only. Renders nothing. */}
         <ServiceWorkerRegister />
       </body>

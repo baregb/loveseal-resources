@@ -6,6 +6,8 @@ import { createClient } from '@/lib/supabase/client'
 import RichEditor from '@/components/editor/RichEditor'
 import AttachmentsPanel, { type PendingAttachment, uploadAttachments } from '@/components/editor/AttachmentsPanel'
 import AuthorPicker, { type AuthorPickerOption } from '@/components/admin/AuthorPicker'
+import ButtonSpinner from '@/components/ui/ButtonSpinner'
+import { toast } from '@/lib/toast'
 import type { ContentType, Locale } from '@/types'
 import { logContentUpdated } from '../actions'
 import { translateContent } from '../translate-actions'
@@ -98,14 +100,11 @@ export default function EditForm({
     })))
   }, [existingAttachments])
 
-  const [saving, setSaving] = useState(false)
-  const [saved, setSaved]   = useState(false)
-  const [error, setError]   = useState<string | null>(null)
-
-  // ── Translation state ──
-  const [translating, setTranslating]         = useState(false)
-  const [translateMsg, setTranslateMsg]       = useState<string | null>(null)
-  const [translateError, setTranslateError]   = useState<string | null>(null)
+  /* Save / translate now drive a single loading-pill state each.
+     User-facing success/failure feedback flows through `toast.*` so there
+     are no longer any inline banner divs in the right-rail Status card. */
+  const [saving, setSaving]           = useState(false)
+  const [translating, setTranslating] = useState(false)
 
   const filteredCategories = categories.filter(
     c => c.content_type === null || c.content_type === contentType
@@ -116,7 +115,13 @@ export default function EditForm({
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
-    setSaving(true); setSaved(false); setError(null)
+    if (saving) return
+    setSaving(true)
+
+    /* A persistent loading toast covers the whole save sequence (DB update,
+       audit log, attachment uploads). It's dismissed and replaced by a
+       success or error toast when the sequence finishes. */
+    const toastId = toast.loading('Saving changes…')
 
     try {
       const supabase = createClient()
@@ -147,28 +152,51 @@ export default function EditForm({
       // Upload any new attachments
       const newAttachments = attachments.filter(a => !a.db_id)
       if (newAttachments.length > 0) {
+        toast.dismiss(toastId)
+        const uploadToastId = toast.loading(`Uploading ${newAttachments.length} attachment${newAttachments.length === 1 ? '' : 's'}…`)
         await uploadAttachments(item.id, attachments)
+        toast.dismiss(uploadToastId)
+      } else {
+        toast.dismiss(toastId)
       }
 
-      setSaved(true); setSaving(false); router.refresh()
-      setTimeout(() => setSaved(false), 2000)
-
+      toast.success('Changes saved', {
+        description: status === 'published'
+          ? 'Live on the public site within ~60 seconds.'
+          : 'Saved as draft.',
+      })
+      router.refresh()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Save failed')
+      toast.dismiss(toastId)
+      toast.error('Save failed', {
+        description: err instanceof Error ? err.message : 'Please try again.',
+      })
+    } finally {
       setSaving(false)
     }
   }
 
   async function handleTranslate() {
+    if (translating) return
     setTranslating(true)
-    setTranslateMsg(null)
-    setTranslateError(null)
+
+    /* Translation takes 10–30s depending on body length × locale count, so
+       a persistent loading toast is essential — without it, the user
+       would just see a "Translating…" button label and nothing else.
+       The toast is replaced in place by a success/warning/error toast
+       once the server action returns. */
+    const toastId = toast.loading('Translating to 4 locales…', {
+      description: 'This may take 20–30 seconds.',
+    })
 
     try {
       const result = await translateContent(item.id)
+      toast.dismiss(toastId)
 
       if (!result.ok) {
-        setTranslateError(result.error ?? 'Translation failed')
+        toast.error('Translation failed', {
+          description: result.error ?? 'Please try again.',
+        })
         return
       }
 
@@ -176,15 +204,22 @@ export default function EditForm({
       const failCount = result.failed?.length ?? 0
 
       if (failCount === 0) {
-        setTranslateMsg(`Translated to ${okList}.`)
+        toast.success('Translation complete', {
+          description: `Translated to ${okList}.`,
+        })
       } else {
-        setTranslateMsg(`Translated to ${okList}. ${failCount} locale(s) failed.`)
+        const failedList = (result.failed ?? []).map(f => LOCALE_LABEL[f.locale]).join(', ')
+        toast.warning('Partial translation', {
+          description: `Translated to ${okList}. Failed: ${failedList}.`,
+        })
       }
 
       router.refresh()
-      setTimeout(() => setTranslateMsg(null), 5000)
     } catch (err) {
-      setTranslateError(err instanceof Error ? err.message : 'Translation failed')
+      toast.dismiss(toastId)
+      toast.error('Translation failed', {
+        description: err instanceof Error ? err.message : 'Please try again.',
+      })
     } finally {
       setTranslating(false)
     }
@@ -196,9 +231,9 @@ export default function EditForm({
 
   return (
     <form onSubmit={handleSave}>
-      <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '20px', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '20rem 1fr', gap: '1.25rem', alignItems: 'start' }}>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', position: 'sticky', top: '72px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', position: 'sticky', top: '4.5rem' }}>
 
           <div style={cardStyle}>
             <SectionHeader label="ATTACHMENTS" />
@@ -207,42 +242,30 @@ export default function EditForm({
 
           <div style={cardStyle}>
             <SectionHeader label="STATUS" />
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '14px' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.875rem' }}>
               {(['draft', 'published'] as const).map(s => (
                 <button key={s} type="button" onClick={() => setStatus(s)} style={{
-                  flex: 1, padding: '8px',
+                  flex: 1, padding: '0.5rem',
                   background: status === s ? 'var(--brand-gold)' : 'transparent',
                   color: status === s ? 'var(--text-inverse)' : 'var(--text-tertiary)',
-                  border: `0.5px solid ${status === s ? 'var(--brand-gold)' : 'var(--border-strong)'}`,
-                  borderRadius: '6px', fontSize: '12px', fontWeight: 500, cursor: 'pointer',
+                  border: `0.03125rem solid ${status === s ? 'var(--brand-gold)' : 'var(--border-strong)'}`,
+                  borderRadius: '0.375rem', fontSize: '0.75rem', fontWeight: 500, cursor: 'pointer',
                   textTransform: 'capitalize', fontFamily: 'var(--font-body)',
                 }}>{s}</button>
               ))}
             </div>
 
-            {error && (
-              <div style={{
-                padding: '10px 12px', background: 'var(--danger-bg)',
-                border: '0.5px solid var(--danger-border)', borderRadius: '6px',
-                fontSize: '12px', color: 'var(--danger-fg)', marginBottom: '12px',
-              }}>{error}</div>
-            )}
-
-            {saved && (
-              <div style={{
-                padding: '10px 12px', background: 'var(--success-bg)',
-                border: '0.5px solid rgba(76,175,80,0.25)', borderRadius: '6px',
-                fontSize: '12px', color: 'var(--success-fg)', marginBottom: '12px',
-              }}>Saved ✓</div>
-            )}
-
             <button type="submit" disabled={saving} style={{
-              width: '100%', padding: '11px',
+              width: '100%', padding: '0.6875rem',
               background: saving ? 'var(--bg-elevated)' : 'var(--brand-gold)',
               color: saving ? 'var(--text-muted)' : 'var(--text-inverse)',
-              border: 'none', borderRadius: '7px', fontSize: '13px', fontWeight: 500,
+              border: 'none', borderRadius: '0.4375rem', fontSize: '0.8125rem', fontWeight: 500,
               cursor: saving ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-body)',
-            }}>{saving ? 'Saving…' : 'Save changes'}</button>
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              minHeight: '2.5rem',
+            }}>
+              {saving ? <ButtonSpinner label="Saving…" inverse /> : 'Save changes'}
+            </button>
           </div>
 
           {/* Translation card */}
@@ -250,32 +273,14 @@ export default function EditForm({
             <SectionHeader label="TRANSLATIONS" hint="auto via MS Translator" />
 
             <p style={{
-              fontSize: '11px',
+              fontSize: '0.6875rem',
               color: 'var(--text-muted)',
               lineHeight: 1.55,
-              marginBottom: '12px',
+              marginBottom: '0.75rem',
             }}>
               Source language is <strong style={{ color: 'var(--text-secondary)' }}>{LOCALE_LABEL[language]}</strong>.
               {' '}Translates into the other 4 locales.
             </p>
-
-            {translateError && (
-              <div style={{
-                padding: '10px 12px', background: 'var(--danger-bg)',
-                border: '0.5px solid var(--danger-border)', borderRadius: '6px',
-                fontSize: '11px', color: 'var(--danger-fg)', marginBottom: '12px',
-                lineHeight: 1.4,
-              }}>{translateError}</div>
-            )}
-
-            {translateMsg && (
-              <div style={{
-                padding: '10px 12px', background: 'var(--success-bg)',
-                border: '0.5px solid rgba(76,175,80,0.25)', borderRadius: '6px',
-                fontSize: '11px', color: 'var(--success-fg)', marginBottom: '12px',
-                lineHeight: 1.4,
-              }}>{translateMsg}</div>
-            )}
 
             <button
               type="button"
@@ -283,25 +288,27 @@ export default function EditForm({
               disabled={translating || !canTranslate}
               style={{
                 width: '100%',
-                padding: '10px',
+                padding: '0.625rem',
                 background: translating ? 'var(--bg-elevated)' : 'transparent',
                 color: translating ? 'var(--text-muted)' : 'var(--text-primary)',
-                border: '0.5px solid var(--border-strong)',
-                borderRadius: '7px',
-                fontSize: '12px',
+                border: '0.03125rem solid var(--border-strong)',
+                borderRadius: '0.4375rem',
+                fontSize: '0.75rem',
                 fontWeight: 500,
                 cursor: (translating || !canTranslate) ? 'not-allowed' : 'pointer',
                 fontFamily: 'var(--font-body)',
                 opacity: !canTranslate ? 0.5 : 1,
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                minHeight: '2.375rem',
               }}
             >
-              {translating ? 'Translating…' : 'Translate to all locales'}
+              {translating ? <ButtonSpinner label="Translating…" /> : 'Translate to all locales'}
             </button>
             {!canTranslate && (
               <p style={{
-                fontSize: '10px',
+                fontSize: '0.625rem',
                 color: 'var(--text-faint)',
-                marginTop: '8px',
+                marginTop: '0.5rem',
                 fontStyle: 'italic',
               }}>
                 Add content body first.
@@ -310,14 +317,14 @@ export default function EditForm({
           </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
 
           <div style={cardStyle}>
             <SectionHeader label="IDENTITY" />
             <Field label="Title" required>
               <input type="text" value={title} onChange={e => setTitle(e.target.value)} required style={inputStyle} />
             </Field>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem' }}>
               <Field label="Content type" required>
                 <select value={contentType} onChange={e => { setContentType(e.target.value as ContentType); setCategory('') }} style={inputStyle}>
                   {CONTENT_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
@@ -345,10 +352,10 @@ export default function EditForm({
               />
             ) : (
               <div style={{
-                padding: '20px',
+                padding: '1.25rem',
                 background: 'var(--bg-elevated)',
-                borderRadius: '8px',
-                fontSize: '12px',
+                borderRadius: '0.5rem',
+                fontSize: '0.75rem',
                 color: 'var(--text-tertiary)',
                 lineHeight: 1.6,
               }}>
@@ -360,7 +367,7 @@ export default function EditForm({
 
           <div style={cardStyle}>
             <SectionHeader label="TEACHING DETAILS" hint="optional" />
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '10px', marginBottom: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0.625rem', marginBottom: '0.75rem' }}>
               <Field label="Theme">
                 <input type="text" value={theme} onChange={e => setTheme(e.target.value)} style={inputStyle} />
               </Field>
@@ -368,7 +375,7 @@ export default function EditForm({
                 <input type="text" value={lessonNumber} onChange={e => setLessonNumber(e.target.value)} style={inputStyle} />
               </Field>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '10px', marginBottom: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '0.625rem', marginBottom: '0.75rem' }}>
               <Field label="Series">
                 <input type="text" value={series} onChange={e => setSeries(e.target.value)} style={inputStyle} />
               </Field>
@@ -453,24 +460,24 @@ function SectionHeader({ label, hint, required }: { label: string; hint?: string
   return (
     <div style={{
       display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
-      marginBottom: '14px', paddingBottom: '8px', borderBottom: '0.5px solid var(--border-subtle)',
+      marginBottom: '0.875rem', paddingBottom: '0.5rem', borderBottom: '0.03125rem solid var(--border-subtle)',
     }}>
-      <span style={{ fontSize: '10px', fontWeight: 500, letterSpacing: '0.14em', color: 'var(--text-muted)' }}>
-        {label}{required && <span style={{ color: 'var(--brand-gold)', marginLeft: '4px' }}>*</span>}
+      <span style={{ fontSize: '0.625rem', fontWeight: 500, letterSpacing: '0.14em', color: 'var(--text-muted)' }}>
+        {label}{required && <span style={{ color: 'var(--brand-gold)', marginLeft: '0.25rem' }}>*</span>}
       </span>
-      {hint && <span style={{ fontSize: '10px', color: 'var(--text-faint)', fontStyle: 'italic' }}>{hint}</span>}
+      {hint && <span style={{ fontSize: '0.625rem', color: 'var(--text-faint)', fontStyle: 'italic' }}>{hint}</span>}
     </div>
   )
 }
 
 function Field({ label, hint, required, children }: { label: string; hint?: string; required?: boolean; children: React.ReactNode }) {
   return (
-    <div style={{ marginBottom: '12px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-        <label style={{ fontSize: '11px', fontWeight: 500, color: 'var(--text-tertiary)', letterSpacing: '0.04em' }}>
-          {label}{required && <span style={{ color: 'var(--brand-gold)', marginLeft: '3px' }}>*</span>}
+    <div style={{ marginBottom: '0.75rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.3125rem' }}>
+        <label style={{ fontSize: '0.6875rem', fontWeight: 500, color: 'var(--text-tertiary)', letterSpacing: '0.04em' }}>
+          {label}{required && <span style={{ color: 'var(--brand-gold)', marginLeft: '0.1875rem' }}>*</span>}
         </label>
-        {hint && <span style={{ fontSize: '10px', color: 'var(--text-faint)' }}>{hint}</span>}
+        {hint && <span style={{ fontSize: '0.625rem', color: 'var(--text-faint)' }}>{hint}</span>}
       </div>
       {children}
     </div>
@@ -479,14 +486,14 @@ function Field({ label, hint, required, children }: { label: string; hint?: stri
 
 const cardStyle: React.CSSProperties = {
   background: 'var(--bg-raised)',
-  border: '0.5px solid var(--border-subtle)',
-  borderRadius: '10px',
-  padding: '18px',
+  border: '0.03125rem solid var(--border-subtle)',
+  borderRadius: '0.625rem',
+  padding: '1.125rem',
 }
 
 const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '8px 11px',
-  background: 'var(--bg-input)', border: '0.5px solid var(--border-strong)',
-  borderRadius: '6px', color: 'var(--text-primary)',
-  fontSize: '13px', fontFamily: 'var(--font-body)', outline: 'none',
+  width: '100%', padding: '0.5rem 0.6875rem',
+  background: 'var(--bg-input)', border: '0.03125rem solid var(--border-strong)',
+  borderRadius: '0.375rem', color: 'var(--text-primary)',
+  fontSize: '0.8125rem', fontFamily: 'var(--font-body)', outline: 'none',
 }

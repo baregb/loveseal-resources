@@ -9,6 +9,8 @@ import {
   reorderEditorialTags,
 } from './actions'
 import type { EditorialTagRow } from './page'
+import ButtonSpinner from '@/components/ui/ButtonSpinner'
+import { toast } from '@/lib/toast'
 
 /**
  * Editorial tags manager — admin UI for the "In focus this week" strip.
@@ -23,6 +25,10 @@ import type { EditorialTagRow } from './page'
  * Reorder uses arrow buttons rather than HTML5 drag-and-drop to keep the
  * implementation simple and accessible. Each click batches a single
  * `reorderEditorialTags` server-action call on the new ordering.
+ *
+ * Pass 8 — all success/error feedback flows through the global Toaster.
+ * No more inline red banner; the `busy` state still drives the button
+ * disabled state and an inline spinner where useful.
  */
 export default function EditorialTagsManager({
   initialTags,
@@ -32,7 +38,6 @@ export default function EditorialTagsManager({
   const router = useRouter()
   const [tags, setTags]         = useState(initialTags)
   const [busy, setBusy]         = useState<string | null>(null)
-  const [error, setError]       = useState<string | null>(null)
   const [newTag, setNewTag]     = useState('')
   const [editingId, setEditing] = useState<string | null>(null)
   const [editValue, setEditVal] = useState('')
@@ -48,30 +53,40 @@ export default function EditorialTagsManager({
     const value = newTag.trim()
     if (!value) return
     setBusy('add')
-    setError(null)
     const result = await createEditorialTag(value)
     setBusy(null)
     if (!result.ok) {
-      setError(result.error ?? 'Failed to add tag')
+      toast.error('Failed to add tag', {
+        description: result.error ?? 'Please try again.',
+      })
       return
     }
+    toast.success('Tag added', {
+      description: `"${value}" is now in the strip.`,
+    })
     setNewTag('')
     refresh()
   }
 
   async function handleToggleActive(row: EditorialTagRow) {
     setBusy(row.id)
-    setError(null)
     /* Optimistic update */
     setTags(prev => prev.map(t => t.id === row.id ? { ...t, is_active: !t.is_active } : t))
     const result = await updateEditorialTag(row.id, { is_active: !row.is_active })
     setBusy(null)
     if (!result.ok) {
-      setError(result.error ?? 'Failed to update')
+      toast.error('Failed to update', {
+        description: result.error ?? 'Please try again.',
+      })
       /* Roll back */
       setTags(prev => prev.map(t => t.id === row.id ? row : t))
       return
     }
+    toast.success(row.is_active ? 'Tag hidden' : 'Tag activated', {
+      description: row.is_active
+        ? `"${row.tag}" no longer appears on the public strip.`
+        : `"${row.tag}" is back on the public strip.`,
+    })
     refresh()
   }
 
@@ -82,13 +97,17 @@ export default function EditorialTagsManager({
       return
     }
     setBusy(row.id)
-    setError(null)
     const result = await updateEditorialTag(row.id, { tag: value })
     setBusy(null)
     if (!result.ok) {
-      setError(result.error ?? 'Failed to save')
+      toast.error('Failed to save', {
+        description: result.error ?? 'Please try again.',
+      })
       return
     }
+    toast.success('Tag renamed', {
+      description: `"${row.tag}" → "${value}"`,
+    })
     setEditing(null)
     refresh()
   }
@@ -96,13 +115,17 @@ export default function EditorialTagsManager({
   async function handleDelete(row: EditorialTagRow) {
     if (!confirm(`Delete "${row.tag}"? This cannot be undone.`)) return
     setBusy(row.id)
-    setError(null)
     const result = await deleteEditorialTag(row.id)
     setBusy(null)
     if (!result.ok) {
-      setError(result.error ?? 'Failed to delete')
+      toast.error('Failed to delete', {
+        description: result.error ?? 'Please try again.',
+      })
       return
     }
+    toast.success('Tag deleted', {
+      description: `"${row.tag}" has been removed.`,
+    })
     refresh()
   }
 
@@ -116,12 +139,13 @@ export default function EditorialTagsManager({
     next.splice(target, 0, removed)
     setTags(next)
     setBusy('reorder')
-    setError(null)
 
     const result = await reorderEditorialTags(next.map(t => t.id))
     setBusy(null)
     if (!result.ok) {
-      setError(result.error ?? 'Failed to reorder')
+      toast.error('Failed to reorder', {
+        description: result.error ?? 'Please try again.',
+      })
       setTags(initialTags)
       return
     }
@@ -150,23 +174,6 @@ export default function EditorialTagsManager({
           recent search terms automatically.
         </p>
       </header>
-
-      {error && (
-        <div
-          role="alert"
-          style={{
-            background:    'var(--danger-bg)',
-            color:         'var(--danger-fg)',
-            border:        '0.0625rem solid var(--danger-border)',
-            borderRadius:  '0.5rem',
-            padding:       '0.75rem 1rem',
-            marginBottom:  '1rem',
-            fontSize:      '0.875rem',
-          }}
-        >
-          {error}
-        </div>
-      )}
 
       {/* Add new tag */}
       <div
@@ -207,9 +214,14 @@ export default function EditorialTagsManager({
             fontWeight:    600,
             cursor:        busy === 'add' || !newTag.trim() ? 'not-allowed' : 'pointer',
             opacity:       busy === 'add' || !newTag.trim() ? 0.5 : 1,
+            display:       'inline-flex',
+            alignItems:    'center',
+            justifyContent:'center',
+            minHeight:     '2.5rem',
+            minWidth:      '5rem',
           }}
         >
-          {busy === 'add' ? 'Adding…' : 'Add tag'}
+          {busy === 'add' ? <ButtonSpinner label="Adding…" inverse /> : 'Add tag'}
         </button>
       </div>
 
