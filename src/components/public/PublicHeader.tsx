@@ -103,11 +103,9 @@ export default function PublicHeader() {
         <div
           className="public-header-grid"
           style={{
-            /* No max-width: header spans full viewport. Horizontal padding
-               comes from the shared --page-inline-padding token, which
-               also drives the hero, In Focus strip, and Latest sections
-               — that's what makes the logo, "PEACE BE WITH YOU" headline,
-               and section content all start at the same x-position. */
+            maxWidth:            'var(--width-site)',
+            marginInline:        'auto',
+            width:               '100%',
             padding:             '1rem var(--page-inline-padding)',
             display:             'grid',
             gridTemplateColumns: '1fr auto 1fr',

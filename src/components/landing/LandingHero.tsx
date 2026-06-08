@@ -69,7 +69,10 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
   return (
     <section
       style={{
-        padding: '2.5rem var(--page-inline-padding) 3.75rem',
+        maxWidth:     'var(--width-site)',
+        marginInline: 'auto',
+        width:        '100%',
+        padding:      '2.5rem var(--page-inline-padding) 3.75rem',
       }}
     >
       <div

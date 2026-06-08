@@ -24,10 +24,10 @@ export default function PublicFooter() {
       <div
         className="footer-inner"
         style={{
-          /* No max-width: footer spans full viewport, padding from the
-             shared --page-inline-padding token (aligns with header + hero
-             + Latest sections). Vertical padding stays generous. */
-          padding:  '3.5rem var(--page-inline-padding) 2rem',
+          maxWidth:     'var(--width-site)',
+          marginInline: 'auto',
+          width:        '100%',
+          padding:      '3.5rem var(--page-inline-padding) 2rem',
         }}
       >
         {/* ─── TOP ROW: 4 columns (1 display + 3 nav) ───────────────────

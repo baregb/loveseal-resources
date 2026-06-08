@@ -14,6 +14,10 @@
   --width-prose:   48.75rem;
   --width-narrow:  40rem;
   --width-content: 80rem;
+  /* Site-wide outer container — header, footer, and full-bleed hero sections
+     cap here so they never outrun the body content by more than ~10rem.
+     Tune this one value to adjust all outer containers at once. */
+  --width-site:    90rem;
 
 
   /* Brand — same in both themes */
