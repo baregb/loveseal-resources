@@ -118,6 +118,25 @@
     "breadcrumb": {
       "home": "Início",
       "content": "Conteúdo"
+    },
+    "reader": {
+      "breadcrumb": { "topics": "Tópicos" },
+      "toggleFull": "Texto completo",
+      "toggleQuick": "Pontos-chave",
+      "byline": { "readTime": "{minutes} min de leitura" },
+      "actions": {
+        "copyLink": "Copiar link",
+        "copied": "Copiado",
+        "share": "Compartilhar",
+        "downloadPdf": "Baixar PDF"
+      },
+      "quick": {
+        "pagination": "{current} de {total}",
+        "next": "Próximo",
+        "prev": "Anterior",
+        "readFull": "Ler o texto completo",
+        "pointFallback": "Ponto {n}"
+      }
     }
   },
   "topic": {

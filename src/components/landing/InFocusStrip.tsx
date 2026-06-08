@@ -135,10 +135,12 @@ export default async function InFocusStrip() {
                   justifyContent:  'center',
                   width:           '2.25rem',
                   height:          '2.25rem',
+                  borderRadius:    '50%',
                   color:           '#FFFFFF',
-                  background:      s.background,
+                  background:      s.background ?? 'transparent',
                   backgroundImage: s.gradient,
                   textDecoration:  'none',
+                  flexShrink:      0,
                   transition:      'transform 0.12s, opacity 0.12s',
                 }}
               >

@@ -120,7 +120,26 @@
       "content": "Contenu"
     },
     "translatedNotice": "Cette page a été traduite automatiquement. Certaines nuances peuvent être perdues.",
-    "pendingTranslationNotice": "Ce contenu est affiché dans sa langue d'origine ({source}). Aucune traduction n'est encore disponible."
+    "pendingTranslationNotice": "Ce contenu est affiché dans sa langue d'origine ({source}). Aucune traduction n'est encore disponible.",
+    "reader": {
+      "breadcrumb": { "topics": "Sujets" },
+      "toggleFull": "Texte complet",
+      "toggleQuick": "Points clés",
+      "byline": { "readTime": "{minutes} min de lecture" },
+      "actions": {
+        "copyLink": "Copier le lien",
+        "copied": "Copié",
+        "share": "Partager",
+        "downloadPdf": "Télécharger le PDF"
+      },
+      "quick": {
+        "pagination": "{current} sur {total}",
+        "next": "Suivant",
+        "prev": "Précédent",
+        "readFull": "Lire l'article complet",
+        "pointFallback": "Point {n}"
+      }
+    }
   },
   "topic": {
     "eyebrow": {

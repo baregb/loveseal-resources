@@ -1,6 +1,7 @@
 -- ─────────────────────────────────────────────────────────────────────────────
 -- LOVE SEAL CHURCH — SUPABASE DATABASE SCHEMA
--- Run this entire file once in: Supabase Dashboard → SQL Editor → New query
+-- Safe to re-run on an existing database (all statements are idempotent).
+-- Supabase Dashboard → SQL Editor → New query → paste → Run
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- ── Extensions ──────────────────────────────────────────────────────────────
@@ -10,10 +11,22 @@ create extension if not exists "unaccent";
 create extension if not exists "pg_trgm";
 
 -- ── Enums ───────────────────────────────────────────────────────────────────
+-- Postgres has no CREATE TYPE IF NOT EXISTS; DO blocks swallow duplicate errors.
 
-create type content_type as enum ('manual', 'prophecy', 'article', 'blog');
-create type content_status as enum ('draft', 'published');
-create type supported_locale as enum ('en', 'es', 'fr', 'pt', 'ar');
+do $$ begin
+  create type content_type as enum ('manual', 'prophecy', 'article', 'blog');
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  create type content_status as enum ('draft', 'published');
+exception when duplicate_object then null;
+end $$;
+
+do $$ begin
+  create type supported_locale as enum ('en', 'es', 'fr', 'pt', 'ar');
+exception when duplicate_object then null;
+end $$;
 
 -- ── Categories table ─────────────────────────────────────────────────────────
 
@@ -50,23 +63,51 @@ comment on table content is 'All published and draft content items uploaded by t
 comment on column content.pdf_url is 'Supabase Storage path — not the full URL. Generate signed URL on the fly.';
 comment on column content.search_vector is 'Trigger-maintained tsvector. Weighted: title (A) > text (B) > tags (C).';
 
+-- ── Content Translations table ───────────────────────────────────────────────
+
+create table if not exists content_translations (
+  id                    uuid             primary key default uuid_generate_v4(),
+  content_id            uuid             not null references content (id) on delete cascade,
+  locale                supported_locale not null,
+  title                 text             not null,
+  theme                 text,
+  series                text,
+  speaker               text,
+  body_html             text,
+  extracted_text        text,
+  summary_points        text[],
+  scripture_refs        text[]           not null default '{}',
+  is_machine_translated boolean          not null default true,
+  translated_at         timestamptz      not null default now(),
+  created_at            timestamptz      not null default now(),
+  updated_at            timestamptz      not null default now(),
+  search_vector         tsvector,
+
+  constraint content_translations_content_locale_unique unique (content_id, locale)
+);
+
+comment on table content_translations is 'Machine-translated copies of content rows, one row per (content_id, locale) pair.';
+
 -- ── Indexes ──────────────────────────────────────────────────────────────────
 
-create index idx_content_status     on content (status);
-create index idx_content_type       on content (content_type);
-create index idx_content_category   on content (category);
-create index idx_content_language   on content (language);
-create index idx_content_created_at on content (created_at desc);
+create index if not exists idx_content_status     on content (status);
+create index if not exists idx_content_type       on content (content_type);
+create index if not exists idx_content_category   on content (category);
+create index if not exists idx_content_language   on content (language);
+create index if not exists idx_content_created_at on content (created_at desc);
 
-create index idx_content_published  on content (status, content_type, created_at desc)
+create index if not exists idx_content_published  on content (status, content_type, created_at desc)
   where status = 'published';
 
-create index idx_content_search     on content using gin (search_vector);
-create index idx_content_tags       on content using gin (tags);
+create index if not exists idx_content_search     on content using gin (search_vector);
+create index if not exists idx_content_tags       on content using gin (tags);
 
--- ── Triggers ─────────────────────────────────────────────────────────────────
+create index if not exists idx_ct_content_id on content_translations (content_id);
+create index if not exists idx_ct_locale      on content_translations (locale);
+create index if not exists idx_ct_search      on content_translations using gin (search_vector);
 
--- 1. Keep updated_at current
+-- ── Functions ────────────────────────────────────────────────────────────────
+
 create or replace function set_updated_at()
 returns trigger as $$
 begin
@@ -75,13 +116,6 @@ begin
 end;
 $$ language plpgsql;
 
-create trigger content_updated_at
-  before update on content
-  for each row execute function set_updated_at();
-
--- 2. Rebuild search_vector on insert or update of searchable columns
---    (uses a trigger instead of a generated column because to_tsvector
---     is STABLE not IMMUTABLE — Postgres rejects it in generated columns)
 create or replace function update_search_vector()
 returns trigger as $$
 begin
@@ -93,15 +127,54 @@ begin
 end;
 $$ language plpgsql;
 
+create or replace function update_ct_search_vector()
+returns trigger as $$
+begin
+  new.search_vector :=
+    setweight(to_tsvector('english', coalesce(new.title, '')), 'A') ||
+    setweight(to_tsvector('english', coalesce(new.extracted_text, '')), 'B');
+  return new;
+end;
+$$ language plpgsql;
+
+-- ── Triggers ─────────────────────────────────────────────────────────────────
+-- Postgres has no CREATE TRIGGER IF NOT EXISTS; drop first to stay idempotent.
+
+drop trigger if exists content_updated_at           on content;
+drop trigger if exists content_search_vector        on content;
+drop trigger if exists content_translations_updated_at    on content_translations;
+drop trigger if exists content_translations_search_vector on content_translations;
+
+create trigger content_updated_at
+  before update on content
+  for each row execute function set_updated_at();
+
 create trigger content_search_vector
   before insert or update of title, extracted_text, tags
   on content
   for each row execute function update_search_vector();
 
+create trigger content_translations_updated_at
+  before update on content_translations
+  for each row execute function set_updated_at();
+
+create trigger content_translations_search_vector
+  before insert or update of title, extracted_text
+  on content_translations
+  for each row execute function update_ct_search_vector();
+
 -- ── Row Level Security ───────────────────────────────────────────────────────
 
-alter table content    enable row level security;
-alter table categories enable row level security;
+alter table content              enable row level security;
+alter table categories           enable row level security;
+alter table content_translations enable row level security;
+
+-- Drop before recreate — policies also lack IF NOT EXISTS
+drop policy if exists "Public can read published content"       on content;
+drop policy if exists "Public can read categories"              on categories;
+drop policy if exists "Admin full access to content"            on content;
+drop policy if exists "Admin full access to categories"         on categories;
+drop policy if exists "Public can read content translations"    on content_translations;
 
 create policy "Public can read published content"
   on content for select
@@ -121,6 +194,12 @@ create policy "Admin full access to categories"
   using (auth.jwt() ->> 'email' = current_setting('app.admin_email', true))
   with check (auth.jwt() ->> 'email' = current_setting('app.admin_email', true));
 
+-- service_role key (used by the admin client) bypasses RLS automatically;
+-- this policy covers unauthenticated public reads of translated content.
+create policy "Public can read content translations"
+  on content_translations for select
+  using (true);
+
 -- ── Storage buckets ──────────────────────────────────────────────────────────
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
@@ -135,6 +214,12 @@ values (
   array['image/jpeg', 'image/png', 'image/webp']
 )
 on conflict (id) do nothing;
+
+drop policy if exists "Admin can upload PDFs"        on storage.objects;
+drop policy if exists "Admin can upload cover images" on storage.objects;
+drop policy if exists "Admin can delete PDFs"        on storage.objects;
+drop policy if exists "Admin can delete cover images" on storage.objects;
+drop policy if exists "Public can read cover images"  on storage.objects;
 
 create policy "Admin can upload PDFs"
   on storage.objects for insert to authenticated
@@ -171,5 +256,6 @@ on conflict (slug) do nothing;
 
 -- ── Verify ───────────────────────────────────────────────────────────────────
 
-select 'content'    as table_name, count(*) as rows from content    union all
-select 'categories' as table_name, count(*) as rows from categories;
+select 'content'              as table_name, count(*) as rows from content              union all
+select 'categories'           as table_name, count(*) as rows from categories           union all
+select 'content_translations' as table_name, count(*) as rows from content_translations;

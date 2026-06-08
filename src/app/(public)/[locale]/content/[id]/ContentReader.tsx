@@ -5,11 +5,13 @@ import { useTranslations, useLocale } from 'next-intl'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Link } from '@/i18n/navigation'
 import { readTimeMinutes } from '@/lib/read-time'
-import Breadcrumb       from '@/components/reader/Breadcrumb'
-import ReaderToggle     from '@/components/reader/ReaderToggle'
-import BylineCard       from '@/components/reader/BylineCard'
-import ReaderIconActions from '@/components/reader/ReaderIconActions'
-import QuickStoryView   from '@/components/reader/QuickStoryView'
+import Breadcrumb         from '@/components/reader/Breadcrumb'
+import ReaderToggle       from '@/components/reader/ReaderToggle'
+import BylineCard         from '@/components/reader/BylineCard'
+import ReaderIconActions  from '@/components/reader/ReaderIconActions'
+import QuickStoryView     from '@/components/reader/QuickStoryView'
+import BibleRefActivator  from '@/components/reader/BibleRefActivator'
+import { processBibleRefs } from '@/lib/bible-parse'
 import '@/components/editor/editor.css'
 
 interface Item {
@@ -142,8 +144,11 @@ function ContentReaderInner({
     ? new Date(item.date_preached).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
     : new Date(item.created_at).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
 
+  const ARTICLE_ID = `content-article-${item.id}`
+  const processedHtml = item.body_html ? processBibleRefs(item.body_html) : ''
+
   return (
-    <article style={{
+    <article id={ARTICLE_ID} style={{
       /* Long-form prose article — uses --width-prose (780px), the
          typographic sweet spot for sustained reading (~70-80 chars
          per line at body font size). */
@@ -260,14 +265,14 @@ function ContentReaderInner({
       )}
 
       <h1 style={{
-        fontFamily: 'var(--font-display), Barlow Condensed, sans-serif',
-        fontSize: 'clamp(32px, 5vw, 52px)',
-        fontWeight: 900,
-        textTransform: 'uppercase',
-        color: 'var(--text-primary)',
-        lineHeight: 1.0,
+        fontFamily:    'var(--font-display), Barlow Condensed, sans-serif',
+        fontSize:      'clamp(32px, 5vw, 52px)',
+        fontWeight:    'var(--content-title-weight, 800)',
+        textTransform: 'var(--content-title-transform, uppercase)',
+        color:         'var(--text-primary)',
+        lineHeight:    1.0,
         letterSpacing: '-0.01em',
-        marginBottom: '20px',
+        marginBottom:  '20px',
       }}>
         {item.title}
       </h1>
@@ -359,17 +364,20 @@ function ContentReaderInner({
               tUnavailable={t('pdfUnavailable')}
             />
           ) : (
-            <div className="lr-editor-content" style={{
-              background: 'transparent',
-              padding: 0,
-              minHeight: 'auto',
-              maxHeight: 'none',
-              fontSize: '17px',
-              lineHeight: 1.75,
-              textAlign: 'start',
-            }}
-            dangerouslySetInnerHTML={{ __html: item.body_html ?? '' }}
-            />
+            <>
+              <div className="lr-editor-content" style={{
+                background: 'transparent',
+                padding: 0,
+                minHeight: 'auto',
+                maxHeight: 'none',
+                fontSize: '17px',
+                lineHeight: 1.75,
+                textAlign: 'start',
+              }}
+              dangerouslySetInnerHTML={{ __html: processedHtml }}
+              />
+              <BibleRefActivator containerId={ARTICLE_ID} />
+            </>
           )}
 
           {item.scripture_refs.length > 0 && (

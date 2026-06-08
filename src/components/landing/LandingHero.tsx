@@ -1,16 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence, type PanInfo } from 'framer-motion'
 import { useTranslations, useLocale } from 'next-intl'
 import Image from 'next/image'
-import { Link } from '@/i18n/navigation'
+import { Link, useRouter } from '@/i18n/navigation'
 
 interface HeroItem {
   id:              string
   title:           string
   content_type:    'manual' | 'prophecy' | 'article' | 'blog'
   theme:           string | null
+  series:          string | null
   speaker:         string | null
   cover_image_url: string | null
   created_at:      string
@@ -18,11 +19,13 @@ interface HeroItem {
 
 const TYPE_ORDER: HeroItem['content_type'][] = ['manual', 'prophecy', 'article', 'blog']
 
-/* Pastel tints that appear BEHIND the active card as the stack fans out.
-   Offset 0 = active card (no tint applied; cover takes over). Offsets 1+ are
-   the cards peeking out behind. Pink / blue / mint / soft-yellow approximates
-   the design template's fan. */
-const STACK_TINTS = ['#FFFFFF', '#F5C9D6', '#B8E0E6', '#C5E8C8', '#F2D89C']
+/* Each content type gets its own brand-derived pastel background. */
+const TYPE_BG: Record<HeroItem['content_type'], string> = {
+  manual:   '#FDDEDE',   // soft red
+  prophecy: '#B7DCF1',   // sky blue (design exact)
+  article:  '#FEF3C7',   // warm gold
+  blog:     '#C8BFEC',   // lilac (design exact)
+}
 
 export default function LandingHero({ items }: { items: HeroItem[] }) {
   const t       = useTranslations('hero')
@@ -32,32 +35,28 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
 
   const [activeIdx, setActiveIdx] = useState(0)
   const [showHint, setShowHint]   = useState(true)
+  const [isHovered, setIsHovered] = useState(false)
   const cardCount = items.length
 
   useEffect(() => {
     if (activeIdx > 0) setShowHint(false)
   }, [activeIdx])
 
+  // Always auto-advance; pause on hover
   useEffect(() => {
-    if (!showHint || cardCount <= 1) return
-    const timer = setTimeout(() => setActiveIdx((i) => (i + 1) % cardCount), 6000)
+    if (isHovered || cardCount <= 1) return
+    const timer = setTimeout(() => setActiveIdx((i) => (i + 1) % cardCount), 4000)
     return () => clearTimeout(timer)
-  }, [activeIdx, showHint, cardCount])
+  }, [activeIdx, isHovered, cardCount])
 
   function handleDragEnd(_: unknown, info: PanInfo) {
     const swipe = info.offset.x
     if (Math.abs(swipe) < 60) return
-    setShowHint(false)
     if (swipe < 0) {
       setActiveIdx((i) => (i + 1) % cardCount)
     } else {
       setActiveIdx((i) => (i - 1 + cardCount) % cardCount)
     }
-  }
-
-  function next() {
-    setShowHint(false)
-    setActiveIdx((i) => (i + 1) % cardCount)
   }
 
   const activeItem    = items[activeIdx]
@@ -77,10 +76,10 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
         className="lr-hero-grid"
         style={{
           display:             'grid',
-          gridTemplateColumns: '1.1fr 1.3fr 0.9fr',
+          gridTemplateColumns: '1fr auto 1fr',
           gap:                 '2rem',
           alignItems:          'center',
-          minHeight:           '31.25rem',
+          minHeight:           '28rem',
         }}
       >
         {/* ── LEFT: headline + view-all CTA ──────────────────────────── */}
@@ -91,7 +90,7 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             style={{
               fontFamily:    'var(--font-display), "Barlow Condensed", sans-serif',
-              fontSize:      'clamp(2.5rem, 7vw, 6rem)',
+              fontSize:      'clamp(2.75rem, 7vw, 6.5rem)',
               fontWeight:    900,
               lineHeight:    0.92,
               color:         'var(--text-primary)',
@@ -106,6 +105,7 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
           </motion.h1>
 
           <motion.p
+            className="lr-hero-subline"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
@@ -148,8 +148,8 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
                   width:          '1.5rem',
                   height:         '1.5rem',
                   borderRadius:   '50%',
-                  background:     '#FFFFFF',
-                  color:          'var(--brand-red)',
+                  background:     '#14110D',
+                  color:          '#FFFFFF',
                   display:        'inline-flex',
                   alignItems:     'center',
                   justifyContent: 'center',
@@ -162,9 +162,11 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
 
         {/* ── CENTER: fanned card stack ─────────────────────────────── */}
         <div
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
           style={{
             position:       'relative',
-            height:         '26.25rem',
+            height:         '28rem',
             display:        'flex',
             alignItems:     'center',
             justifyContent: 'center',
@@ -185,7 +187,6 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
                     offset={offset}
                     isActive={offset === 0}
                     onDragEnd={offset === 0 ? handleDragEnd : undefined}
-                    onClick={offset === 0 ? next : undefined}
                     typeLabel={tTypes(item.content_type)}
                     locale={locale}
                     showHint={offset === 0 && showHint}
@@ -228,6 +229,9 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
       </div>
 
       <style>{`
+        @media (min-width: 56.25rem) {
+          .lr-hero-subline { display: none !important; }
+        }
         @media (max-width: 56.25rem) {
           .lr-hero-grid {
             grid-template-columns: 1fr !important;
@@ -264,21 +268,21 @@ function typeNavKey(type: HeroItem['content_type']): 'manuals' | 'prophecies' | 
        overlapping the card edge — not floating in the container.
    ───────────────────────────────────────────────────────────────────────── */
 function Card({
-  item, offset, isActive, onDragEnd, onClick, typeLabel, locale,
+  item, offset, isActive, onDragEnd, typeLabel, locale,
   showHint, hintLabel,
 }: {
   item:       HeroItem
   offset:     number
   isActive:   boolean
   onDragEnd?: (e: unknown, info: PanInfo) => void
-  onClick?:   () => void
   typeLabel:  string
   locale:     string
   showHint:   boolean
   hintLabel:  string
 }) {
-  /* Stronger fan vs the previous values so the stack reads at-a-glance the
-     way it does in the design — visible peek of each tint, distinct tilt. */
+  const router     = useRouter()
+  const didDrag    = useRef(false)
+
   const layoutOffsets = [
     { rotate:  0,   x:   0, y:   0, scale: 1    },
     { rotate:  6,   x:  22, y:  10, scale: 0.95 },
@@ -286,15 +290,33 @@ function Card({
     { rotate:  4,   x:  34, y:  26, scale: 0.87 },
   ]
   const layout = layoutOffsets[offset]
-  const tint   = STACK_TINTS[offset] ?? '#FFFFFF'
+  const bg     = TYPE_BG[item.content_type]
+
+  function handleDragStart() {
+    didDrag.current = false
+  }
+  function handleDrag() {
+    didDrag.current = true
+  }
+  function handleDragEnd(e: unknown, info: PanInfo) {
+    onDragEnd?.(e, info)
+    // Reset AFTER the click event fires so click guard works
+    setTimeout(() => { didDrag.current = false }, 50)
+  }
+  function handleClick() {
+    if (didDrag.current) return
+    router.push({ pathname: '/content/[id]', params: { id: item.id } })
+  }
 
   return (
     <motion.div
       drag={isActive ? 'x' : false}
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.4}
-      onDragEnd={onDragEnd}
-      onClick={onClick}
+      onDragStart={handleDragStart}
+      onDrag={handleDrag}
+      onDragEnd={handleDragEnd}
+      onClick={handleClick}
       initial={{ opacity: 0, scale: 0.85 }}
       animate={{
         rotate:  layout.rotate,
@@ -306,14 +328,14 @@ function Card({
       }}
       exit={{ opacity: 0, scale: 0.8 }}
       transition={{ type: 'spring', stiffness: 240, damping: 24, mass: 0.8 }}
-      whileHover={isActive ? { scale: 1.02 } : undefined}
-      whileTap={isActive   ? { scale: 0.98 } : undefined}
+      whileHover={{ scale: isActive ? 1.02 : 1.01 }}
+      whileTap={{ scale: 0.98 }}
       style={{
         position:         'absolute',
-        width:            '18.75rem',
-        height:           '23.75rem',
-        borderRadius:     '1.25rem',
-        background:       tint,
+        width:            '17.5rem',
+        height:           '25rem',
+        borderRadius:     '1.375rem',
+        background:       bg,
         cursor:           isActive ? 'grab' : 'pointer',
         userSelect:       'none',
         WebkitUserSelect: 'none',
@@ -323,46 +345,28 @@ function Card({
         overflow:         'visible',
       }}
     >
-      {/* Cover image area — fills the entire card body. The white meta bar
-          at the bottom overlays the image; no separate inset frame the way
-          the previous version had. */}
-      <div
-        style={{
-          position:        'absolute',
-          inset:           0,
-          borderRadius:    '1.25rem',
-          overflow:        'hidden',
-          background:      item.cover_image_url
-            ? undefined
-            /* Empty-state: diagonal stripe placeholder pattern that matches
-               the design's "placeholder · cover photo (asset)" boxes. Drawn
-               as a repeating linear-gradient on top of a warm cream so it
-               reads identically across themes. */
-            : `repeating-linear-gradient(
-                135deg,
-                #E8D9B8 0 1rem,
-                #D4C19A 1rem 2rem
-              )`,
-          display:         'flex',
-          alignItems:      'center',
-          justifyContent:  'center',
-        }}
-      >
-        {item.cover_image_url ? (
+      {/* Cover image fills card when available */}
+      {item.cover_image_url && (
+        <div
+          style={{
+            position:     'absolute',
+            inset:        0,
+            borderRadius: '1.375rem',
+            overflow:     'hidden',
+          }}
+        >
           <Image
             src={item.cover_image_url}
             alt=""
             fill
-            sizes="(max-width: 51.25rem) 17.5rem, 18.75rem"
+            sizes="17.5rem"
             priority={isActive}
             style={{ objectFit: 'cover' }}
           />
-        ) : null}
-      </div>
+        </div>
+      )}
 
-      {/* Bottom meta bar — eyebrow (time · type) + title + arrow. Pinned
-          to the card's bottom inset, white on cover, follows the design
-          exactly. No top type pill — the type is mentioned in the eyebrow. */}
+      {/* Bottom meta bar — white overlay on image, or colored bg card. */}
       <div
         style={{
           position:         'absolute',
@@ -376,6 +380,7 @@ function Card({
           flexDirection:    'column',
           gap:              '0.375rem',
           zIndex:           2,
+          boxShadow:        '0 8px 20px -8px rgba(20,17,13,0.2)',
         }}
       >
         <div
@@ -392,24 +397,24 @@ function Card({
 
         <div
           style={{
-            fontFamily:      'var(--font-body)',
-            fontSize:        '0.9375rem',
-            fontWeight:      600,
-            color:           '#212529',
-            lineHeight:      1.25,
-            display:         '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow:        'hidden',
+            fontFamily:       'var(--font-body)',
+            fontSize:         '0.9375rem',
+            fontWeight:       'var(--content-title-weight, 800)',
+            textTransform:    'var(--content-title-transform, uppercase)',
+            color:            '#212529',
+            lineHeight:       1.25,
+            display:          '-webkit-box',
+            WebkitLineClamp:  2,
+            WebkitBoxOrient:  'vertical',
+            overflow:         'hidden',
             paddingInlineEnd: '2.25rem',
           }}
         >
           {item.title}
         </div>
 
-        <Link
-          href={{ pathname: '/content/[id]', params: { id: item.id } }}
-          onClick={(e) => e.stopPropagation()}
+        <span
+          aria-hidden="true"
           style={{
             position:        'absolute',
             insetInlineEnd:  '0.875rem',
@@ -418,23 +423,47 @@ function Card({
             width:           '2rem',
             height:          '2rem',
             borderRadius:    '50%',
-            background:      '#212529',
+            background:      '#14110D',
             color:           '#FFFFFF',
             display:         'flex',
             alignItems:      'center',
             justifyContent:  'center',
-            textDecoration:  'none',
             fontSize:        '0.875rem',
+            pointerEvents:   'none',
           }}
         >
           →
-        </Link>
+        </span>
       </div>
 
-      {/* Drag hint — anchored to the ACTIVE CARD's bottom-right CORNER,
-          overlapping the card edge, gold pill. Matches the design exactly.
-          AnimatePresence is on the outside so the pill can fade out the
-          moment the user starts swiping. */}
+      {/* Series pill — top-left, only shown when series is set.
+          The content type is already communicated by the card bg + bottom eyebrow. */}
+      {item.series && (
+        <div
+          style={{
+            position:         'absolute',
+            top:              '0.875rem',
+            insetInlineStart: '0.875rem',
+            background:       '#FFFFFF',
+            borderRadius:     '999rem',
+            padding:          '0.25rem 0.625rem',
+            fontSize:         '0.625rem',
+            fontWeight:       700,
+            letterSpacing:    '0.1em',
+            textTransform:    'uppercase',
+            color:            '#14110D',
+            zIndex:           3,
+            maxWidth:         'calc(100% - 1.75rem)',
+            overflow:         'hidden',
+            textOverflow:     'ellipsis',
+            whiteSpace:       'nowrap',
+          }}
+        >
+          {item.series}
+        </div>
+      )}
+
+      {/* Drag hint pill — gold, bottom-right corner overlap */}
       <AnimatePresence>
         {showHint && (
           <motion.div
@@ -447,7 +476,7 @@ function Card({
               bottom:         '-0.5rem',
               insetInlineEnd: '-0.5rem',
               background:     'var(--brand-gold)',
-              color:          'var(--text-inverse)',
+              color:          '#14110D',
               fontSize:       '0.6875rem',
               fontWeight:     600,
               padding:        '0.3125rem 0.875rem',
@@ -470,9 +499,9 @@ function EmptyStack({ message }: { message: string }) {
   return (
     <div
       style={{
-        width:          '18.75rem',
-        height:         '23.75rem',
-        borderRadius:   '1.25rem',
+        width:          '17.5rem',
+        height:         '25rem',
+        borderRadius:   '1.375rem',
         background:     'var(--bg-raised)',
         border:         '0.03125rem solid var(--border-subtle)',
         display:        'flex',
@@ -503,28 +532,44 @@ function CategoryRow({
       type="button"
       onClick={onClick}
       style={{
-        position:       'relative',
-        background:     'transparent',
-        border:         'none',
-        cursor:         'pointer',
-        padding:        '0',
-        fontFamily:     'var(--font-display), "Barlow Condensed", sans-serif',
-        fontSize:       'clamp(2.5rem, 4.5vw, 4.25rem)',
-        fontWeight:     900,
-        textTransform:  'uppercase',
-        lineHeight:     0.98,
-        letterSpacing:  '-0.012em',
-        color:          isActive
-          ? 'var(--brand-red)'
-          : 'color-mix(in srgb, var(--text-primary) 32%, transparent)',
-        textAlign:       'right',
-        textDecoration:  isActive ? 'underline' : 'none',
-        textUnderlineOffset: isActive ? '0.25rem' : undefined,
-        textDecorationThickness: isActive ? '0.125rem' : undefined,
-        transition:      'color 0.3s',
+        position:      'relative',
+        background:    'transparent',
+        border:        'none',
+        cursor:        'pointer',
+        padding:       '0',
+        fontFamily:    'var(--font-display), "Barlow Condensed", sans-serif',
+        fontSize:      'clamp(2.5rem, 4.5vw, 4.25rem)',
+        fontWeight:    900,
+        textTransform: 'uppercase',
+        lineHeight:    0.98,
+        letterSpacing: '-0.012em',
+        color:         'color-mix(in srgb, var(--text-primary) 32%, transparent)',
+        textAlign:     'right',
+        textDecoration: 'none',
       }}
     >
-      {label}
+      {isActive ? (
+        <span style={{ position: 'relative', display: 'inline-block' }}>
+          {/* Red echo — offset behind the main text */}
+          <span
+            aria-hidden="true"
+            style={{
+              position:  'absolute',
+              inset:     0,
+              color:     'var(--brand-red)',
+              transform: 'translate(8px, 6px)',
+              zIndex:    0,
+              opacity:   0.9,
+            }}
+          >
+            {label}
+          </span>
+          {/* Main text — full-opacity dark on top */}
+          <span style={{ position: 'relative', color: 'var(--text-primary)', zIndex: 1 }}>
+            {label}
+          </span>
+        </span>
+      ) : label}
     </button>
   )
 }

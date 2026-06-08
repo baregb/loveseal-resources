@@ -118,7 +118,26 @@
       "content": "Content"
     },
     "translatedNotice": "This page was machine-translated. Some nuance may be lost.",
-    "pendingTranslationNotice": "This content is shown in its original language ({source}). A translation isn’t available yet."
+    "pendingTranslationNotice": "This content is shown in its original language ({source}). A translation isn’t available yet.",
+    "reader": {
+      "breadcrumb": { "topics": "Topics" },
+      "toggleFull": "Full text",
+      "toggleQuick": "Key points",
+      "byline": { "readTime": "{minutes} min read" },
+      "actions": {
+        "copyLink": "Copy link",
+        "copied": "Copied",
+        "share": "Share",
+        "downloadPdf": "Download PDF"
+      },
+      "quick": {
+        "pagination": "{current} of {total}",
+        "next": "Next",
+        "prev": "Previous",
+        "readFull": "Read full story",
+        "pointFallback": "Point {n}"
+      }
+    }
   },
   "topic": {
     "eyebrow": {

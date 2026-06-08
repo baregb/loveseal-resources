@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic'
 import { createClient } from '@/lib/supabase/server'
 import ContentCard from '@/components/public/ContentCard'
 import AboutStrip from '@/components/landing/AboutStrip'
+import ClosingCTA from '@/components/landing/ClosingCTA'
 import FeaturedSection from '@/components/landing/FeaturedSection'
 import InFocusStrip from '@/components/landing/InFocusStrip'
 import LatestSection from '@/components/landing/LatestSection'
@@ -22,6 +23,7 @@ interface HeroItem {
   title:           string
   content_type:    'manual' | 'prophecy' | 'article' | 'blog'
   theme:           string | null
+  series:          string | null
   speaker:         string | null
   cover_image_url: string | null
   created_at:      string
@@ -47,7 +49,7 @@ export default async function HomePage({
   /* Hero — 8 most-recent published items, light field set. */
   const { data: heroData } = await supabase
     .from('content')
-    .select('id, title, content_type, theme, speaker, cover_image_url, created_at')
+    .select('id, title, content_type, theme, series, speaker, cover_image_url, created_at')
     .eq('status', 'published')
     .order('created_at', { ascending: false })
     .limit(8)
@@ -118,6 +120,8 @@ export default async function HomePage({
           totalCount={section.totalCount}
         />
       ))}
+
+      <ClosingCTA />
     </div>
   )
 }

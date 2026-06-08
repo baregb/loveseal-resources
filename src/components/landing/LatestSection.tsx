@@ -5,6 +5,13 @@ import RevealOnScroll from '@/components/landing/RevealOnScroll'
 
 type ContentType = 'manual' | 'prophecy' | 'article' | 'blog'
 
+const TYPE_ACCENT: Record<ContentType, string> = {
+  manual:   '#C32126',   /* brand-red */
+  prophecy: '#4498CC',   /* brand-blue */
+  article:  '#F5AE41',   /* brand-gold */
+  blog:     '#C8BFEC',   /* lilac */
+}
+
 type CardItem = Parameters<typeof ContentCard>[0]['item']
 
 /**
@@ -38,6 +45,7 @@ export default async function LatestSection({
 }) {
   const tSections = await getTranslations('sections')
   const titleKey  = sectionTitleKey(type)
+  const accent    = TYPE_ACCENT[type]
 
   if (items.length === 0) return null
 
@@ -73,11 +81,12 @@ export default async function LatestSection({
             <span
               aria-hidden="true"
               style={{
-                width:      '0.5rem',
-                height:     '0.5rem',
-                background: 'var(--brand-red)',
-                flexShrink: 0,
-                transform:  'translateY(-0.125rem)',
+                width:        '0.5rem',
+                height:       '0.5rem',
+                borderRadius: '50%',
+                background:   accent,
+                flexShrink:   0,
+                transform:    'translateY(-0.125rem)',
               }}
             />
             <h2
@@ -109,11 +118,17 @@ export default async function LatestSection({
           <Link
             href={{ pathname: '/content', query: { type } }}
             style={{
+              display:        'inline-flex',
+              alignItems:     'center',
+              padding:        '0.625rem 1.125rem',
+              borderRadius:   '999rem',
               fontSize:       '0.8125rem',
-              color:          'var(--brand-red)',
-              textDecoration: 'none',
               fontWeight:     500,
+              color:          'var(--text-primary)',
+              textDecoration: 'none',
               whiteSpace:     'nowrap',
+              boxShadow:      'inset 0 0 0 1px rgba(20,17,13,0.18)',
+              transition:     'background-color 0.12s',
             }}
           >
             {tSections('viewAll')} →

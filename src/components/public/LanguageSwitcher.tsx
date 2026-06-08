@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useTransition } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
+import { useParams } from 'next/navigation'
 import { useRouter, usePathname } from '@/i18n/navigation'
 import { LOCALES_META, routing } from '@/i18n/routing'
 import type { AppLocale } from '@/i18n/routing'
@@ -12,6 +13,7 @@ export default function LanguageSwitcher() {
   const t        = useTranslations('languageSwitcher')
   const locale   = useLocale() as AppLocale
   const pathname = usePathname()
+  const params   = useParams()
   const router   = useRouter()
   const [open, setOpen]     = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -46,9 +48,11 @@ export default function LanguageSwitcher() {
     const toastId = toast.loading(`Switching to ${LOCALES_META[next].native}…`)
 
     startTransition(() => {
-      // @ts-expect-error -- next-intl typed router can't infer params from a
-      // generic pathname here; at runtime it derives them from the current URL.
-      router.replace(pathname, { locale: next })
+      // usePathname() returns the route template ("/content/[id]") with typed
+      // routes enabled. useParams() gives the filled-in values ({ id: "abc" }).
+      // Passing both lets next-intl construct the correct locale-switched URL.
+      // @ts-expect-error -- next-intl typed router can't fully infer this shape
+      router.replace({ pathname, params }, { locale: next })
       /* Replace the loading toast with a success toast. Sonner's toast.success
          with the same `id` updates the existing toast in place. */
       toast.success(`Language: ${LOCALES_META[next].native}`, { id: toastId })

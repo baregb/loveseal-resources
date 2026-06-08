@@ -120,7 +120,26 @@
       "content": "المحتوى"
     },
     "translatedNotice": "تُرجمت هذه الصفحة آليًا. قد تضيع بعض الفروق الدقيقة.",
-    "pendingTranslationNotice": "يُعرض هذا المحتوى بلغته الأصلية ({source}). لا تتوفّر ترجمة بعد."
+    "pendingTranslationNotice": "يُعرض هذا المحتوى بلغته الأصلية ({source}). لا تتوفّر ترجمة بعد.",
+    "reader": {
+      "breadcrumb": { "topics": "المواضيع" },
+      "toggleFull": "النص الكامل",
+      "toggleQuick": "النقاط الرئيسية",
+      "byline": { "readTime": "{minutes} دقيقة قراءة" },
+      "actions": {
+        "copyLink": "نسخ الرابط",
+        "copied": "تم النسخ",
+        "share": "مشاركة",
+        "downloadPdf": "تحميل PDF"
+      },
+      "quick": {
+        "pagination": "{current} من {total}",
+        "next": "التالي",
+        "prev": "السابق",
+        "readFull": "قراءة القصة كاملة",
+        "pointFallback": "نقطة {n}"
+      }
+    }
   },
   "topic": {
     "eyebrow": {
