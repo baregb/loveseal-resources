@@ -44,7 +44,10 @@ export default async function InFocusStrip() {
     <section
       aria-label={t('inFocus.label')}
       style={{
-        padding: '0 var(--page-inline-padding)',
+        maxWidth:     'var(--width-site)',
+        marginInline: 'auto',
+        width:        '100%',
+        padding:      '0 var(--page-inline-padding)',
       }}
     >
       <div
@@ -75,11 +78,11 @@ export default async function InFocusStrip() {
             style={{
               display:       'flex',
               flexWrap:      'wrap',
-              gap:           '0.75rem 1.25rem',
+              gap:           '0.5rem 1rem',
               fontFamily:    'var(--font-display, "Barlow Condensed"), system-ui, sans-serif',
-              fontSize:      '1.125rem',
+              fontSize:      '0.875rem',
               fontWeight:    800,
-              letterSpacing: '0.02em',
+              letterSpacing: '0.04em',
               textTransform: 'uppercase',
               color:         'var(--text-primary)',
             }}
@@ -160,6 +163,16 @@ export default async function InFocusStrip() {
           .lr-infocus-join {
             justify-content: space-between;
           }
+          .lr-infocus-tags {
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch !important;
+            scrollbar-width: none !important;
+            font-size: 0.625rem !important;
+            gap: 0.25rem 0.625rem !important;
+            padding-bottom: 0.25rem !important;
+          }
+          .lr-infocus-tags::-webkit-scrollbar { display: none; }
         }
       `}</style>
     </section>

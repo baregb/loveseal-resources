@@ -3,9 +3,11 @@
 import { useTranslations, useLocale } from 'next-intl'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
+import { contentHref } from '@/lib/content-url'
 
 interface ContentItemForCard {
   id:              string
+  slug:            string | null
   title:           string
   content_type:    'manual' | 'prophecy' | 'article' | 'blog'
   theme:           string | null
@@ -48,7 +50,7 @@ export default function ContentCard({
   if (layout === 'list') {
     return (
       <Link
-        href={{ pathname: '/content/[id]', params: { id: item.id } }}
+        href={contentHref(item)}
         style={{
           display: 'grid',
           gridTemplateColumns: 'auto 1fr auto',
@@ -126,7 +128,7 @@ export default function ContentCard({
      type pill top-left + read-time/meta pill top-right on the photo. */
   return (
     <Link
-      href={{ pathname: '/content/[id]', params: { id: item.id } }}
+      href={contentHref(item)}
       className="content-card"
       style={{
         display:        'flex',

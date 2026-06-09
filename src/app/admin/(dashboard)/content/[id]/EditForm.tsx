@@ -9,11 +9,12 @@ import AuthorPicker, { type AuthorPickerOption } from '@/components/admin/Author
 import ButtonSpinner from '@/components/ui/ButtonSpinner'
 import { toast } from '@/lib/toast'
 import type { ContentType, Locale } from '@/types'
+import { slugify } from '@/lib/slugify'
 import { logContentUpdated } from '../actions'
 import { translateContent } from '../translate-actions'
 
 interface Item {
-  id: string; title: string; content_type: ContentType
+  id: string; title: string; slug: string | null; content_type: ContentType
   source_mode: 'pdf' | 'editor'
   category: string; tags: string[]
   theme: string | null; lesson_number: string | null; speaker: string | null
@@ -66,6 +67,7 @@ export default function EditForm({
   const router = useRouter()
 
   const [title, setTitle]               = useState(item.title)
+  const [slug, setSlug]                 = useState(item.slug ?? '')
   const [contentType, setContentType]   = useState<ContentType>(item.content_type)
   const [language, setLanguage]         = useState<Locale>(item.language)
   const [bodyHtml, setBodyHtml]         = useState(item.body_html ?? '')
@@ -128,6 +130,7 @@ export default function EditForm({
 
       const { error: updateError } = await supabase.from('content').update({
         title: title.trim(),
+        slug:  slug.trim() || slugify(title.trim()) || null,
         content_type: contentType,
         category: category || '',
         language,
@@ -323,6 +326,15 @@ export default function EditForm({
             <SectionHeader label="IDENTITY" />
             <Field label="Title" required>
               <input type="text" value={title} onChange={e => setTitle(e.target.value)} required style={inputStyle} />
+            </Field>
+            <Field label="URL slug" hint="auto-generated from title if left blank">
+              <input
+                type="text"
+                value={slug}
+                onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-{2,}/g, '-').replace(/^-|-$/g, ''))}
+                placeholder={slugify(title) || 'e.g. gods-harvest-in-coming-days'}
+                style={{ ...inputStyle, fontFamily: 'monospace', fontSize: '0.75rem' }}
+              />
             </Field>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.625rem' }}>
               <Field label="Content type" required>

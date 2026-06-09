@@ -14,7 +14,7 @@ export default async function ClosingCTA() {
   const t = await getTranslations('footer')
 
   return (
-    <section style={{ padding: '6rem var(--page-inline-padding) 5rem' }}>
+    <section style={{ maxWidth: 'var(--width-site)', marginInline: 'auto', width: '100%', padding: '6rem var(--page-inline-padding) 5rem' }}>
       <div style={{
         background:   '#14110D',
         color:        '#FFFFFF',

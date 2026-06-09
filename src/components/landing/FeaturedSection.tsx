@@ -4,9 +4,11 @@ import { useTranslations, useLocale } from 'next-intl'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import RevealOnScroll from './RevealOnScroll'
+import { contentHref } from '@/lib/content-url'
 
 interface FeaturedItem {
   id:                 string
+  slug:               string | null
   title:              string
   content_type:       'manual' | 'prophecy' | 'article' | 'blog'
   theme:              string | null
@@ -49,7 +51,7 @@ export default function FeaturedSection({ items }: { items: FeaturedItem[] }) {
   return (
     <section
       style={{
-        maxWidth: 'var(--width-content)',
+        maxWidth: 'var(--width-site)',
         margin:   '0 auto',
         padding:  '2.5rem var(--page-inline-padding) 5rem',
       }}
@@ -193,7 +195,7 @@ function PrimaryColumn({
           the stripe pattern when present. Type pill top-left + chapter/read
           pill top-right are the only overlays. */}
       <Link
-        href={{ pathname: '/content/[id]', params: { id: item.id } }}
+        href={contentHref(item)}
         style={{
           position:       'relative',
           display:        'block',
@@ -286,7 +288,7 @@ function PrimaryColumn({
         </div>
 
         <Link
-          href={{ pathname: '/content/[id]', params: { id: item.id } }}
+          href={contentHref(item)}
           style={{ textDecoration: 'none', color: 'inherit' }}
         >
           <h3
@@ -396,7 +398,7 @@ function SecondaryCard({
 
   return (
     <Link
-      href={{ pathname: '/content/[id]', params: { id: item.id } }}
+      href={contentHref(item)}
       style={{
         display:             'grid',
         gridTemplateColumns: '4.5rem 1fr',

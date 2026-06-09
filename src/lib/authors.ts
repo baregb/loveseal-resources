@@ -85,7 +85,7 @@ export async function getContentByAuthor(
   let query = supabase
     .from('content')
     .select(`
-      id, title, content_type, theme, speaker, series,
+      id, slug, title, content_type, theme, speaker, series,
       date_preached, cover_image_url, summary_points, created_at
     `)
     .eq('status', 'published')
@@ -99,6 +99,7 @@ export async function getContentByAuthor(
   const { data } = await query
   return (data ?? []) as Array<{
     id:              string
+    slug:            string | null
     title:           string
     content_type:    'manual' | 'prophecy' | 'article' | 'blog'
     theme:           string | null

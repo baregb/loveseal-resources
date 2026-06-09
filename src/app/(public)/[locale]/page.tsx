@@ -20,6 +20,7 @@ const LandingHero = dynamic(() => import('@/components/landing/LandingHero'))
    LandingHero.tsx; if you add a field there, mirror it here. */
 interface HeroItem {
   id:              string
+  slug:            string | null
   title:           string
   content_type:    'manual' | 'prophecy' | 'article' | 'blog'
   theme:           string | null
@@ -49,7 +50,7 @@ export default async function HomePage({
   /* Hero — 8 most-recent published items, light field set. */
   const { data: heroData } = await supabase
     .from('content')
-    .select('id, title, content_type, theme, series, speaker, cover_image_url, created_at')
+    .select('id, slug, title, content_type, theme, series, speaker, cover_image_url, created_at')
     .eq('status', 'published')
     .order('created_at', { ascending: false })
     .limit(8)
@@ -61,7 +62,7 @@ export default async function HomePage({
      pill without follow-up queries. */
   const { data: featuredData } = await supabase
     .from('content')
-    .select('id, title, content_type, theme, category, speaker, summary_points, date_preached, cover_image_url, read_time_minutes, created_at')
+    .select('id, slug, title, content_type, theme, category, speaker, summary_points, date_preached, cover_image_url, read_time_minutes, created_at')
     .eq('status', 'published')
     .order('created_at', { ascending: false })
     .limit(5)
@@ -76,7 +77,7 @@ export default async function HomePage({
   const cardFetches = types.map(t =>
     supabase
       .from('content')
-      .select('id, title, content_type, theme, speaker, series, date_preached, cover_image_url, created_at, summary_points')
+      .select('id, slug, title, content_type, theme, speaker, series, date_preached, cover_image_url, created_at, summary_points')
       .eq('status', 'published')
       .eq('content_type', t)
       .order('created_at', { ascending: false })

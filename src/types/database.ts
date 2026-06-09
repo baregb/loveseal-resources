@@ -46,6 +46,7 @@ export type Database = {
       content: {
         Row: {
           id: string
+          slug: string | null
           title: string
           content_type: 'manual' | 'prophecy' | 'article' | 'blog'
           source_mode: 'pdf' | 'editor'

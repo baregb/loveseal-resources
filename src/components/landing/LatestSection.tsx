@@ -52,9 +52,9 @@ export default async function LatestSection({
   return (
     <section
       style={{
-        maxWidth: '90rem',
+        maxWidth: 'var(--width-site)',
         margin:   '0 auto',
-        padding:  '3.5rem 1.5rem 1rem',
+        padding:  '3.5rem var(--page-inline-padding) 1rem',
       }}
     >
       <RevealOnScroll>

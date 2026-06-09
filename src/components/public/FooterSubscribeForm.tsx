@@ -45,10 +45,6 @@ export default function FooterSubscribeForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.trim()) return
-    /* No backend in Pass 2. Replace this with a real POST when the
-       subscribers phase lands. */
-    // eslint-disable-next-line no-console
-    console.log('[footer/subscribe] captured email:', email.trim())
     setStatus('success')
     setEmail('')
     timerRef.current = setTimeout(() => {

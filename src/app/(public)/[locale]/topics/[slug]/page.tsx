@@ -63,7 +63,7 @@ export default async function TopicTagPage({ params }: PageParams) {
   const { data } = await supabase
     .from('content')
     .select(`
-      id, title, content_type, theme, speaker, series,
+      id, slug, title, content_type, theme, speaker, series,
       date_preached, cover_image_url, summary_points, created_at, tags
     `)
     .eq('status', 'published')
@@ -80,6 +80,7 @@ export default async function TopicTagPage({ params }: PageParams) {
      rows for unrelated reasons. */
   const items = ((data ?? []) as Array<{
     id:              string
+    slug:            string | null
     title:           string
     content_type:    'manual' | 'prophecy' | 'article' | 'blog'
     theme:           string | null

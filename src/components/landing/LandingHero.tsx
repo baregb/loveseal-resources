@@ -8,6 +8,7 @@ import { Link, useRouter } from '@/i18n/navigation'
 
 interface HeroItem {
   id:              string
+  slug:            string | null
   title:           string
   content_type:    'manual' | 'prophecy' | 'article' | 'blog'
   theme:           string | null
@@ -19,12 +20,18 @@ interface HeroItem {
 
 const TYPE_ORDER: HeroItem['content_type'][] = ['manual', 'prophecy', 'article', 'blog']
 
-/* Each content type gets its own brand-derived pastel background. */
 const TYPE_BG: Record<HeroItem['content_type'], string> = {
-  manual:   '#FDDEDE',   // soft red
-  prophecy: '#B7DCF1',   // sky blue (design exact)
-  article:  '#FEF3C7',   // warm gold
-  blog:     '#C8BFEC',   // lilac (design exact)
+  manual:   '#FDDEDE',
+  prophecy: '#B7DCF1',
+  article:  '#FEF3C7',
+  blog:     '#C8BFEC',
+}
+
+const TYPE_COLORS: Record<HeroItem['content_type'], string> = {
+  manual:   '#2F87C3',   // brand blue
+  prophecy: '#C32126',   // brand red
+  article:  '#B87D0A',   // brand gold, darkened for text contrast
+  blog:     '#6E5FAE',   // brand lilac, darkened for text contrast
 }
 
 export default function LandingHero({ items }: { items: HeroItem[] }) {
@@ -36,13 +43,21 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
   const [activeIdx, setActiveIdx] = useState(0)
   const [showHint, setShowHint]   = useState(true)
   const [isHovered, setIsHovered] = useState(false)
+  const [isMobile, setIsMobile]   = useState(false)
   const cardCount = items.length
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 56.25rem)')
+    setIsMobile(mq.matches)
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
 
   useEffect(() => {
     if (activeIdx > 0) setShowHint(false)
   }, [activeIdx])
 
-  // Always auto-advance; pause on hover
   useEffect(() => {
     if (isHovered || cardCount <= 1) return
     const timer = setTimeout(() => setActiveIdx((i) => (i + 1) % cardCount), 4000)
@@ -61,10 +76,13 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
 
   const activeItem    = items[activeIdx]
   const activeType    = activeItem?.content_type
-  /* Active row in the right column is driven by the active card's
-     content_type — TYPE_ORDER index resolution. Matches the locked
-     answer: "Drive from active card, keep current top-down order". */
   const activeTypeIdx = activeType ? TYPE_ORDER.indexOf(activeType) : 0
+  const activeColor   = activeType ? TYPE_COLORS[activeType] : 'var(--brand-red)'
+
+  function jumpToType(type: HeroItem['content_type']) {
+    const next = items.findIndex((item, j) => item.content_type === type && j !== activeIdx)
+    if (next !== -1) { setShowHint(false); setActiveIdx(next) }
+  }
 
   return (
     <section
@@ -93,7 +111,7 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             style={{
               fontFamily:    'var(--font-display), "Barlow Condensed", sans-serif',
-              fontSize:      'clamp(2.75rem, 7vw, 6.5rem)',
+              fontSize:      'clamp(3rem, 7vw, 7.5rem)',
               fontWeight:    900,
               lineHeight:    0.92,
               color:         'var(--text-primary)',
@@ -125,6 +143,7 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
           </motion.p>
 
           <motion.div
+            className="lr-hero-cta"
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
@@ -165,6 +184,7 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
 
         {/* ── CENTER: fanned card stack ─────────────────────────────── */}
         <div
+          className="lr-hero-card-wrap"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           style={{
@@ -182,17 +202,17 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
               {items.map((item, idx) => {
                 const offset = (idx - activeIdx + cardCount) % cardCount
                 if (offset > 3) return null
-
                 return (
                   <Card
                     key={item.id}
                     item={item}
                     offset={offset}
                     isActive={offset === 0}
+                    compact={isMobile}
                     onDragEnd={offset === 0 ? handleDragEnd : undefined}
                     typeLabel={tTypes(item.content_type)}
                     locale={locale}
-                    showHint={offset === 0 && showHint}
+                    showHint={offset === 0 && showHint && !isMobile}
                     hintLabel={t('drag')}
                   />
                 )
@@ -201,7 +221,7 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
           )}
         </div>
 
-        {/* ── RIGHT: type column, active = brand-red + underline ─────── */}
+        {/* ── RIGHT: type column (desktop only) ─────────────────────── */}
         <div
           className="lr-hero-cats"
           style={{
@@ -218,34 +238,131 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
                 key={type}
                 label={tNav(typeNavKey(type))}
                 isActive={isActive}
-                onClick={() => {
-                  const nextIdx = items.findIndex((i, j) => i.content_type === type && j !== activeIdx)
-                  if (nextIdx !== -1) {
-                    setShowHint(false)
-                    setActiveIdx(nextIdx)
-                  }
-                }}
+                onClick={() => jumpToType(type)}
               />
             )
           })}
         </div>
       </div>
 
+      {/* ── MOBILE BOTTOM: pill tabs + CTA ─────────────────────────── */}
+      <div
+        className="lr-hero-mobile-bottom"
+        style={{ display: 'none', flexDirection: 'column', alignItems: 'center', gap: '1rem', paddingTop: '2rem' }}
+      >
+        {/* Progress track */}
+        <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+          {items.slice(0, Math.min(items.length, 6)).map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setActiveIdx(i)}
+              aria-label={`Go to card ${i + 1}`}
+              style={{
+                width:        i === activeIdx ? '1.25rem' : '0.375rem',
+                height:       '0.375rem',
+                borderRadius: '999rem',
+                background:   i === activeIdx ? activeColor : 'var(--border-strong)',
+                border:       'none',
+                padding:      0,
+                cursor:       'pointer',
+                transition:   'width 0.25s, background 0.25s',
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Type pill tabs */}
+        <div style={{ display: 'flex', gap: '0.375rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+          {TYPE_ORDER.map((type, idx) => {
+            const isActive = idx === activeTypeIdx
+            const color    = TYPE_COLORS[type]
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={() => jumpToType(type)}
+                style={{
+                  padding:       '0.4375rem 0.9375rem',
+                  borderRadius:  '999rem',
+                  border:        `0.0625rem solid ${isActive ? color + '60' : 'var(--border-subtle)'}`,
+                  background:    isActive ? color + '14' : 'var(--bg-raised)',
+                  color:         isActive ? color : 'var(--text-tertiary)',
+                  fontSize:      '0.75rem',
+                  fontWeight:    isActive ? 700 : 500,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  cursor:        'pointer',
+                  fontFamily:    'var(--font-body)',
+                  transition:    'background 0.18s, color 0.18s, border-color 0.18s',
+                }}
+              >
+                {tNav(typeNavKey(type))}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Mobile CTA */}
+        <Link
+          href="/content"
+          style={{
+            display:        'inline-flex',
+            alignItems:     'center',
+            gap:            '0.5rem',
+            padding:        '0.8125rem 1.375rem',
+            background:     'var(--brand-red)',
+            color:          '#FFFFFF',
+            borderRadius:   '999rem',
+            fontSize:       '0.875rem',
+            fontWeight:     500,
+            textDecoration: 'none',
+          }}
+        >
+          {t('viewAllLatest')}
+          <span
+            style={{
+              width:          '1.375rem',
+              height:         '1.375rem',
+              borderRadius:   '50%',
+              background:     '#14110D',
+              color:          '#FFFFFF',
+              display:        'inline-flex',
+              alignItems:     'center',
+              justifyContent: 'center',
+              fontSize:       '0.75rem',
+            }}
+          >→</span>
+        </Link>
+      </div>
+
       <style>{`
+        /* Desktop: hide subline + mobile-only elements */
         @media (min-width: 56.25rem) {
-          .lr-hero-subline { display: none !important; }
+          .lr-hero-subline       { display: none !important; }
+          .lr-hero-mobile-bottom { display: none !important; }
         }
+        /* Mobile: single-column layout, centered text, hide desktop cats + CTA */
         @media (max-width: 56.25rem) {
           .lr-hero-grid {
             grid-template-columns: 1fr !important;
-            gap: 1rem !important;
+            gap: 0.5rem !important;
             min-height: 0 !important;
           }
-          .lr-hero-cats {
-            flex-direction: row !important;
-            flex-wrap: wrap !important;
-            justify-content: center !important;
-            align-items: center !important;
+          .lr-hero-grid > div:first-child   { text-align: center !important; }
+          .lr-hero-grid > div:first-child h1 { font-size: clamp(3.25rem, 16vw, 5.5rem) !important; }
+          .lr-hero-subline { margin-inline: auto !important; max-width: min(22rem, 88%) !important; }
+          .lr-hero-cats    { display: none !important; }
+          .lr-hero-cta            { display: none !important; }
+          .lr-hero-mobile-bottom  { display: flex !important; }
+          .lr-hero-card-wrap {
+            overflow: hidden !important;
+            height: 26rem !important;
+            margin-inline: -0.5rem;
+          }
+          .lr-hero-card {
+            width: min(17.5rem, 76vw) !important;
+            height: min(25rem, 106vw) !important;
           }
         }
       `}</style>
@@ -262,21 +379,14 @@ function typeNavKey(type: HeroItem['content_type']): 'manuals' | 'prophecies' | 
   }
 }
 
-/* ─────────────────────────────────────────────────────────────────────────────
-   Card — single fan card. Layout per design:
-     · Background tint shows on offset 1+ (the cards peeking behind active)
-     · Active card: cover image fills the entire body. White meta bar pinned
-       to the bottom with eyebrow (timeAgo · content_type) + title + arrow.
-     · Drag hint pill anchored to the active card's bottom-right CORNER,
-       overlapping the card edge — not floating in the container.
-   ───────────────────────────────────────────────────────────────────────── */
 function Card({
-  item, offset, isActive, onDragEnd, typeLabel, locale,
+  item, offset, isActive, compact, onDragEnd, typeLabel, locale,
   showHint, hintLabel,
 }: {
   item:       HeroItem
   offset:     number
   isActive:   boolean
+  compact:    boolean
   onDragEnd?: (e: unknown, info: PanInfo) => void
   typeLabel:  string
   locale:     string
@@ -286,33 +396,41 @@ function Card({
   const router     = useRouter()
   const didDrag    = useRef(false)
 
-  const layoutOffsets = [
+  const desktopOffsets = [
     { rotate:  0,   x:   0, y:   0, scale: 1    },
     { rotate:  6,   x:  22, y:  10, scale: 0.95 },
     { rotate: -7,   x: -22, y:  18, scale: 0.91 },
     { rotate:  4,   x:  34, y:  26, scale: 0.87 },
   ]
-  const layout = layoutOffsets[offset]
+  const mobileOffsets = [
+    { rotate:  0,   x:   0, y:   0, scale: 1    },
+    { rotate:  5,   x:  13, y:   8, scale: 0.95 },
+    { rotate: -5,   x: -13, y:  15, scale: 0.91 },
+    { rotate:  3,   x:  20, y:  22, scale: 0.87 },
+  ]
+  const layout = (compact ? mobileOffsets : desktopOffsets)[offset]
   const bg     = TYPE_BG[item.content_type]
 
-  function handleDragStart() {
-    didDrag.current = false
-  }
-  function handleDrag() {
-    didDrag.current = true
-  }
+  function handleDragStart() { didDrag.current = false }
+  function handleDrag()      { didDrag.current = true }
   function handleDragEnd(e: unknown, info: PanInfo) {
     onDragEnd?.(e, info)
-    // Reset AFTER the click event fires so click guard works
     setTimeout(() => { didDrag.current = false }, 50)
   }
   function handleClick() {
     if (didDrag.current) return
-    router.push({ pathname: '/content/[id]', params: { id: item.id } })
+    const TYPE_PATHNAME = {
+      manual:   '/manuals/[slug]',
+      prophecy: '/prophecies/[slug]',
+      article:  '/articles/[slug]',
+      blog:     '/blogs/[slug]',
+    } as const
+    router.push({ pathname: TYPE_PATHNAME[item.content_type], params: { slug: item.slug ?? item.id } })
   }
 
   return (
     <motion.div
+      className="lr-hero-card"
       drag={isActive ? 'x' : false}
       dragConstraints={{ left: 0, right: 0 }}
       dragElastic={0.4}
@@ -348,16 +466,9 @@ function Card({
         overflow:         'visible',
       }}
     >
-      {/* Cover image fills card when available */}
+      {/* Cover image */}
       {item.cover_image_url && (
-        <div
-          style={{
-            position:     'absolute',
-            inset:        0,
-            borderRadius: '1.375rem',
-            overflow:     'hidden',
-          }}
-        >
+        <div style={{ position: 'absolute', inset: 0, borderRadius: '1.375rem', overflow: 'hidden' }}>
           <Image
             src={item.cover_image_url}
             alt=""
@@ -369,7 +480,7 @@ function Card({
         </div>
       )}
 
-      {/* Bottom meta bar — white overlay on image, or colored bg card. */}
+      {/* Bottom meta bar */}
       <div
         style={{
           position:         'absolute',
@@ -386,18 +497,9 @@ function Card({
           boxShadow:        '0 8px 20px -8px rgba(20,17,13,0.2)',
         }}
       >
-        <div
-          style={{
-            fontSize:      '0.625rem',
-            fontWeight:    600,
-            letterSpacing: '0.08em',
-            textTransform: 'uppercase',
-            color:         '#5a5a5a',
-          }}
-        >
+        <div style={{ fontSize: '0.625rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#5a5a5a' }}>
           {timeAgo(item.created_at, locale)} · {typeLabel}
         </div>
-
         <div
           style={{
             fontFamily:       'var(--font-body)',
@@ -415,7 +517,6 @@ function Card({
         >
           {item.title}
         </div>
-
         <span
           aria-hidden="true"
           style={{
@@ -439,8 +540,7 @@ function Card({
         </span>
       </div>
 
-      {/* Series pill — top-left, only shown when series is set.
-          The content type is already communicated by the card bg + bottom eyebrow. */}
+      {/* Series pill */}
       {item.series && (
         <div
           style={{
@@ -466,7 +566,7 @@ function Card({
         </div>
       )}
 
-      {/* Drag hint pill — gold, bottom-right corner overlap */}
+      {/* Drag hint */}
       <AnimatePresence>
         {showHint && (
           <motion.div
@@ -535,25 +635,24 @@ function CategoryRow({
       type="button"
       onClick={onClick}
       style={{
-        position:      'relative',
-        background:    'transparent',
-        border:        'none',
-        cursor:        'pointer',
-        padding:       '0',
-        fontFamily:    'var(--font-display), "Barlow Condensed", sans-serif',
-        fontSize:      'clamp(2.5rem, 4.5vw, 4.25rem)',
-        fontWeight:    900,
-        textTransform: 'uppercase',
-        lineHeight:    0.98,
-        letterSpacing: '-0.012em',
-        color:         'color-mix(in srgb, var(--text-primary) 32%, transparent)',
-        textAlign:     'right',
+        position:       'relative',
+        background:     'transparent',
+        border:         'none',
+        cursor:         'pointer',
+        padding:        '0',
+        fontFamily:     'var(--font-display), "Barlow Condensed", sans-serif',
+        fontSize:       'clamp(2.5rem, 4.5vw, 4.25rem)',
+        fontWeight:     900,
+        textTransform:  'uppercase',
+        lineHeight:     0.98,
+        letterSpacing:  '-0.012em',
+        color:          'color-mix(in srgb, var(--text-primary) 32%, transparent)',
+        textAlign:      'right',
         textDecoration: 'none',
       }}
     >
       {isActive ? (
         <span style={{ position: 'relative', display: 'inline-block' }}>
-          {/* Red echo — offset behind the main text */}
           <span
             aria-hidden="true"
             style={{
@@ -567,7 +666,6 @@ function CategoryRow({
           >
             {label}
           </span>
-          {/* Main text — full-opacity dark on top */}
           <span style={{ position: 'relative', color: 'var(--text-primary)', zIndex: 1 }}>
             {label}
           </span>
@@ -578,10 +676,10 @@ function CategoryRow({
 }
 
 function timeAgo(dateString: string, locale: string): string {
-  const d = new Date(dateString)
+  const d    = new Date(dateString)
   const diff = (Date.now() - d.getTime()) / 60000
-  if (diff < 60)     return `${Math.max(1, Math.floor(diff))} min ago`
-  if (diff < 1440)   return `${Math.floor(diff / 60)} hr ago`
-  if (diff < 10080)  return `${Math.floor(diff / 1440)} d ago`
+  if (diff < 60)    return `${Math.max(1, Math.floor(diff))} min ago`
+  if (diff < 1440)  return `${Math.floor(diff / 60)} hr ago`
+  if (diff < 10080) return `${Math.floor(diff / 1440)} d ago`
   return d.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: '2-digit' })
 }

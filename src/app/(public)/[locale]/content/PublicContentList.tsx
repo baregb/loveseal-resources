@@ -8,6 +8,7 @@ import { searchContentAction } from './search-action'
 
 interface PublicItem {
   id: string
+  slug: string | null
   title: string
   content_type: 'manual' | 'prophecy' | 'article' | 'blog'
   language: string

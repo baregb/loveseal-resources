@@ -45,7 +45,7 @@ export default async function TopicTypePage({ params }: PageParams) {
   const { data } = await supabase
     .from('content')
     .select(`
-      id, title, content_type, theme, speaker, series,
+      id, slug, title, content_type, theme, speaker, series,
       date_preached, cover_image_url, summary_points, created_at
     `)
     .eq('status', 'published')

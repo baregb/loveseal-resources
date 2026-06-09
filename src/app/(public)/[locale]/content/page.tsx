@@ -35,7 +35,7 @@ export default async function PublicContentPage({
   const { data } = await supabase
     .from('content')
     .select(`
-      id, title, content_type, language, category, tags,
+      id, slug, title, content_type, language, category, tags,
       theme, lesson_number, speaker, series, date_preached, scripture_refs,
       cover_image_url, summary_points, created_at
     `)

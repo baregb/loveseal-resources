@@ -13,7 +13,7 @@ export default function AboutStrip() {
          padding from --page-inline-padding so the section's edges align
          with the rest of the site chrome below the cap; on viewports
          wider than 1280px the side margin grows naturally. */
-      maxWidth: 'var(--width-content)',
+      maxWidth: 'var(--width-site)',
       margin:   '0 auto',
       padding:  '5rem var(--page-inline-padding)',
     }}>

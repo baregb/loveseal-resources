@@ -16,6 +16,7 @@ import '@/components/editor/editor.css'
 
 interface Item {
   id: string
+  slug: string | null
   title: string
   content_type: 'manual' | 'prophecy' | 'article' | 'blog'
   source_mode: 'pdf' | 'editor'

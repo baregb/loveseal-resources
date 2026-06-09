@@ -45,6 +45,7 @@ comment on table categories is 'Admin-defined categories for organising content.
 create table if not exists content (
   id                uuid primary key default uuid_generate_v4(),
   title             text not null,
+  slug              text unique,
   content_type      content_type not null,
   category          text not null default '',
   tags              text[] not null default '{}',

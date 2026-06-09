@@ -9,6 +9,7 @@ import AuthorPicker, { type AuthorPickerOption } from '@/components/admin/Author
 import ButtonSpinner from '@/components/ui/ButtonSpinner'
 import { toast } from '@/lib/toast'
 import type { ContentType, Locale } from '@/types'
+import { slugify } from '@/lib/slugify'
 import { logContentCreated } from '../content/actions'
 
 interface Category {
@@ -176,6 +177,7 @@ export default function UploadForm({
         .from('content')
         .insert({
           title:           title.trim(),
+          slug:            slugify(title.trim()),
           content_type:    contentType,
           source_mode:     effectiveMode,
           category:        category || '',
