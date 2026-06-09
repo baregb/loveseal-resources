@@ -162,6 +162,7 @@ export default function PublicHeader() {
         onClose={() => setMobileOpen(false)}
         navLinks={navLinks}
         isLinkActive={isLinkActive}
+        dateString={dateString}
       />
 
       <style>{`
@@ -192,12 +193,14 @@ function MobileSidebar({
   onClose,
   navLinks,
   isLinkActive,
+  dateString,
 }: {
   open:        boolean
   onClose:     () => void
   navLinks:    ReadonlyArray<{ href: string | { pathname: string; params: { type: string } }; label: string }>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isLinkActive: (href: any) => boolean
+  dateString:  string
 }) {
   const { mode, setMode } = useTheme()
   const [mounted, setMounted] = useState(false)
@@ -250,13 +253,30 @@ function MobileSidebar({
             {/* ── Header row ── */}
             <div style={{
               display:        'flex',
-              alignItems:     'center',
+              alignItems:     'flex-start',
               justifyContent: 'space-between',
               padding:        '1rem 1.25rem 0.875rem',
               borderBottom:   '0.03125rem solid var(--border-subtle)',
               flexShrink:     0,
             }}>
-              <BrandLogo size={40} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
+                <BrandLogo size={40} />
+                {dateString && (
+                  <span
+                    suppressHydrationWarning
+                    style={{
+                      fontFamily:    'var(--font-body)',
+                      fontSize:      '0.6875rem',
+                      fontWeight:    600,
+                      letterSpacing: '0.12em',
+                      color:         'var(--text-tertiary)',
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    {dateString}
+                  </span>
+                )}
+              </div>
               <button
                 type="button"
                 onClick={onClose}
@@ -273,6 +293,8 @@ function MobileSidebar({
                   alignItems:     'center',
                   justifyContent: 'center',
                   fontFamily:     'var(--font-body)',
+                  flexShrink:     0,
+                  marginTop:      '0.25rem',
                 }}
               >
                 <CloseIcon />
@@ -340,6 +362,35 @@ function MobileSidebar({
                 </p>
               </div>
               <DiscoverCarousel />
+            </div>
+
+            {/* ── Social icons footer ── */}
+            <div style={{ marginTop: 'auto', flexShrink: 0 }}>
+              <Divider />
+              <div style={{
+                padding:        '1rem 1.25rem',
+                display:        'flex',
+                alignItems:     'center',
+                justifyContent: 'space-between',
+              }}>
+                <span style={{
+                  fontFamily:    'var(--font-body)',
+                  fontSize:      '0.6875rem',
+                  fontWeight:    700,
+                  letterSpacing: '0.18em',
+                  color:         'var(--text-tertiary)',
+                  textTransform: 'uppercase',
+                }}>
+                  Join Us
+                </span>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <SocialIcon href="https://youtube.com"   bg="#FF0000"   label="YouTube"   icon={<YoutubeIcon />} />
+                  <SocialIcon href="https://tiktok.com"    bg="#000000"   label="TikTok"    icon={<TiktokIcon />} />
+                  <SocialIcon href="https://x.com"         bg="#0F1419"   label="X"         icon={<XIcon />} />
+                  <SocialIcon href="https://instagram.com" bg="radial-gradient(circle at 30% 110%,#FFD75E 0%,#F95B3D 35%,#D6249F 65%,#4F5BD5 100%)" label="Instagram" icon={<InstagramIcon />} />
+                  <SocialIcon href="https://linkedin.com"  bg="#0A66C2"   label="LinkedIn"  icon={<LinkedInIcon />} />
+                </div>
+              </div>
             </div>
           </motion.div>
         </>
@@ -503,6 +554,47 @@ function Divider() {
   return (
     <div style={{ height: '0.03125rem', background: 'var(--border-subtle)', marginInline: '1.25rem' }} />
   )
+}
+
+/* ── Social icon dot ── */
+function SocialIcon({ href, bg, label, icon }: { href: string; bg: string; label: string; icon: React.ReactNode }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      style={{
+        width:          '2rem',
+        height:         '2rem',
+        borderRadius:   '50%',
+        background:     bg,
+        color:          '#FFFFFF',
+        display:        'inline-flex',
+        alignItems:     'center',
+        justifyContent: 'center',
+        flexShrink:     0,
+        textDecoration: 'none',
+      }}
+    >
+      {icon}
+    </a>
+  )
+}
+function YoutubeIcon() {
+  return <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.6 7.2a2.5 2.5 0 0 0-1.76-1.77C18.24 5 12 5 12 5s-6.24 0-7.84.43A2.5 2.5 0 0 0 2.4 7.2 26 26 0 0 0 2 12a26 26 0 0 0 .4 4.8 2.5 2.5 0 0 0 1.76 1.77C5.76 19 12 19 12 19s6.24 0 7.84-.43a2.5 2.5 0 0 0 1.76-1.77A26 26 0 0 0 22 12a26 26 0 0 0-.4-4.8zM10 15V9l5.2 3-5.2 3z"/></svg>
+}
+function TiktokIcon() {
+  return <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19.6 7.2a5.6 5.6 0 0 1-3.4-1.2 5.6 5.6 0 0 1-2.1-3.5h-3.3v12.6a2.7 2.7 0 1 1-2-2.6V9a6 6 0 1 0 5.3 6V9.3a8.9 8.9 0 0 0 5.5 1.9V7.2z"/></svg>
+}
+function XIcon() {
+  return <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 3h3.2l-7 8 8.2 10h-6.4l-5-6.4L4.8 21H1.6l7.5-8.6L1.3 3h6.5l4.5 6L17.5 3zm-1.1 16h1.8L7.7 5H5.8l10.6 14z"/></svg>
+}
+function InstagramIcon() {
+  return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+}
+function LinkedInIcon() {
+  return <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.5 9v10.5h-3V9h3zM5 4.3a1.7 1.7 0 1 1 0 3.4 1.7 1.7 0 0 1 0-3.4zM9 9h2.9v1.5h.04a3.2 3.2 0 0 1 2.86-1.6c3 0 3.6 2 3.6 4.6V19.5h-3V14c0-1.3 0-3-1.8-3s-2.1 1.4-2.1 2.9v5.6H9V9z"/></svg>
 }
 
 /* ── Icons ── */

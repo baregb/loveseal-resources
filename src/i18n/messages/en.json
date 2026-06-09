@@ -31,7 +31,8 @@
     "empty": "No content published yet. Check back soon.",
     "peace": {
       "line1": "Peace",
-      "line2": "be with you.",
+      "line2a": "be with",
+      "line2b": "you.",
       "subline": "Here's what's stirring in the body today — and what to take to your prayer closet."
     }
   },

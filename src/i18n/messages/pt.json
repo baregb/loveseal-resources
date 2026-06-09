@@ -31,7 +31,8 @@
     "empty": "Nenhum conteúdo publicado ainda. Volte em breve.",
     "peace": {
       "line1": "A paz",
-      "line2": "esteja contigo.",
+      "line2a": "esteja contigo.",
+      "line2b": "",
       "subline": "Eis o que está se movendo hoje no corpo — e o que levar ao teu lugar de oração."
     }
   },

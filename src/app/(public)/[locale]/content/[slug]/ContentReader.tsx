@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from 'next-intl'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Link } from '@/i18n/navigation'
 import { readTimeMinutes } from '@/lib/read-time'
+import { contentHref } from '@/lib/content-url'
 import Breadcrumb         from '@/components/reader/Breadcrumb'
 import ReaderToggle       from '@/components/reader/ReaderToggle'
 import BylineCard         from '@/components/reader/BylineCard'
@@ -58,6 +59,15 @@ interface Attachment {
   size_bytes: number
 }
 
+interface SeriesItem {
+  id: string
+  slug: string | null
+  title: string
+  content_type: string
+  cover_image_url: string | null
+  created_at: string
+}
+
 const TYPE_COLORS: Record<string, string> = {
   manual: '#4498CC', prophecy: '#C32126', article: '#F5AE41', blog: '#3C3C3C',
 }
@@ -81,6 +91,7 @@ export default function ContentReader(props: {
   signedPdfUrl:      string | null
   translationStatus?: 'native' | 'translated' | 'pending'
   sourceLanguage?:    string
+  seriesItems?:       SeriesItem[]
 }) {
   return (
     <Suspense fallback={null}>
@@ -93,12 +104,14 @@ function ContentReaderInner({
   item, attachments, signedPdfUrl,
   translationStatus = 'native',
   sourceLanguage,
+  seriesItems,
 }: {
   item:              Item
   attachments:       Attachment[]
   signedPdfUrl:      string | null
   translationStatus?: 'native' | 'translated' | 'pending'
   sourceLanguage?:    string
+  seriesItems?:       SeriesItem[]
 }) {
   const t        = useTranslations('content')
   const tTypes   = useTranslations('content.types')
@@ -326,6 +339,10 @@ function ContentReaderInner({
             onReadFull={() => setMode('full')}
           />
 
+          {seriesItems && seriesItems.length > 0 && (
+            <SeriesStrip series={item.series!} items={seriesItems} />
+          )}
+
           {/* Minimal footer — just "Back to all content". Action icons live
               at the top of the page (icon row); no duplicates here. */}
           <section style={{
@@ -428,6 +445,10 @@ function ContentReaderInner({
                 {attachments.map(att => <AttachmentRow key={att.id} att={att} />)}
               </div>
             </section>
+          )}
+
+          {seriesItems && seriesItems.length > 0 && (
+            <SeriesStrip series={item.series!} items={seriesItems} />
           )}
 
           {/* Minimal footer — just "Back to all content". Action icons live
@@ -568,6 +589,87 @@ const sectionHeadingStyle: React.CSSProperties = {
   color: 'var(--text-muted)',
   marginBottom: '12px',
   fontFamily: 'var(--font-body)',
+}
+
+const TYPE_BG: Record<string, string> = {
+  manual: '#D5E9F6', prophecy: '#F9D6D7', article: '#FEF0D5', blog: '#C8BFEC',
+}
+
+function SeriesStrip({ series, items }: { series: string; items: SeriesItem[] }) {
+  return (
+    <section style={{ marginTop: '48px', paddingTop: '24px', borderTop: '0.5px solid var(--border-subtle)' }}>
+      <div style={{ marginBottom: '14px' }}>
+        <div style={sectionHeadingStyle}>Series</div>
+        <h2 style={{
+          fontFamily:    'var(--font-display), Barlow Condensed, sans-serif',
+          fontSize:      'clamp(1.125rem, 3vw, 1.375rem)',
+          fontWeight:    800,
+          letterSpacing: '-0.01em',
+          textTransform: 'uppercase',
+          color:         'var(--text-primary)',
+          margin:        0,
+        }}>
+          More from &ldquo;{series}&rdquo;
+        </h2>
+      </div>
+
+      <div style={{
+        display:               'grid',
+        gridTemplateColumns:   'repeat(auto-fill, minmax(10rem, 1fr))',
+        gap:                   '0.75rem',
+      }}>
+        {items.map(si => (
+          <Link
+            key={si.id}
+            href={contentHref(si)}
+            style={{ textDecoration: 'none', display: 'block' }}
+          >
+            <div style={{
+              borderRadius: '0.75rem',
+              background:   TYPE_BG[si.content_type] ?? '#F0EDE8',
+              overflow:     'hidden',
+              transition:   'transform 0.15s, box-shadow 0.15s',
+            }}>
+              {/* Cover thumbnail */}
+              <div style={{
+                aspectRatio: '3 / 2',
+                background:  si.cover_image_url
+                  ? `url(${si.cover_image_url}) center/cover`
+                  : TYPE_BG[si.content_type] ?? '#F0EDE8',
+              }} />
+
+              {/* Title area */}
+              <div style={{ padding: '0.625rem 0.75rem 0.75rem' }}>
+                <div style={{
+                  fontSize:      '0.6875rem',
+                  fontWeight:    600,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color:         TYPE_COLORS[si.content_type] ?? 'var(--text-secondary)',
+                  marginBottom:  '0.25rem',
+                }}>
+                  {si.content_type}
+                </div>
+                <div style={{
+                  fontFamily:      'var(--font-display), Barlow Condensed, sans-serif',
+                  fontSize:        '0.9375rem',
+                  fontWeight:      700,
+                  lineHeight:      1.15,
+                  color:           'var(--text-primary)',
+                  display:         '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  overflow:        'hidden',
+                }}>
+                  {si.title}
+                </div>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  )
 }
 
 /* DownloadIcon is still used by <AttachmentRow>; the share/copy/check icons

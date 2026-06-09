@@ -159,6 +159,8 @@ export default async function InFocusStrip() {
           .lr-infocus {
             flex-direction: column;
             align-items: stretch;
+            margin-top: 0.25rem !important;
+            padding-top: 0.75rem !important;
           }
           .lr-infocus-join {
             justify-content: space-between;

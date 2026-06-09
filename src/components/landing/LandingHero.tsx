@@ -20,10 +20,12 @@ interface HeroItem {
 
 const TYPE_ORDER: HeroItem['content_type'][] = ['manual', 'prophecy', 'article', 'blog']
 
+// Light tints derived from the design token brand colors:
+// Blue #4498CC → manual, Red #C32126 → prophecy, Gold #F5AE41 → article, Lilac #C8BFEC → blog
 const TYPE_BG: Record<HeroItem['content_type'], string> = {
-  manual:   '#FDDEDE',
-  prophecy: '#B7DCF1',
-  article:  '#FEF3C7',
+  manual:   '#D5E9F6',
+  prophecy: '#F9D6D7',
+  article:  '#FEF0D5',
   blog:     '#C8BFEC',
 }
 
@@ -32,6 +34,14 @@ const TYPE_COLORS: Record<HeroItem['content_type'], string> = {
   prophecy: '#C32126',   // brand red
   article:  '#B87D0A',   // brand gold, darkened for text contrast
   blog:     '#6E5FAE',   // brand lilac, darkened for text contrast
+}
+
+// Placeholder stripe backgrounds — matched to each type's token color family
+const TYPE_PLACEHOLDER: Record<HeroItem['content_type'], string> = {
+  manual:   'linear-gradient(180deg,rgba(255,255,255,0)0%,rgba(20,17,13,0.18)100%),repeating-linear-gradient(135deg,#b9c9d1 0 16px,#97b3c0 16px 32px)',
+  prophecy: 'linear-gradient(180deg,rgba(255,255,255,0)0%,rgba(20,17,13,0.18)100%),repeating-linear-gradient(135deg,#d9b6a3 0 16px,#c69680 16px 32px)',
+  article:  'linear-gradient(180deg,rgba(255,255,255,0)0%,rgba(20,17,13,0.20)100%),repeating-linear-gradient(135deg,#f1c97a 0 16px,#d8a94f 16px 32px)',
+  blog:     'linear-gradient(180deg,rgba(255,255,255,0)0%,rgba(20,17,13,0.18)100%),repeating-linear-gradient(135deg,#b8a8c8 0 16px,#9a87b0 16px 32px)',
 }
 
 export default function LandingHero({ items }: { items: HeroItem[] }) {
@@ -86,6 +96,7 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
 
   return (
     <section
+      className="lr-hero-section"
       style={{
         maxWidth:     'var(--width-site)',
         marginInline: 'auto',
@@ -122,7 +133,16 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
           >
             {t('peace.line1')}
             <br />
-            <span style={{ color: 'var(--brand-red)' }}>{t('peace.line2')}</span>
+            <span style={{ color: 'var(--brand-red)' }}>
+              {t('peace.line2a')}
+              {t('peace.line2b') && (
+                <>
+                  {' '}
+                  <br className="lr-hero-you-break" />
+                  {t('peace.line2b')}
+                </>
+              )}
+            </span>
           </motion.h1>
 
           <motion.p
@@ -189,7 +209,7 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
           onMouseLeave={() => setIsHovered(false)}
           style={{
             position:       'relative',
-            height:         '28rem',
+            height:         '27.5rem',
             display:        'flex',
             alignItems:     'center',
             justifyContent: 'center',
@@ -337,6 +357,11 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
       </div>
 
       <style>{`
+        /* Desktop-only line break before "YOU." */
+        .lr-hero-you-break { display: none; }
+        @media (min-width: 56.25rem) {
+          .lr-hero-you-break { display: block; }
+        }
         /* Desktop: hide subline + mobile-only elements */
         @media (min-width: 56.25rem) {
           .lr-hero-subline       { display: none !important; }
@@ -344,6 +369,7 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
         }
         /* Mobile: single-column layout, centered text, hide desktop cats + CTA */
         @media (max-width: 56.25rem) {
+          .lr-hero-section { padding-bottom: 1.25rem !important; }
           .lr-hero-grid {
             grid-template-columns: 1fr !important;
             gap: 0.5rem !important;
@@ -357,12 +383,12 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
           .lr-hero-mobile-bottom  { display: flex !important; }
           .lr-hero-card-wrap {
             overflow: hidden !important;
-            height: 26rem !important;
+            height: 27.5rem !important;
             margin-inline: -0.5rem;
           }
           .lr-hero-card {
-            width: min(17.5rem, 76vw) !important;
-            height: min(25rem, 106vw) !important;
+            width: min(20rem, 84vw) !important;
+            height: min(27.5rem, 116vw) !important;
           }
         }
       `}</style>
@@ -397,16 +423,16 @@ function Card({
   const didDrag    = useRef(false)
 
   const desktopOffsets = [
-    { rotate:  0,   x:   0, y:   0, scale: 1    },
-    { rotate:  6,   x:  22, y:  10, scale: 0.95 },
-    { rotate: -7,   x: -22, y:  18, scale: 0.91 },
-    { rotate:  4,   x:  34, y:  26, scale: 0.87 },
+    { rotate: -2,   x:   0, y:   0, scale: 1    },
+    { rotate:  3,   x:  12, y:  -8, scale: 1    },
+    { rotate: -6,   x: -32, y:  18, scale: 1    },
+    { rotate:  8,   x:  22, y:  28, scale: 1    },
   ]
   const mobileOffsets = [
-    { rotate:  0,   x:   0, y:   0, scale: 1    },
-    { rotate:  5,   x:  13, y:   8, scale: 0.95 },
-    { rotate: -5,   x: -13, y:  15, scale: 0.91 },
-    { rotate:  3,   x:  20, y:  22, scale: 0.87 },
+    { rotate: -2,   x:   0, y:   0, scale: 1    },
+    { rotate:  3,   x:   8, y:  -6, scale: 1    },
+    { rotate: -5,   x: -20, y:  14, scale: 1    },
+    { rotate:  6,   x:  16, y:  22, scale: 1    },
   ]
   const layout = (compact ? mobileOffsets : desktopOffsets)[offset]
   const bg     = TYPE_BG[item.content_type]
@@ -453,116 +479,105 @@ function Card({
       whileTap={{ scale: 0.98 }}
       style={{
         position:         'absolute',
-        width:            '17.5rem',
-        height:           '25rem',
+        width:            '20rem',
+        height:           '27.5rem',
         borderRadius:     '1.375rem',
         background:       bg,
         cursor:           isActive ? 'grab' : 'pointer',
         userSelect:       'none',
         WebkitUserSelect: 'none',
-        boxShadow:        isActive
-          ? '0 1.125rem 3.125rem rgba(0,0,0,0.18), 0 0.25rem 0.75rem rgba(0,0,0,0.08)'
-          : '0 0.375rem 1.25rem rgba(0,0,0,0.10)',
+        boxShadow:        '0 18px 40px -22px rgba(20,17,13,0.45)',
         overflow:         'visible',
+        padding:          '0.875rem',
+        boxSizing:        'border-box',
+        display:          'flex',
+        flexDirection:    'column',
       }}
     >
-      {/* Cover image */}
-      {item.cover_image_url && (
-        <div style={{ position: 'absolute', inset: 0, borderRadius: '1.375rem', overflow: 'hidden' }}>
+      {/* Photo area — fills upper portion of card */}
+      <div
+        style={{
+          flex:         1,
+          borderRadius: '0.875rem',
+          overflow:     'hidden',
+          position:     'relative',
+          background:   item.cover_image_url && isActive
+            ? undefined
+            : TYPE_PLACEHOLDER[item.content_type],
+        }}
+      >
+        {isActive && item.cover_image_url && (
           <Image
             src={item.cover_image_url}
             alt=""
             fill
-            sizes="17.5rem"
+            sizes="20rem"
             priority={isActive}
             style={{ objectFit: 'cover' }}
           />
-        </div>
-      )}
-
-      {/* Bottom meta bar */}
-      <div
-        style={{
-          position:         'absolute',
-          bottom:           '0.875rem',
-          insetInlineStart: '0.875rem',
-          insetInlineEnd:   '0.875rem',
-          background:       '#FFFFFF',
-          borderRadius:     '0.75rem',
-          padding:          '0.875rem 1rem',
-          display:          'flex',
-          flexDirection:    'column',
-          gap:              '0.375rem',
-          zIndex:           2,
-          boxShadow:        '0 8px 20px -8px rgba(20,17,13,0.2)',
-        }}
-      >
-        <div style={{ fontSize: '0.625rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#5a5a5a' }}>
-          {timeAgo(item.created_at, locale)} · {typeLabel}
-        </div>
-        <div
-          style={{
-            fontFamily:       'var(--font-body)',
-            fontSize:         '0.9375rem',
-            fontWeight:       'var(--content-title-weight, 800)',
-            textTransform:    'var(--content-title-transform, uppercase)',
-            color:            '#212529',
-            lineHeight:       1.25,
-            display:          '-webkit-box',
-            WebkitLineClamp:  2,
-            WebkitBoxOrient:  'vertical',
-            overflow:         'hidden',
-            paddingInlineEnd: '2.25rem',
-          }}
-        >
-          {item.title}
-        </div>
-        <span
-          aria-hidden="true"
-          style={{
-            position:        'absolute',
-            insetInlineEnd:  '0.875rem',
-            top:             '50%',
-            transform:       'translateY(-50%)',
-            width:           '2rem',
-            height:          '2rem',
-            borderRadius:    '50%',
-            background:      '#14110D',
-            color:           '#FFFFFF',
-            display:         'flex',
-            alignItems:      'center',
-            justifyContent:  'center',
-            fontSize:        '0.875rem',
-            pointerEvents:   'none',
-          }}
-        >
-          →
-        </span>
+        )}
       </div>
 
-      {/* Series pill */}
-      {item.series && (
+      {/* Content below photo — active card only */}
+      {isActive && (
         <div
           style={{
-            position:         'absolute',
-            top:              '0.875rem',
-            insetInlineStart: '0.875rem',
-            background:       '#FFFFFF',
-            borderRadius:     '999rem',
-            padding:          '0.25rem 0.625rem',
-            fontSize:         '0.625rem',
-            fontWeight:       700,
-            letterSpacing:    '0.1em',
-            textTransform:    'uppercase',
-            color:            '#14110D',
-            zIndex:           3,
-            maxWidth:         'calc(100% - 1.75rem)',
-            overflow:         'hidden',
-            textOverflow:     'ellipsis',
-            whiteSpace:       'nowrap',
+            display:        'flex',
+            alignItems:     'flex-start',
+            justifyContent: 'space-between',
+            marginTop:      '0.75rem',
           }}
         >
-          {item.series}
+          <div style={{ flex: 1, minWidth: 0, paddingInlineEnd: '0.5rem' }}>
+            <div
+              style={{
+                fontSize:      '0.6875rem',
+                fontWeight:    600,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color:         'rgba(20,17,13,0.55)',
+              }}
+            >
+              {timeAgo(item.created_at, locale)} · {typeLabel}
+            </div>
+            <div
+              style={{
+                fontFamily:      'var(--font-display), "Barlow Condensed", sans-serif',
+                fontSize:        '1.375rem',
+                fontWeight:      800,
+                textTransform:   'none',
+                lineHeight:      1.04,
+                letterSpacing:   '-0.01em',
+                color:           '#14110D',
+                marginTop:       '0.5rem',
+                display:         '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow:        'hidden',
+              }}
+            >
+              {item.title}
+            </div>
+          </div>
+          <span
+            aria-hidden="true"
+            style={{
+              width:          '2.25rem',
+              height:         '2.25rem',
+              borderRadius:   '50%',
+              background:     '#14110D',
+              color:          '#FFFFFF',
+              display:        'flex',
+              alignItems:     'center',
+              justifyContent: 'center',
+              flexShrink:     0,
+              marginTop:      '0.625rem',
+              fontSize:       '0.875rem',
+              pointerEvents:  'none',
+            }}
+          >
+            →
+          </span>
         </div>
       )}
 
@@ -576,7 +591,7 @@ function Card({
             transition={{ duration: 0.4, delay: 0.6 }}
             style={{
               position:       'absolute',
-              bottom:         '-0.5rem',
+              bottom:         '3.75rem',
               insetInlineEnd: '-0.5rem',
               background:     'var(--brand-gold)',
               color:          '#14110D',

@@ -31,7 +31,8 @@
     "empty": "Aucun contenu publié pour le moment. Reviens bientôt.",
     "peace": {
       "line1": "Que la paix",
-      "line2": "soit avec toi.",
+      "line2a": "soit avec toi.",
+      "line2b": "",
       "subline": "Voici ce qui se passe aujourd'hui dans le corps de Christ — et ce que tu peux apporter dans ton lieu de prière."
     }
   },

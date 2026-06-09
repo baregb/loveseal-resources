@@ -98,7 +98,23 @@ export async function fetchContentDetail(
     signedPdfUrl = signed?.signedUrl ?? null
   }
 
-  return { item, attachments: attachments ?? [], signedPdfUrl, translationStatus, prefix }
+  let seriesItems: Array<{
+    id: string; slug: string | null; title: string
+    content_type: string; cover_image_url: string | null; created_at: string
+  }> = []
+  if (item.series) {
+    const { data: siblings } = await supabase
+      .from('content')
+      .select('id, slug, title, content_type, cover_image_url, created_at')
+      .eq('status', 'published')
+      .eq('series', item.series)
+      .neq('id', item.id)
+      .order('created_at', { ascending: true })
+      .limit(6)
+    seriesItems = (siblings ?? []) as typeof seriesItems
+  }
+
+  return { item, attachments: attachments ?? [], signedPdfUrl, translationStatus, prefix, seriesItems }
 }
 
 export async function generateContentMetadata(

@@ -22,7 +22,7 @@ export default async function ManualsDetailPage({ params }: PageParams) {
   const tNav     = await getTranslations({ locale, namespace: 'nav' })
   const tLibrary = await getTranslations({ locale, namespace: 'library' })
 
-  const { item, attachments, signedPdfUrl, translationStatus, prefix } =
+  const { item, attachments, signedPdfUrl, translationStatus, prefix, seriesItems } =
     await fetchContentDetail(slug, locale, 'manual')
 
   let description = ''
@@ -61,6 +61,7 @@ export default async function ManualsDetailPage({ params }: PageParams) {
         signedPdfUrl={signedPdfUrl}
         translationStatus={translationStatus}
         sourceLanguage={item.language}
+        seriesItems={seriesItems}
       />
     </>
   )
