@@ -42,11 +42,12 @@ export const metadata: Metadata = {
     title:         'Lively Resources',
   },
   icons: {
-    /* Standard tab favicon — multi-resolution .ico for broad legacy support. */
-    icon:     [{ url: '/icons/favicon.ico', sizes: 'any' }],
-    /* iOS home-screen icon. iOS ignores the manifest's `icons` array, so this
-       <link rel="apple-touch-icon"> is the only way to control its install image. */
-    apple:    [{ url: '/icons/apple-touch-icon.png', sizes: '180x180' }],
+    icon:  [
+      { url: '/icons/LVSC_fav_icon_color.png', type: 'image/png' },
+      { url: '/icons/icon.svg',  type: 'image/svg+xml' },
+      { url: '/icons/favicon.ico', sizes: 'any' },
+    ],
+    apple: [{ url: '/icons/LVSC_fav_icon_color.png', sizes: '180x180' }],
   },
   formatDetection: {
     /* Stop iOS Safari auto-linking phone numbers in article text. */

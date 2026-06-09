@@ -201,6 +201,41 @@ create policy "Public can read content translations"
   on content_translations for select
   using (true);
 
+-- ── Content Co-Authors junction table ────────────────────────────────────────
+-- Tracks secondary (co-) authors on a piece of content.
+-- The primary author lives on content.author_id; everyone else lives here.
+
+create table if not exists content_co_authors (
+  content_id    uuid     not null references content(id) on delete cascade,
+  author_id     uuid     not null references authors(id) on delete cascade,
+  display_order smallint not null default 0,
+  primary key (content_id, author_id)
+);
+
+create index if not exists idx_content_co_authors_content on content_co_authors (content_id);
+
+alter table content_co_authors enable row level security;
+
+drop policy if exists "Public can read content co-authors"  on content_co_authors;
+drop policy if exists "Admin full access to content co-authors" on content_co_authors;
+
+create policy "Public can read content co-authors"
+  on content_co_authors for select
+  using (
+    exists (
+      select 1 from content where id = content_id and status = 'published'
+    )
+  );
+
+create policy "Admin full access to content co-authors"
+  on content_co_authors for all
+  using (
+    exists (select 1 from admin_users where id = auth.uid())
+  )
+  with check (
+    exists (select 1 from admin_users where id = auth.uid())
+  );
+
 -- ── Storage buckets ──────────────────────────────────────────────────────────
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)

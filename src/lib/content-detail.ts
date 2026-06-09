@@ -114,6 +114,22 @@ export async function fetchContentDetail(
     seriesItems = (siblings ?? []) as typeof seriesItems
   }
 
+  // Co-authors — secondary contributors, ordered by display_order
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: coAuthorRows } = await (supabase as any)
+    .from('content_co_authors')
+    .select('display_order, author:authors!content_co_authors_author_id_fkey(id, name, slug, avatar_url)')
+    .eq('content_id', item.id)
+    .order('display_order')
+
+  type CoAuthor = { id: string; name: string; slug: string; avatar_url: string | null }
+  const coAuthors: CoAuthor[] = (coAuthorRows ?? [])
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    .map((r: any) => r.author)
+    .filter(Boolean)
+
+  item.co_authors = coAuthors
+
   return { item, attachments: attachments ?? [], signedPdfUrl, translationStatus, prefix, seriesItems }
 }
 

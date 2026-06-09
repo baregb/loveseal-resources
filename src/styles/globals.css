@@ -186,3 +186,27 @@ body {
   background: rgba(245, 174, 65, 0.12);
   outline:    none;
 }
+
+/* ── Admin login inputs ─────────────────────────────────────────────────── */
+.login-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* ── Admin layout — responsive helpers ─────────────────────────────────── */
+.admin-sidebar-wrap {
+  display: flex;
+  flex-shrink: 0;
+}
+.admin-bottom-nav {
+  display: none;
+}
+@media (max-width: 767px) {
+  .admin-sidebar-wrap { display: none; }
+  .admin-bottom-nav   { display: flex; }
+  .admin-main-pad     { padding: 16px 16px 80px !important; }
+  .admin-topbar-brand { display: flex !important; }
+}
+@media (min-width: 768px) {
+  .admin-bottom-nav   { display: none !important; }
+  .admin-topbar-brand { display: none !important; }
+}

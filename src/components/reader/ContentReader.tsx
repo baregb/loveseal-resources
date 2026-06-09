@@ -46,6 +46,13 @@ interface Item {
     slug:       string
     avatar_url: string | null
   } | null
+  /** Secondary contributors from content_co_authors, ordered by display_order. */
+  co_authors?: Array<{
+    id:         string
+    name:       string
+    slug:       string
+    avatar_url: string | null
+  }>
   created_at: string
   updated_at: string
 }
@@ -303,6 +310,7 @@ function ContentReaderInner({
         readTimeLabel={tReader('byline.readTime', { minutes: readMin })}
         avatarUrl={item.author?.avatar_url ?? null}
         authorSlug={item.author?.slug ?? null}
+        coAuthors={item.co_authors?.map(a => ({ name: a.name, slug: a.slug, avatarUrl: a.avatar_url }))}
       />
 
       {/* Icon actions — link / share / (PDF) download as small circular

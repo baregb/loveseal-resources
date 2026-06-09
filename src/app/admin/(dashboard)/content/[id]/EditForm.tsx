@@ -56,13 +56,13 @@ const LOCALE_LABEL: Record<Locale, string> = {
 }
 
 export default function EditForm({
-  item, categories, authors, existingAttachments,
+  item, categories, authors, existingAttachments, initialCoAuthorIds,
 }: {
   item: Item
   categories: Category[]
-  /* Pass 5c — supplied by the content/[id]/page.tsx server fetch. */
   authors: AuthorPickerOption[]
   existingAttachments: AttachmentRow[]
+  initialCoAuthorIds: string[]
 }) {
   const router = useRouter()
 
@@ -78,6 +78,7 @@ export default function EditForm({
      name. Initialised from the row's existing values. */
   const [authorId, setAuthorId]                   = useState<string | null>(item.author_id)
   const [speakerDisplayName, setSpeakerDisplayName] = useState<string>(item.speaker ?? '')
+  const [coAuthorIds, setCoAuthorIds]               = useState<string[]>(initialCoAuthorIds)
   const [datePreached, setDatePreached] = useState(item.date_preached ?? '')
   const [category, setCategory]         = useState(item.category)
   const [tags, setTags]                 = useState(item.tags.join(', '))
@@ -150,6 +151,18 @@ export default function EditForm({
       } as never).eq('id', item.id)
 
       if (updateError) throw new Error(updateError.message)
+
+      // Sync co-authors: delete all then re-insert current selection
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const sbAny = supabase as any
+      await sbAny.from('content_co_authors').delete().eq('content_id', item.id)
+      const validCoAuthors = coAuthorIds.filter(Boolean)
+      if (validCoAuthors.length > 0) {
+        await sbAny.from('content_co_authors').insert(
+          validCoAuthors.map((aid, i) => ({ content_id: item.id, author_id: aid, display_order: i }))
+        )
+      }
+
       await logContentUpdated(item.id, title.trim())
 
       // Upload any new attachments
@@ -407,6 +420,72 @@ export default function EditForm({
                 }}
               />
             </Field>
+
+            {/* Co-authors */}
+            <div style={{ marginTop: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.375rem' }}>
+                <span style={{
+                  fontSize: '0.75rem', fontWeight: 500,
+                  color: 'var(--text-tertiary)', letterSpacing: '0.04em',
+                }}>
+                  Co-authors
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setCoAuthorIds(ids => [...ids, ''])}
+                  style={{
+                    fontSize: '11px', color: 'var(--brand-gold)', fontWeight: 500,
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontFamily: 'var(--font-body)', padding: 0,
+                  }}
+                >
+                  + Add co-author
+                </button>
+              </div>
+              {coAuthorIds.length === 0 ? (
+                <p style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                  No co-authors — click &ldquo;+ Add co-author&rdquo; to add one.
+                </p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  {coAuthorIds.map((aid, idx) => {
+                    const coAuthorOption = authors.find(a => a.id === aid) ?? null
+                    return (
+                      <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                        <div style={{ flex: 1 }}>
+                          <AuthorPicker
+                            authors={authors.filter(a => a.id !== authorId && !coAuthorIds.includes(a.id) || a.id === aid)}
+                            value={aid || null}
+                            displayName={coAuthorOption?.name ?? ''}
+                            onChange={({ authorId: nextId }) => {
+                              setCoAuthorIds(ids => ids.map((id, i) => i === idx ? (nextId ?? '') : id))
+                            }}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setCoAuthorIds(ids => ids.filter((_, i) => i !== idx))}
+                          style={{
+                            marginTop: '4px',
+                            width: '28px', height: '28px', flexShrink: 0,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            background: 'transparent',
+                            border: '0.5px solid var(--border-strong)',
+                            borderRadius: '6px',
+                            color: 'var(--danger-fg)',
+                            cursor: 'pointer', fontSize: '14px',
+                            fontFamily: 'var(--font-body)',
+                          }}
+                          title="Remove co-author"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
 
             {/* Pass 5a — read-only display of the trigger-computed read-time. Auto-refreshes on save. */}
             <div style={{

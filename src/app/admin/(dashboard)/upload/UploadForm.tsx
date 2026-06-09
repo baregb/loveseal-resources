@@ -123,6 +123,10 @@ export default function UploadForm({
       toast.error('Please write some content in the editor.')
       return
     }
+    if (!coverFile) {
+      toast.error('Cover image is required.', { description: 'Recommended size: 1200 × 630 px.' })
+      return
+    }
 
     setLoading(true)
 
@@ -254,11 +258,12 @@ export default function UploadForm({
 
           {/* Cover */}
           <div style={cardStyle}>
-            <SectionHeader label="COVER IMAGE" hint="optional" />
+            <SectionHeader label="COVER IMAGE" hint="required" />
             <div onClick={() => imgRef.current?.click()} style={{
               border: `0.09375rem dashed ${coverFile ? 'var(--brand-blue)' : 'var(--border-strong)'}`,
               borderRadius: '0.5rem', overflow: 'hidden', cursor: 'pointer',
               minHeight: '6.875rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'border-color 0.15s',
             }}>
               {coverPreview ? (
                 // eslint-disable-next-line @next/next/no-img-element -- blob: URL from URL.createObjectURL, can't be optimized by next/image
@@ -266,8 +271,9 @@ export default function UploadForm({
               ) : (
                 <div style={{ textAlign: 'center', padding: '1rem' }}>
                   <div style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>🖼</div>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>Add cover</p>
-                  <p style={{ fontSize: '0.625rem', color: 'var(--text-muted)', marginTop: '0.125rem' }}>Max 5 MB</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', fontWeight: 500 }}>Add cover image</p>
+                  <p style={{ fontSize: '0.625rem', color: 'var(--brand-gold)', marginTop: '0.25rem', fontWeight: 600 }}>Recommended: 1200 × 630 px</p>
+                  <p style={{ fontSize: '0.5625rem', color: 'var(--text-muted)', marginTop: '0.125rem' }}>JPEG · PNG · WebP · Max 5 MB</p>
                 </div>
               )}
             </div>
