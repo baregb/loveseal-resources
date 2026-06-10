@@ -53,7 +53,7 @@ export default function AdminTopbar({ userEmail }: { userEmail: string }) {
           alt="LoveSeal Church"
           width={120}
           height={38}
-          style={{ objectFit: 'contain', objectPosition: 'left center' }}
+          style={{ width: '120px', height: 'auto', objectFit: 'contain', objectPosition: 'left center' }}
           priority
         />
       </div>

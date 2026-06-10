@@ -22,15 +22,17 @@ export default function ReaderIconActions({
   const [shareOpen, setShareOpen]   = useState(false)
   const shareRef                    = useRef<HTMLDivElement>(null)
   const buttonRef                   = useRef<HTMLButtonElement>(null)
+  const dropRef                     = useRef<HTMLDivElement>(null)
   const [dropPos, setDropPos]       = useState<{ top: number; left: number } | null>(null)
 
-  /* Close on outside click */
+  /* Close on outside click — must check both the toggle button wrapper AND
+     the portal dropdown (which is in document.body, outside shareRef). */
   useEffect(() => {
     if (!shareOpen) return
     function onDown(e: MouseEvent) {
-      if (shareRef.current && !shareRef.current.contains(e.target as Node)) {
-        setShareOpen(false)
-      }
+      const inButton = shareRef.current?.contains(e.target as Node)
+      const inDrop   = dropRef.current?.contains(e.target as Node)
+      if (!inButton && !inDrop) setShareOpen(false)
     }
     document.addEventListener('mousedown', onDown)
     return () => document.removeEventListener('mousedown', onDown)
@@ -168,6 +170,7 @@ export default function ReaderIconActions({
 
         {shareOpen && dropPos && typeof document !== 'undefined' && createPortal(
           <div
+            ref={dropRef}
             style={{
               position:     'absolute',
               top:          dropPos.top,

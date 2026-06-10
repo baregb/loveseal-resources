@@ -149,7 +149,7 @@ export default function AdminSidebar({ isSuperAdmin = false }: { isSuperAdmin?: 
               alt="LoveSeal Church"
               width={140}
               height={44}
-              style={{ objectFit: 'contain', objectPosition: 'left center' }}
+              style={{ width: '140px', height: 'auto', objectFit: 'contain', objectPosition: 'left center' }}
               priority
             />
           )}

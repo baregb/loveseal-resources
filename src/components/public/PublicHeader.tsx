@@ -103,7 +103,7 @@ export default function PublicHeader() {
                 alt="LoveSeal Church"
                 width={150}
                 height={48}
-                style={{ objectFit: 'contain', objectPosition: 'left center' }}
+                style={{ width: '150px', height: 'auto', objectFit: 'contain', objectPosition: 'left center' }}
                 priority
               />
             </Link>
@@ -272,7 +272,7 @@ function MobileSidebar({
                   alt="LoveSeal Church"
                   width={125}
                   height={40}
-                  style={{ objectFit: 'contain', objectPosition: 'left center' }}
+                  style={{ width: '125px', height: 'auto', objectFit: 'contain', objectPosition: 'left center' }}
                 />
                 {dateString && (
                   <span
