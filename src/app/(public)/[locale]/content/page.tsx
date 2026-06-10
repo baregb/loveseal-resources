@@ -38,10 +38,10 @@ export default async function PublicContentPage({
     .select(`
       id, slug, title, content_type, language, category, tags,
       theme, lesson_number, speaker, series, date_preached, scripture_refs,
-      cover_image_url, summary_points, created_at
+      cover_image_url, summary_points, published_at
     `)
     .eq('status', 'published')
-    .order('created_at', { ascending: false })
+    .order('published_at', { ascending: false })
 
   const items = (data ?? []) as Parameters<typeof PublicContentList>[0]['items']
 

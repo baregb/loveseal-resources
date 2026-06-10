@@ -15,7 +15,7 @@ interface HeroItem {
   series:          string | null
   speaker:         string | null
   cover_image_url: string | null
-  created_at:      string
+  published_at:    string
 }
 
 const TYPE_ORDER: HeroItem['content_type'][] = ['manual', 'prophecy', 'article', 'blog']
@@ -538,7 +538,7 @@ function Card({
                 color:         'rgba(20,17,13,0.55)',
               }}
             >
-              {timeAgo(item.created_at, locale)} · {typeLabel}
+              {timeAgo(item.published_at, locale)} · {typeLabel}
             </div>
             <div
               style={{

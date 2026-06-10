@@ -15,7 +15,7 @@ const CONTENT_FIELDS = `
   theme, lesson_number, speaker, series, date_preached,
   scripture_refs, extracted_text, body_html, summary_points,
   pdf_url, cover_image_url, status, language,
-  read_time_minutes, author_id, created_at, updated_at,
+  read_time_minutes, author_id, created_at, updated_at, published_at, audio_url, video_url,
   author:authors!content_author_id_fkey (
     id, name, slug, avatar_url
   )

@@ -32,7 +32,7 @@ interface TopicGridItem {
   series:          string | null
   date_preached:   string | null
   cover_image_url: string | null
-  created_at:      string
+  published_at:    string
   summary_points:  string[] | null
 }
 

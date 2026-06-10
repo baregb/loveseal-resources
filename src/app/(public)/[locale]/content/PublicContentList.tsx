@@ -22,7 +22,7 @@ interface PublicItem {
   scripture_refs: string[]
   cover_image_url: string | null
   summary_points: string[] | null
-  created_at: string
+  published_at: string
 }
 
 const TYPE_COLORS: Record<string, string> = {

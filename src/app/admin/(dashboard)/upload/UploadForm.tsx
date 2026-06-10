@@ -60,6 +60,9 @@ export default function UploadForm({
   const [authorId, setAuthorId]                   = useState<string | null>(null)
   const [speakerDisplayName, setSpeakerDisplayName] = useState<string>('')
   const [datePreached, setDatePreached] = useState('')
+  const [publishedAt, setPublishedAt]   = useState(() => new Date().toISOString().slice(0, 10))
+  const [audioUrl, setAudioUrl]         = useState('')
+  const [videoUrl, setVideoUrl]         = useState('')
   const [category, setCategory]         = useState('')
   const [tags, setTags]                 = useState('')
   const [scriptureRefs, setScriptureRefs] = useState('')
@@ -195,6 +198,9 @@ export default function UploadForm({
           author_id:       authorId,
           speaker:         speakerDisplayName.trim() || null,
           series:          series.trim() || null,
+          published_at:    publishedAt + 'T00:00:00.000Z',
+          audio_url:       audioUrl.trim() || null,
+          video_url:       videoUrl.trim() || null,
           date_preached:   datePreached || null,
           scripture_refs:  scriptureRefs.split(';').map(s => s.trim()).filter(Boolean),
           tags:            tags.split(',').map(t => t.trim()).filter(Boolean),
@@ -301,6 +307,15 @@ export default function UploadForm({
                 }}>{s}</button>
               ))}
             </div>
+
+            <Field label="Publish date" hint="backdate freely">
+              <input
+                type="date"
+                value={publishedAt}
+                onChange={e => setPublishedAt(e.target.value)}
+                style={inputStyle}
+              />
+            </Field>
 
             <button type="submit" disabled={loading} style={{
               width: '100%', padding: '0.6875rem',
@@ -434,6 +449,29 @@ export default function UploadForm({
                   setAuthorId(nextId)
                   setSpeakerDisplayName(displayName)
                 }}
+              />
+            </Field>
+          </div>
+
+          {/* Media */}
+          <div style={cardStyle}>
+            <SectionHeader label="MEDIA" hint="optional — leave blank if not needed" />
+            <Field label="Audio URL" hint="direct link to MP3 / M4A file">
+              <input
+                type="url"
+                value={audioUrl}
+                onChange={e => setAudioUrl(e.target.value)}
+                placeholder="https://…/sermon.mp3"
+                style={inputStyle}
+              />
+            </Field>
+            <Field label="YouTube URL" hint="paste full watch URL">
+              <input
+                type="url"
+                value={videoUrl}
+                onChange={e => setVideoUrl(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=…"
+                style={inputStyle}
               />
             </Field>
           </div>

@@ -12,6 +12,7 @@ import BylineCard         from '@/components/reader/BylineCard'
 import ReaderIconActions  from '@/components/reader/ReaderIconActions'
 import QuickStoryView     from '@/components/reader/QuickStoryView'
 import BibleRefActivator  from '@/components/reader/BibleRefActivator'
+import MediaSection       from '@/components/reader/MediaSection'
 import { processBibleRefs } from '@/lib/bible-parse'
 import '@/components/editor/editor.css'
 
@@ -53,8 +54,10 @@ interface Item {
     slug:       string
     avatar_url: string | null
   }>
-  created_at: string
-  updated_at: string
+  published_at: string
+  updated_at:   string
+  audio_url:    string | null
+  video_url:    string | null
 }
 
 interface Attachment {
@@ -72,7 +75,7 @@ interface SeriesItem {
   title: string
   content_type: string
   cover_image_url: string | null
-  created_at: string
+  published_at: string
 }
 
 const TYPE_COLORS: Record<string, string> = {
@@ -163,7 +166,7 @@ function ContentReaderInner({
 
   const dateString = item.date_preached
     ? new Date(item.date_preached).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
-    : new Date(item.created_at).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
+    : new Date(item.published_at).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
 
   const ARTICLE_ID = `content-article-${item.id}`
   const processedHtml = item.body_html ? processBibleRefs(item.body_html) : ''
@@ -324,6 +327,13 @@ function ContentReaderInner({
         shareLabel={tReader('actions.share')}
         downloadLabel={tReader('actions.downloadPdf')}
         downloadUrl={isPdfMode ? signedPdfUrl : null}
+      />
+
+      {/* Audio player + YouTube embed — shown when either URL is set. */}
+      <MediaSection
+        audioUrl={item.audio_url}
+        videoUrl={item.video_url}
+        contentType={item.content_type}
       />
 
       {/* ────────────────────────────────────────────────────────────

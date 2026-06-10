@@ -49,7 +49,7 @@ export default async function BlogsDetailPage({ params }: PageParams) {
         url={articleUrl}
         imageUrl={item.cover_image_url}
         authorName={item.speaker}
-        publishedAt={item.created_at}
+        publishedAt={item.published_at}
         updatedAt={item.updated_at}
         contentType={item.content_type}
         breadcrumb={breadcrumb}

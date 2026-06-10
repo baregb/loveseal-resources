@@ -26,6 +26,7 @@ export default function PublicHeader() {
   const t        = useTranslations('nav')
   const locale   = useLocale()
   const pathname = usePathname()
+  const { mode } = useTheme()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled,   setScrolled]   = useState(false)
   const [now,        setNow]        = useState<Date | null>(null)
@@ -98,7 +99,7 @@ export default function PublicHeader() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', minWidth: 0 }}>
             <Link href="/" aria-label={t('home')} style={{ display: 'block', textDecoration: 'none', flexShrink: 0 }}>
               <Image
-                src="/icons/LVSC_logo_color.png"
+                src={mode === 'light' ? '/icons/LVSC_logo_color.png' : '/icons/LVSC_logo_dark.png'}
                 alt="LoveSeal Church"
                 width={150}
                 height={48}
@@ -267,7 +268,7 @@ function MobileSidebar({
             }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
                 <Image
-                  src="/icons/LVSC_logo_color.png"
+                  src={mode === 'light' ? '/icons/LVSC_logo_color.png' : '/icons/LVSC_logo_dark.png'}
                   alt="LoveSeal Church"
                   width={125}
                   height={40}

@@ -15,7 +15,7 @@ interface ContentItemForCard {
   series?:         string | null
   date_preached:   string | null
   cover_image_url: string | null
-  created_at:      string
+  published_at:    string
   summary_points:  string[] | null
 }
 
@@ -45,7 +45,7 @@ export default function ContentCard({
 
   const dateString = item.date_preached
     ? new Date(item.date_preached).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })
-    : new Date(item.created_at).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })
+    : new Date(item.published_at).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })
 
   if (layout === 'list') {
     return (

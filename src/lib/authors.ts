@@ -86,11 +86,11 @@ export async function getContentByAuthor(
     .from('content')
     .select(`
       id, slug, title, content_type, theme, speaker, series,
-      date_preached, cover_image_url, summary_points, created_at
+      date_preached, cover_image_url, summary_points, published_at
     `)
     .eq('status', 'published')
     .eq('author_id', authorId)
-    .order('created_at', { ascending: false })
+    .order('published_at', { ascending: false })
 
   if (contentType !== 'all') {
     query = query.eq('content_type', contentType)
@@ -108,7 +108,7 @@ export async function getContentByAuthor(
     date_preached:   string | null
     cover_image_url: string | null
     summary_points:  string[] | null
-    created_at:      string
+    published_at:    string
   }>
 }
 

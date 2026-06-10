@@ -49,7 +49,7 @@ export default function AdminTopbar({ userEmail }: { userEmail: string }) {
       {/* Mobile brand — hidden on desktop via CSS */}
       <div className="admin-topbar-brand" style={{ alignItems: 'center', gap: '10px' }}>
         <Image
-          src="/icons/LVSC_logo_color.png"
+          src={mode === 'light' ? '/icons/LVSC_logo_color.png' : '/icons/LVSC_logo_dark.png'}
           alt="LoveSeal Church"
           width={120}
           height={38}

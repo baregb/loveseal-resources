@@ -18,7 +18,7 @@ interface FeaturedItem {
   date_preached:      string | null
   cover_image_url:    string | null
   read_time_minutes:  number | null
-  created_at:         string
+  published_at:       string
 }
 
 /* Type colors kept for the secondary card eyebrows ONLY (per locked decision:
@@ -184,7 +184,7 @@ function PrimaryColumn({
 }) {
   const dateString = item.date_preached
     ? new Date(item.date_preached).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
-    : new Date(item.created_at).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
+    : new Date(item.published_at).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
 
   const categoryLabel = (item.category || item.theme || typeLabel).toUpperCase()
   const readMinsLine  = item.read_time_minutes ? ` · ${readTimeLabel}` : ''
@@ -392,7 +392,7 @@ function SecondaryCard({
   const typeColor = TYPE_COLORS[item.content_type]
   const date = item.date_preached
     ? new Date(item.date_preached).toLocaleDateString(locale, { day: 'numeric', month: 'short' })
-    : new Date(item.created_at).toLocaleDateString(locale, { day: 'numeric', month: 'short' })
+    : new Date(item.published_at).toLocaleDateString(locale, { day: 'numeric', month: 'short' })
 
   const eyebrowLabel = item.category || item.theme || ''
 

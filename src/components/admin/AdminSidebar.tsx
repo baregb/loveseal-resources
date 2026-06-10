@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { useTheme } from '@/components/theme/ThemeProvider'
 
 const baseNavLinks = [
   { href: '/admin',                label: 'Dashboard',    icon: HomeIcon         },
@@ -25,6 +26,9 @@ export default function AdminSidebar({ isSuperAdmin = false }: { isSuperAdmin?: 
   const pathname = usePathname()
   const [collapsed, setCollapsed] = useState(false)
   const [mounted, setMounted]     = useState(false)
+
+  const { mode } = useTheme()
+  const logoSrc = mode === 'light' ? '/icons/LVSC_logo_color.png' : '/icons/LVSC_logo_dark.png'
 
   const navLinks = isSuperAdmin ? [...baseNavLinks, ...superAdminNavLinks] : baseNavLinks
   // Limit bottom nav to 5 items to avoid overflow
@@ -141,7 +145,7 @@ export default function AdminSidebar({ isSuperAdmin = false }: { isSuperAdmin?: 
             />
           ) : (
             <Image
-              src="/icons/LVSC_logo_color.png"
+              src={logoSrc}
               alt="LoveSeal Church"
               width={140}
               height={44}

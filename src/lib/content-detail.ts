@@ -16,7 +16,7 @@ const CONTENT_FIELDS = `
   scripture_refs, extracted_text, body_html, summary_points,
   pdf_url, cover_image_url, status, language, search_vector,
   read_time_minutes, author_id, created_by, last_edited_by,
-  created_at, updated_at,
+  created_at, updated_at, published_at, audio_url, video_url,
   author:authors!content_author_id_fkey (
     id, name, slug, avatar_url
   )
@@ -100,16 +100,16 @@ export async function fetchContentDetail(
 
   let seriesItems: Array<{
     id: string; slug: string | null; title: string
-    content_type: string; cover_image_url: string | null; created_at: string
+    content_type: string; cover_image_url: string | null; published_at: string
   }> = []
   if (item.series) {
     const { data: siblings } = await supabase
       .from('content')
-      .select('id, slug, title, content_type, cover_image_url, created_at')
+      .select('id, slug, title, content_type, cover_image_url, published_at')
       .eq('status', 'published')
       .eq('series', item.series)
       .neq('id', item.id)
-      .order('created_at', { ascending: true })
+      .order('published_at', { ascending: true })
       .limit(6)
     seriesItems = (siblings ?? []) as typeof seriesItems
   }

@@ -47,11 +47,11 @@ export default async function TopicTypePage({ params }: PageParams) {
     .from('content')
     .select(`
       id, slug, title, content_type, theme, speaker, series,
-      date_preached, cover_image_url, summary_points, created_at
+      date_preached, cover_image_url, summary_points, published_at
     `)
     .eq('status', 'published')
     .eq('content_type', type)
-    .order('created_at', { ascending: false })
+    .order('published_at', { ascending: false })
 
   const items = (data ?? []) as Parameters<typeof TopicGrid>[0]['items']
 

@@ -20,6 +20,9 @@ interface Item {
   theme: string | null; lesson_number: string | null; speaker: string | null
   series: string | null; date_preached: string | null; scripture_refs: string[]
   summary_points: string[] | null; language: Locale; status: 'draft' | 'published'
+  published_at: string
+  audio_url:    string | null
+  video_url:    string | null
   body_html: string | null
   pdf_url: string | null
   /* Pass 5a — server-computed 220 wpm read-time. Read-only here; the
@@ -80,6 +83,9 @@ export default function EditForm({
   const [speakerDisplayName, setSpeakerDisplayName] = useState<string>(item.speaker ?? '')
   const [coAuthorIds, setCoAuthorIds]               = useState<string[]>(initialCoAuthorIds)
   const [datePreached, setDatePreached] = useState(item.date_preached ?? '')
+  const [publishedAt, setPublishedAt]   = useState(item.published_at.slice(0, 10))
+  const [audioUrl, setAudioUrl]         = useState(item.audio_url ?? '')
+  const [videoUrl, setVideoUrl]         = useState(item.video_url ?? '')
   const [category, setCategory]         = useState(item.category)
   const [tags, setTags]                 = useState(item.tags.join(', '))
   const [scriptureRefs, setScriptureRefs] = useState(item.scripture_refs.join('; '))
@@ -141,6 +147,9 @@ export default function EditForm({
         author_id:     authorId,
         speaker:       speakerDisplayName.trim() || null,
         series:        series.trim() || null,
+        published_at:  publishedAt + 'T00:00:00.000Z',
+        audio_url:     audioUrl.trim() || null,
+        video_url:     videoUrl.trim() || null,
         date_preached: datePreached || null,
         scripture_refs: scriptureRefs.split(';').map(s => s.trim()).filter(Boolean),
         tags:          tags.split(',').map(t => t.trim()).filter(Boolean),
@@ -270,6 +279,15 @@ export default function EditForm({
                 }}>{s}</button>
               ))}
             </div>
+
+            <Field label="Publish date" hint="backdate freely">
+              <input
+                type="date"
+                value={publishedAt}
+                onChange={e => setPublishedAt(e.target.value)}
+                style={inputStyle}
+              />
+            </Field>
 
             <button type="submit" disabled={saving} style={{
               width: '100%', padding: '0.6875rem',
@@ -518,6 +536,28 @@ export default function EditForm({
                 · recomputed on save
               </span>
             </div>
+          </div>
+
+          <div style={cardStyle}>
+            <SectionHeader label="MEDIA" hint="optional — leave blank if not needed" />
+            <Field label="Audio URL" hint="direct link to MP3 / M4A file">
+              <input
+                type="url"
+                value={audioUrl}
+                onChange={e => setAudioUrl(e.target.value)}
+                placeholder="https://…/sermon.mp3"
+                style={inputStyle}
+              />
+            </Field>
+            <Field label="YouTube URL" hint="paste full watch URL">
+              <input
+                type="url"
+                value={videoUrl}
+                onChange={e => setVideoUrl(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=…"
+                style={inputStyle}
+              />
+            </Field>
           </div>
 
           <div style={cardStyle}>

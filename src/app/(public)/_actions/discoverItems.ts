@@ -17,7 +17,7 @@ export async function fetchDiscoverItems(): Promise<DiscoverItem[]> {
     .from('content')
     .select('id, slug, title, content_type, cover_image_url, summary_points, theme')
     .eq('status', 'published')
-    .order('created_at', { ascending: false })
+    .order('published_at', { ascending: false })
     .limit(7)
   return (data ?? []) as DiscoverItem[]
 }
