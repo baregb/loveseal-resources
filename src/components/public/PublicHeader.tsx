@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslations, useLocale } from 'next-intl'
 import { Link, usePathname } from '@/i18n/navigation'
 import Image from 'next/image'
-import BrandLogo from '@/components/brand/BrandLogo'
 import LanguageSwitcher from '@/components/public/LanguageSwitcher'
 import ThemeTogglePopover from '@/components/theme/ThemeTogglePopover'
 import ThemeToggleGrid from '@/components/theme/ThemeToggleGrid'
@@ -98,7 +97,14 @@ export default function PublicHeader() {
           {/* ── LEFT ── */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', minWidth: 0 }}>
             <Link href="/" aria-label={t('home')} style={{ display: 'block', textDecoration: 'none', flexShrink: 0 }}>
-              <BrandLogo size={48} />
+              <Image
+                src="/icons/LVSC_logo_color.png"
+                alt="LoveSeal Church"
+                width={150}
+                height={48}
+                style={{ objectFit: 'contain', objectPosition: 'left center' }}
+                priority
+              />
             </Link>
             <span
               className="header-date"
@@ -260,7 +266,13 @@ function MobileSidebar({
               flexShrink:     0,
             }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem' }}>
-                <BrandLogo size={40} />
+                <Image
+                  src="/icons/LVSC_logo_color.png"
+                  alt="LoveSeal Church"
+                  width={125}
+                  height={40}
+                  style={{ objectFit: 'contain', objectPosition: 'left center' }}
+                />
                 {dateString && (
                   <span
                     suppressHydrationWarning

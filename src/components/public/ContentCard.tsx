@@ -79,7 +79,7 @@ export default function ContentCard({
           {item.cover_image_url ? (
             <Image
               src={item.cover_image_url}
-              alt=""
+              alt={item.title}
               fill
               sizes="64px"
               style={{ objectFit: 'cover' }}

@@ -11,9 +11,6 @@ export default function AdminTopbar({ userEmail }: { userEmail: string }) {
   const ref = useRef<HTMLDivElement>(null)
   const { mode, setMode } = useTheme()
 
-  const isDark  = mode !== 'light'
-  const logoSrc = isDark ? '/icons/LVSC_logo_dark.png' : '/icons/LVSC_logo_color.png'
-
   const localPart = userEmail.split('@')[0] ?? ''
   const name = localPart
     .replace(/[._-]/g, ' ')
@@ -52,7 +49,7 @@ export default function AdminTopbar({ userEmail }: { userEmail: string }) {
       {/* Mobile brand — hidden on desktop via CSS */}
       <div className="admin-topbar-brand" style={{ alignItems: 'center', gap: '10px' }}>
         <Image
-          src={logoSrc}
+          src="/icons/LVSC_logo_color.png"
           alt="LoveSeal Church"
           width={120}
           height={38}

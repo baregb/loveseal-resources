@@ -57,13 +57,11 @@ export const metadata: Metadata = {
     siteName:    'Lively Resources',
     title:       'Lively Resources',
     description: 'Manuals, Prophecies, Articles, and Blog from LoveSeal Church — Lively Resources for the Body of Christ.',
-    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Lively Resources' }],
   },
   twitter: {
-    card:        'summary_large_image',
-    title:       'Lively Resources',
+    card:  'summary_large_image',
+    title: 'Lively Resources',
     description: 'Manuals, Prophecies, Articles, and Blog from LoveSeal Church — Lively Resources for the Body of Christ.',
-    images:      ['/og-image.png'],
   },
   formatDetection: {
     /* Stop iOS Safari auto-linking phone numbers in article text. */
