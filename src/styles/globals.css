@@ -9,7 +9,7 @@
 [data-theme="dark"] {
   
   --font-display:   var(--font-barlow);
-  --font-body:      var(--font-dm-sans);
+  --font-body:      var(--font-outfit);
   --page-inline-padding: 0.875rem;
   --width-prose:   48.75rem;
   --width-narrow:  40rem;

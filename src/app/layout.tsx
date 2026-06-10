@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Suspense } from 'react'
-import { Barlow_Condensed, DM_Sans } from 'next/font/google'
+import { Barlow_Condensed, Outfit } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import { ThemeProvider } from '@/components/theme/ThemeProvider'
@@ -24,10 +24,10 @@ const barlowCondensed = Barlow_Condensed({
   preload: true,
 })
 
-const dmSans = DM_Sans({
+const outfit = Outfit({
   weight: ['300', '400', '500'],
   subsets: ['latin'],
-  variable: '--font-dm-sans',
+  variable: '--font-outfit',
   display: 'swap',
   preload: false,
 })
@@ -90,8 +90,8 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={locale === 'ar' ? 'rtl' : 'ltr'}
-      className={`${barlowCondensed.variable} ${dmSans.variable}`}
-      style={{ fontFamily: 'var(--font-dm-sans), DM Sans, sans-serif' }}
+      className={`${barlowCondensed.variable} ${outfit.variable}`}
+      style={{ fontFamily: 'var(--font-outfit), Outfit, sans-serif' }}
       suppressHydrationWarning
     >
       <head>
