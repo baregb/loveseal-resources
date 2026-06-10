@@ -47,7 +47,7 @@ export default function LoginPage() {
           {/* Logo */}
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '32px' }}>
             <Image
-              src="/icons/LVSC_logo_color.png"
+              src="/icons/LVSC_logo_dark.png"
               alt="LoveSeal Church"
               width={280}
               height={93}
