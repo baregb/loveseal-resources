@@ -37,12 +37,12 @@
     }
   },
   "featured": {
-  "title": "Featured this week",
-  "allContent": "All content",
-  "handpicked": "Hand-picked by the editorial team",
-  "chapters": "{count, plural, =1 {1 chapter} other {# chapters}}",
-  "readTime": "{count, plural, =1 {1 min read} other {# min read}}"
-},
+    "title": "Featured this week",
+    "allContent": "All content",
+    "handpicked": "Hand-picked by the editorial team",
+    "chapters": "{count, plural, =1 {1 chapter} other {# chapters}}",
+    "readTime": "{count, plural, =1 {1 min read} other {# min read}}"
+  },
   "about": {
     "eyebrow": "About",
     "headline": "A library of <highlight>truth</highlight>, laid out simply for every season of faith.",
@@ -55,20 +55,23 @@
     }
   },
   "sections": {
-  "manuals": "Manuals",
-  "prophecies": "Prophecies",
-  "articles": "Articles",
-  "blog": "Blog",
-  "viewAll": "View all",
-  "latest": "Latest {type}",
-  "entries": "{count, plural, =0 {no entries} =1 {1 entry} other {# entries}}",
-  "inFocus": { "label": "In focus this week" },
-  "joinUs": "JOIN US"
-},
+    "manuals": "Manuals",
+    "prophecies": "Prophecies",
+    "articles": "Articles",
+    "blog": "Blog",
+    "viewAll": "View all",
+    "latest": "Latest {type}",
+    "entries": "{count, plural, =0 {no entries} =1 {1 entry} other {# entries}}",
+    "inFocus": {
+      "label": "In focus this week"
+    },
+    "joinUs": "JOIN US"
+  },
   "library": {
     "eyebrow": "Library",
     "title": "All content",
-    "itemsCount": "{count, plural, =0 {no items} =1 {1 item} other {# items}} available"
+    "itemsCount": "{count, plural, =0 {no items} =1 {1 item} other {# items}} available",
+    "body": "Manuals, prophecies, articles, and blog posts from LoveSeal Church — a living library for the Body of Christ."
   },
   "filters": {
     "title": "Filters",
@@ -121,10 +124,14 @@
     "translatedNotice": "This page was machine-translated. Some nuance may be lost.",
     "pendingTranslationNotice": "This content is shown in its original language ({source}). A translation isn’t available yet.",
     "reader": {
-      "breadcrumb": { "topics": "Topics" },
+      "breadcrumb": {
+        "topics": "Topics"
+      },
       "toggleFull": "Full text",
       "toggleQuick": "Key points",
-      "byline": { "readTime": "{minutes} min read" },
+      "byline": {
+        "readTime": "{minutes} min read"
+      },
       "actions": {
         "copyLink": "Copy link",
         "copied": "Copied",

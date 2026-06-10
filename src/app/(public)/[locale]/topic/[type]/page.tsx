@@ -26,8 +26,9 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
   const typeName = tNav(typeNavKey(type))
 
   return {
-    title:      `${typeName} — ${tTopic('eyebrow.type')}`,
-    alternates: metadataAlternates(locale, `/topic/${type}`),
+    title:       `${typeName} — ${tTopic('eyebrow.type')}`,
+    description: tTopic('typeBody', { type: typeName.toLowerCase() }),
+    alternates:  metadataAlternates(locale, `/topic/${type}`),
   }
 }
 

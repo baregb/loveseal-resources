@@ -70,7 +70,8 @@
   "library": {
     "eyebrow": "Biblioteca",
     "title": "Todo o conteúdo",
-    "itemsCount": "{count, plural, =0 {sem itens} =1 {1 item} other {# itens}} disponíveis"
+    "itemsCount": "{count, plural, =0 {sem itens} =1 {1 item} other {# itens}} disponíveis",
+    "body": "Manuais, profecias, artigos e publicações do blog da LoveSeal Church — uma biblioteca viva para o Corpo de Cristo."
   },
   "filters": {
     "title": "Filtros",
@@ -121,10 +122,14 @@
       "content": "Conteúdo"
     },
     "reader": {
-      "breadcrumb": { "topics": "Tópicos" },
+      "breadcrumb": {
+        "topics": "Tópicos"
+      },
       "toggleFull": "Texto completo",
       "toggleQuick": "Pontos-chave",
-      "byline": { "readTime": "{minutes} min de leitura" },
+      "byline": {
+        "readTime": "{minutes} min de leitura"
+      },
       "actions": {
         "copyLink": "Copiar link",
         "copied": "Copiado",

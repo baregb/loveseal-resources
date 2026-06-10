@@ -1,9 +1,12 @@
 import { notFound, redirect } from 'next/navigation'
 import { setRequestLocale } from 'next-intl/server'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentAdmin } from '@/lib/admin-user'
 import ContentReader from '@/components/reader/ContentReader'
+
+export const metadata: Metadata = { robots: { index: false, follow: false } }
 
 export const dynamic = 'force-dynamic'
 

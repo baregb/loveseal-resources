@@ -70,7 +70,8 @@
   "library": {
     "eyebrow": "Biblioteca",
     "title": "Todo el contenido",
-    "itemsCount": "{count, plural, =0 {ningún elemento} =1 {1 elemento} other {# elementos}} disponible(s)"
+    "itemsCount": "{count, plural, =0 {ningún elemento} =1 {1 elemento} other {# elementos}} disponible(s)",
+    "body": "Manuales, profecías, artículos y publicaciones de LoveSeal Church — una biblioteca viva para el Cuerpo de Cristo."
   },
   "filters": {
     "title": "Filtros",
@@ -123,10 +124,14 @@
     "translatedNotice": "Esta página fue traducida automáticamente. Algunos matices pueden perderse.",
     "pendingTranslationNotice": "Este contenido se muestra en su idioma original ({source}). Aún no hay una traducción disponible.",
     "reader": {
-      "breadcrumb": { "topics": "Temas" },
+      "breadcrumb": {
+        "topics": "Temas"
+      },
       "toggleFull": "Texto completo",
       "toggleQuick": "Puntos clave",
-      "byline": { "readTime": "{minutes} min de lectura" },
+      "byline": {
+        "readTime": "{minutes} min de lectura"
+      },
       "actions": {
         "copyLink": "Copiar enlace",
         "copied": "Copiado",

@@ -70,7 +70,8 @@
   "library": {
     "eyebrow": "المكتبة",
     "title": "كل المحتوى",
-    "itemsCount": "{count, plural, =0 {لا توجد عناصر} =1 {عنصر واحد} =2 {عنصران} few {# عناصر} many {# عنصرًا} other {# عنصر}} متاح"
+    "itemsCount": "{count, plural, =0 {لا توجد عناصر} =1 {عنصر واحد} =2 {عنصران} few {# عناصر} many {# عنصرًا} other {# عنصر}} متاح",
+    "body": "أدلة ونبوءات ومقالات ومنشورات مدونة من كنيسة لوف سيل — مكتبة حية لجسد المسيح."
   },
   "filters": {
     "title": "الفلاتر",
@@ -123,10 +124,14 @@
     "translatedNotice": "تُرجمت هذه الصفحة آليًا. قد تضيع بعض الفروق الدقيقة.",
     "pendingTranslationNotice": "يُعرض هذا المحتوى بلغته الأصلية ({source}). لا تتوفّر ترجمة بعد.",
     "reader": {
-      "breadcrumb": { "topics": "المواضيع" },
+      "breadcrumb": {
+        "topics": "المواضيع"
+      },
       "toggleFull": "النص الكامل",
       "toggleQuick": "النقاط الرئيسية",
-      "byline": { "readTime": "{minutes} دقيقة قراءة" },
+      "byline": {
+        "readTime": "{minutes} دقيقة قراءة"
+      },
       "actions": {
         "copyLink": "نسخ الرابط",
         "copied": "تم النسخ",

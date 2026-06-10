@@ -8,6 +8,8 @@ import { themeScript } from '@/lib/theme-script'
 import ServiceWorkerRegister from '@/components/pwa/ServiceWorkerRegister'
 import Toaster from '@/components/ui/Toaster'
 import RouteProgressBar from '@/components/ui/RouteProgressBar'
+import { GoogleAnalytics } from '@next/third-parties/google'
+import { getBaseUrl } from '@/lib/locale-urls'
 import '@/styles/globals.css'
 
 /* Barlow Condensed is the display font: hero headline, all H1s, all H2s, all
@@ -31,7 +33,7 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'),
+  metadataBase: new URL(getBaseUrl()),
   title:        { default: 'Lively Resources', template: '%s | Lively Resources' },
   description:  'Manuals, Prophecies, Articles, and Blog from LoveSeal Church — Lively Resources for the Body of Christ.',
   manifest:     '/manifest.webmanifest',
@@ -48,6 +50,20 @@ export const metadata: Metadata = {
       { url: '/icons/favicon.ico', sizes: 'any' },
     ],
     apple: [{ url: '/icons/LVSC_fav_icon_color.png', sizes: '180x180' }],
+  },
+  openGraph: {
+    type:        'website',
+    url:         getBaseUrl(),
+    siteName:    'Lively Resources',
+    title:       'Lively Resources',
+    description: 'Manuals, Prophecies, Articles, and Blog from LoveSeal Church — Lively Resources for the Body of Christ.',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'Lively Resources' }],
+  },
+  twitter: {
+    card:        'summary_large_image',
+    title:       'Lively Resources',
+    description: 'Manuals, Prophecies, Articles, and Blog from LoveSeal Church — Lively Resources for the Body of Christ.',
+    images:      ['/og-image.png'],
   },
   formatDetection: {
     /* Stop iOS Safari auto-linking phone numbers in article text. */
@@ -104,6 +120,11 @@ export default async function RootLayout({
 
         {/* Registers /sw.js in production only. Renders nothing. */}
         <ServiceWorkerRegister />
+
+        {/* GA4 — loads after hydration, skipped when env var is absent */}
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+        )}
       </body>
     </html>
   )
