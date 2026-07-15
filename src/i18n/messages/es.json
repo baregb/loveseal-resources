@@ -116,7 +116,7 @@
     "tags": "Etiquetas",
     "attachments": "Archivos adjuntos",
     "backToAll": "← Volver a todo el contenido",
-    "pdfUnavailable": "El PDF no está disponible por ahora.",
+    "pdfUnavailable": "El texto de este documento aún no está disponible.",
     "breadcrumb": {
       "home": "Inicio",
       "content": "Contenido"
@@ -144,6 +144,10 @@
         "prev": "Anterior",
         "readFull": "Leer texto completo",
         "pointFallback": "Punto {n}"
+      },
+      "related": {
+        "eyebrow": "Relacionado",
+        "heading": "También te puede interesar"
       }
     }
   },

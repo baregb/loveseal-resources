@@ -116,7 +116,7 @@
     "tags": "Tags",
     "attachments": "Attachments",
     "backToAll": "← Back to all content",
-    "pdfUnavailable": "PDF is currently unavailable.",
+    "pdfUnavailable": "This document's text isn't available yet.",
     "breadcrumb": {
       "home": "Home",
       "content": "Content"
@@ -144,6 +144,10 @@
         "prev": "Previous",
         "readFull": "Read full story",
         "pointFallback": "Point {n}"
+      },
+      "related": {
+        "eyebrow": "Related",
+        "heading": "You may also like"
       }
     }
   },

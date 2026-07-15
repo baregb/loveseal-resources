@@ -114,6 +114,38 @@ export async function fetchContentDetail(
     seriesItems = (siblings ?? []) as typeof seriesItems
   }
 
+  // Related content — same category first (richer signal than content_type
+  // alone), topped up with same-content_type items if the category didn't
+  // yield enough. Shown at the bottom of every content page.
+  type RelatedItem = {
+    id: string; slug: string | null; title: string
+    content_type: string; cover_image_url: string | null; published_at: string
+  }
+  let relatedItems: RelatedItem[] = []
+  if (item.category) {
+    const { data: byCategory } = await supabase
+      .from('content')
+      .select('id, slug, title, content_type, cover_image_url, published_at')
+      .eq('status', 'published')
+      .eq('category', item.category)
+      .neq('id', item.id)
+      .order('published_at', { ascending: false })
+      .limit(6)
+    relatedItems = (byCategory ?? []) as RelatedItem[]
+  }
+  if (relatedItems.length < 6) {
+    const excludeIds = [item.id, ...relatedItems.map(r => r.id)]
+    const { data: byType } = await supabase
+      .from('content')
+      .select('id, slug, title, content_type, cover_image_url, published_at')
+      .eq('status', 'published')
+      .eq('content_type', item.content_type)
+      .not('id', 'in', `(${excludeIds.join(',')})`)
+      .order('published_at', { ascending: false })
+      .limit(6 - relatedItems.length)
+    relatedItems = [...relatedItems, ...((byType ?? []) as RelatedItem[])]
+  }
+
   // Co-authors — secondary contributors, ordered by display_order
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: coAuthorRows } = await (supabase as any)
@@ -130,7 +162,7 @@ export async function fetchContentDetail(
 
   item.co_authors = coAuthors
 
-  return { item, attachments: attachments ?? [], signedPdfUrl, translationStatus, prefix, seriesItems }
+  return { item, attachments: attachments ?? [], signedPdfUrl, translationStatus, prefix, seriesItems, relatedItems }
 }
 
 export async function generateContentMetadata(

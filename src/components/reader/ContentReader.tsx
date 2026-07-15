@@ -102,6 +102,7 @@ export default function ContentReader(props: {
   translationStatus?: 'native' | 'translated' | 'pending'
   sourceLanguage?:    string
   seriesItems?:       SeriesItem[]
+  relatedItems?:      SeriesItem[]
 }) {
   return (
     <Suspense fallback={null}>
@@ -115,6 +116,7 @@ function ContentReaderInner({
   translationStatus = 'native',
   sourceLanguage,
   seriesItems,
+  relatedItems,
 }: {
   item:              Item
   attachments:       Attachment[]
@@ -122,6 +124,7 @@ function ContentReaderInner({
   translationStatus?: 'native' | 'translated' | 'pending'
   sourceLanguage?:    string
   seriesItems?:       SeriesItem[]
+  relatedItems?:      SeriesItem[]
 }) {
   const t        = useTranslations('content')
   const tTypes   = useTranslations('content.types')
@@ -170,6 +173,7 @@ function ContentReaderInner({
 
   const ARTICLE_ID = `content-article-${item.id}`
   const processedHtml = item.body_html ? processBibleRefs(item.body_html) : ''
+  const processedExtractedText = item.extracted_text ? processBibleRefs(extractedTextToHtml(item.extracted_text)) : ''
 
   return (
     <article id={ARTICLE_ID} style={{
@@ -361,6 +365,14 @@ function ContentReaderInner({
             <SeriesStrip series={item.series!} items={seriesItems} />
           )}
 
+          {relatedItems && relatedItems.length > 0 && (
+            <RelatedStrip
+              items={relatedItems}
+              eyebrow={tReader('related.eyebrow')}
+              heading={tReader('related.heading')}
+            />
+          )}
+
           {/* Minimal footer — just "Back to all content". Action icons live
               at the top of the page (icon row); no duplicates here. */}
           <section style={{
@@ -393,12 +405,18 @@ function ContentReaderInner({
             }} />
           )}
 
-          {isPdfMode ? (
-            <PdfViewer
-              signedUrl={signedPdfUrl}
-              title={item.title}
-              tUnavailable={t('pdfUnavailable')}
-            />
+          {isPdfMode && !item.extracted_text ? (
+            <div style={{
+              padding: '40px 24px',
+              background: 'var(--bg-raised)',
+              border: '0.5px solid var(--border-subtle)',
+              borderRadius: '12px',
+              textAlign: 'center',
+              color: 'var(--text-tertiary)',
+              fontSize: '13px',
+            }}>
+              {t('pdfUnavailable')}
+            </div>
           ) : (
             <>
               <div className="lr-editor-content" style={{
@@ -410,7 +428,7 @@ function ContentReaderInner({
                 lineHeight: 1.75,
                 textAlign: 'start',
               }}
-              dangerouslySetInnerHTML={{ __html: processedHtml }}
+              dangerouslySetInnerHTML={{ __html: isPdfMode ? processedExtractedText : processedHtml }}
               />
               <BibleRefActivator containerId={ARTICLE_ID} />
             </>
@@ -469,6 +487,14 @@ function ContentReaderInner({
             <SeriesStrip series={item.series!} items={seriesItems} />
           )}
 
+          {relatedItems && relatedItems.length > 0 && (
+            <RelatedStrip
+              items={relatedItems}
+              eyebrow={tReader('related.eyebrow')}
+              heading={tReader('related.heading')}
+            />
+          )}
+
           {/* Minimal footer — just "Back to all content". Action icons live
               at the top of the page (icon row); no duplicates here. */}
           <section style={{
@@ -490,53 +516,23 @@ function ContentReaderInner({
   )
 }
 
-/**
- * PDF viewer — Pass 4 simplified.
- *
- * Previously had an inner "PDF Viewer / Plain Text" toggle, which Pass 4
- * dropped (Q7 = b unifies the two views: PDF mode's Quick view becomes the
- * summary cards via QuickStoryView, and PDF mode's Full view is just the
- * iframe). Extracted text is still stored in the DB and used for read-time
- * computation upstream — it's just no longer surfaced as a user toggle.
- */
-function PdfViewer({
-  signedUrl, title, tUnavailable,
-}: {
-  signedUrl:    string | null
-  title:        string
-  tUnavailable: string
-}) {
-  if (!signedUrl) {
-    return (
-      <div style={{
-        padding: '40px 24px',
-        background: 'var(--bg-raised)',
-        border: '0.5px solid var(--border-subtle)',
-        borderRadius: '12px',
-        textAlign: 'center',
-        color: 'var(--text-tertiary)',
-        fontSize: '13px',
-      }}>
-        {tUnavailable}
-      </div>
-    )
-  }
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
 
-  return (
-    <iframe
-      src={signedUrl}
-      title={title}
-      style={{
-        width: '100%',
-        aspectRatio: '8.5 / 11',
-        maxHeight: '85dvh',
-        background: 'var(--bg-raised)',
-        border: '0.5px solid var(--border-subtle)',
-        borderRadius: '12px',
-        display: 'block',
-      }}
-    />
-  )
+/**
+ * PDF mode has no rich body — only the plain text extracted at upload time
+ * (one block per PDF page, see `extractTextFromPDF`). Wrapping each block in
+ * a <p> lets it share the editor-content styling and run through
+ * `processBibleRefs` just like a normal article body, instead of embedding
+ * the PDF itself (the browser's native PDF chrome — toolbar, page thumbnails,
+ * zoom controls — doesn't fit the reader's design).
+ */
+function extractedTextToHtml(text: string): string {
+  return text
+    .split(/\n{2,}/)
+    .map(block => `<p>${escapeHtml(block.trim())}</p>`)
+    .join('')
 }
 
 function AttachmentRow({ att }: { att: Attachment }) {
@@ -615,9 +611,29 @@ const TYPE_BG: Record<string, string> = {
 
 function SeriesStrip({ series, items }: { series: string; items: SeriesItem[] }) {
   return (
+    <ContentCardGrid
+      eyebrow="Series"
+      heading={<>More from &ldquo;{series}&rdquo;</>}
+      items={items}
+    />
+  )
+}
+
+function RelatedStrip({ items, eyebrow, heading }: { items: SeriesItem[]; eyebrow: string; heading: string }) {
+  return <ContentCardGrid eyebrow={eyebrow} heading={heading} items={items} />
+}
+
+function ContentCardGrid({
+  eyebrow, heading, items,
+}: {
+  eyebrow: string
+  heading: React.ReactNode
+  items:   SeriesItem[]
+}) {
+  return (
     <section style={{ marginTop: '48px', paddingTop: '24px', borderTop: '0.5px solid var(--border-subtle)' }}>
       <div style={{ marginBottom: '14px' }}>
-        <div style={sectionHeadingStyle}>Series</div>
+        <div style={sectionHeadingStyle}>{eyebrow}</div>
         <h2 style={{
           fontFamily:    'var(--font-display), Barlow Condensed, sans-serif',
           fontSize:      'clamp(1.125rem, 3vw, 1.375rem)',
@@ -627,7 +643,7 @@ function SeriesStrip({ series, items }: { series: string; items: SeriesItem[] })
           color:         'var(--text-primary)',
           margin:        0,
         }}>
-          More from &ldquo;{series}&rdquo;
+          {heading}
         </h2>
       </div>
 

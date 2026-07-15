@@ -22,7 +22,7 @@ export default async function PropheciesDetailPage({ params }: PageParams) {
   const tNav     = await getTranslations({ locale, namespace: 'nav' })
   const tLibrary = await getTranslations({ locale, namespace: 'library' })
 
-  const { item, attachments, signedPdfUrl, translationStatus, prefix, seriesItems } =
+  const { item, attachments, signedPdfUrl, translationStatus, prefix, seriesItems, relatedItems } =
     await fetchContentDetail(slug, locale, 'prophecy')
 
   let description = ''
@@ -62,6 +62,7 @@ export default async function PropheciesDetailPage({ params }: PageParams) {
         translationStatus={translationStatus}
         sourceLanguage={item.language}
         seriesItems={seriesItems}
+        relatedItems={relatedItems}
       />
     </>
   )

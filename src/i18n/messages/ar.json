@@ -116,7 +116,7 @@
     "tags": "الوسوم",
     "attachments": "المرفقات",
     "backToAll": "→ العودة إلى كل المحتوى",
-    "pdfUnavailable": "ملف PDF غير متاح حاليًا.",
+    "pdfUnavailable": "نص هذا المستند غير متوفر بعد.",
     "breadcrumb": {
       "home": "الرئيسية",
       "content": "المحتوى"
@@ -144,6 +144,10 @@
         "prev": "السابق",
         "readFull": "قراءة القصة كاملة",
         "pointFallback": "نقطة {n}"
+      },
+      "related": {
+        "eyebrow": "ذات صلة",
+        "heading": "قد يعجبك أيضًا"
       }
     }
   },
