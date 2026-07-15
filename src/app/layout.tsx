@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Suspense } from 'react'
-import { Barlow_Condensed, Outfit } from 'next/font/google'
+import { Barlow_Condensed, Urbanist } from 'next/font/google'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale, getMessages } from 'next-intl/server'
 import { ThemeProvider } from '@/components/theme/ThemeProvider'
@@ -14,7 +14,7 @@ import '@/styles/globals.css'
 
 /* Barlow Condensed is the display font: hero headline, all H1s, all H2s, all
    ContentCard titles, all section eyebrows. It IS the LCP-eligible text on
-   most pages, so preloading it is a real LCP win. The body font (DM Sans) is
+   most pages, so preloading it is a real LCP win. The body font (Urbanist) is
    used for everything else and isn't on the LCP path — leave it unpreloaded. */
 const barlowCondensed = Barlow_Condensed({
   weight: ['400', '700', '900'],
@@ -24,10 +24,10 @@ const barlowCondensed = Barlow_Condensed({
   preload: true,
 })
 
-const outfit = Outfit({
+const urbanist = Urbanist({
   weight: ['300', '400', '500'],
   subsets: ['latin'],
-  variable: '--font-outfit',
+  variable: '--font-urbanist',
   display: 'swap',
   preload: false,
 })
@@ -90,8 +90,8 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={locale === 'ar' ? 'rtl' : 'ltr'}
-      className={`${barlowCondensed.variable} ${outfit.variable}`}
-      style={{ fontFamily: 'var(--font-outfit), Outfit, sans-serif' }}
+      className={`${barlowCondensed.variable} ${urbanist.variable}`}
+      style={{ fontFamily: 'var(--font-urbanist), Urbanist, sans-serif' }}
       suppressHydrationWarning
     >
       <head>
