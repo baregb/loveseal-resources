@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import RichEditor from '@/components/editor/RichEditor'
+import { extractedTextToHtml } from '@/lib/pdf'
 import AttachmentsPanel, { type PendingAttachment, uploadAttachments } from '@/components/editor/AttachmentsPanel'
 import AuthorPicker, { type AuthorPickerOption } from '@/components/admin/AuthorPicker'
 import ButtonSpinner from '@/components/ui/ButtonSpinner'
@@ -24,6 +25,7 @@ interface Item {
   audio_url:    string | null
   video_url:    string | null
   body_html: string | null
+  extracted_text: string | null
   pdf_url: string | null
   /* Pass 5a — server-computed 220 wpm read-time. Read-only here; the
      SQL trigger refreshes it on every save that touches the body. */
@@ -74,7 +76,12 @@ export default function EditForm({
   const [slug, setSlug]                 = useState(item.slug ?? '')
   const [contentType, setContentType]   = useState<ContentType>(item.content_type)
   const [language, setLanguage]         = useState<Locale>(item.language)
-  const [bodyHtml, setBodyHtml]         = useState(item.body_html ?? '')
+  /* Legacy PDF-mode rows saved before admin-side editing existed have
+     `body_html = null` and only `extracted_text` — seed the editor from
+     that on first load so the very first save backfills body_html. */
+  const [bodyHtml, setBodyHtml]         = useState(
+    item.body_html ?? (item.extracted_text ? extractedTextToHtml(item.extracted_text) : '')
+  )
   const [theme, setTheme]               = useState(item.theme ?? '')
   const [series, setSeries]             = useState(item.series ?? '')
   const [lessonNumber, setLessonNumber] = useState(item.lesson_number ?? '')
@@ -133,8 +140,10 @@ export default function EditForm({
     c => c.content_type === null || c.content_type === contentType
   )
 
-  // PDF mode is locked — can't switch source mode after creation
-  const isEditorMode = item.source_mode === 'editor'
+  // The source PDF file itself is locked post-creation (can't be replaced
+  // from this screen), but the body text — whichever mode it came from —
+  // is always editable below.
+  const isPdfMode = item.source_mode === 'pdf'
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -186,7 +195,7 @@ export default function EditForm({
         date_preached: datePreached || null,
         scripture_refs: scriptureRefs.split(';').map(s => s.trim()).filter(Boolean),
         tags:          tags.split(',').map(t => t.trim()).filter(Boolean),
-        body_html:     isEditorMode ? bodyHtml : null,
+        body_html:     bodyHtml,
         summary_points: summaryPoints.split('\n').map(s => s.trim()).filter(Boolean).length
                           ? summaryPoints.split('\n').map(s => s.trim()).filter(Boolean) : null,
         status,
@@ -283,9 +292,7 @@ export default function EditForm({
     }
   }
 
-  const canTranslate = isEditorMode
-    ? Boolean(bodyHtml.trim())
-    : true  // PDF content has extracted_text — server handles emptiness
+  const canTranslate = Boolean(bodyHtml.trim())
 
   return (
     <form onSubmit={handleSave}>
@@ -446,27 +453,24 @@ export default function EditForm({
           <div style={cardStyle}>
             <SectionHeader
               label="CONTENT BODY"
-              hint={isEditorMode ? 'rich editor' : 'PDF — managed at upload time'}
+              hint={isPdfMode ? 'extracted from PDF — fully editable' : 'rich editor'}
             />
-            {isEditorMode ? (
-              <RichEditor
-                initialHtml={bodyHtml}
-                onChange={setBodyHtml}
-                placeholder="Continue editing… type / for blocks"
-              />
-            ) : (
-              <div style={{
-                padding: '1.25rem',
-                background: 'var(--bg-elevated)',
-                borderRadius: '0.5rem',
-                fontSize: '0.75rem',
-                color: 'var(--text-tertiary)',
-                lineHeight: 1.6,
+            {isPdfMode && (
+              <p style={{
+                fontSize: '0.6875rem',
+                color: 'var(--text-faint)',
+                marginBottom: '0.75rem',
+                lineHeight: 1.5,
               }}>
-                This Manual was uploaded as a PDF. The PDF cannot be replaced from this screen — to change it,
-                delete this item and upload a new one.
-              </div>
+                This is what readers see — edit and format it freely. The original PDF file can&rsquo;t be
+                replaced from this screen; delete this item and upload a new one to change it.
+              </p>
             )}
+            <RichEditor
+              initialHtml={bodyHtml}
+              onChange={setBodyHtml}
+              placeholder="Continue editing… type / for blocks"
+            />
           </div>
 
           <div style={cardStyle}>

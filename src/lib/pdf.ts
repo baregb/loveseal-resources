@@ -77,6 +77,22 @@ function linesToParagraphs(lines: Line[]): string[] {
   return paragraphs
 }
 
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+/**
+ * Turns the plain text returned by `extractTextFromPDF` (paragraphs
+ * separated by blank lines) into a wrapped-in-`<p>` HTML string, so it can
+ * seed the rich editor as a normal, formattable document.
+ */
+export function extractedTextToHtml(text: string): string {
+  return text
+    .split(/\n{2,}/)
+    .map(block => `<p>${escapeHtml(block.trim())}</p>`)
+    .join('')
+}
+
 export async function extractTextFromPDF(file: File): Promise<string> {
   const pdfjsLib = await import('pdfjs-dist')
 

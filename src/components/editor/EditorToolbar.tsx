@@ -84,6 +84,12 @@ export function EditorToolbar({ editor }: { editor: Editor }) {
 
       <Divider />
 
+      {/* Typography */}
+      <FontSizeSelect editor={editor} />
+      <LineHeightSelect editor={editor} />
+
+      <Divider />
+
       {/* Marks */}
       <ToolbarBtn
         title="Bold (⌘B)"
@@ -275,4 +281,51 @@ function ToolbarBtn({
 
 function Divider() {
   return <div className="toolbar-divider" />
+}
+
+const FONT_SIZES = ['12px', '13px', '14px', '16px', '18px', '20px', '24px', '28px', '32px']
+const LINE_HEIGHTS = ['1', '1.15', '1.5', '1.75', '2', '2.5']
+
+function FontSizeSelect({ editor }: { editor: Editor }) {
+  const value = (editor.getAttributes('textStyle').fontSize as string | undefined) ?? ''
+
+  return (
+    <select
+      title="Font size"
+      value={value}
+      onChange={(e) => {
+        const size = e.target.value
+        if (size) editor.chain().focus().setFontSize(size).run()
+        else editor.chain().focus().unsetFontSize().run()
+      }}
+    >
+      <option value="">Size</option>
+      {FONT_SIZES.map(size => (
+        <option key={size} value={size}>{parseInt(size, 10)}</option>
+      ))}
+    </select>
+  )
+}
+
+function LineHeightSelect({ editor }: { editor: Editor }) {
+  const value = (editor.getAttributes('paragraph').lineHeight
+    ?? editor.getAttributes('heading').lineHeight
+    ?? '') as string
+
+  return (
+    <select
+      title="Line spacing"
+      value={value}
+      onChange={(e) => {
+        const height = e.target.value
+        if (height) editor.chain().focus().setLineHeight(height).run()
+        else editor.chain().focus().unsetLineHeight().run()
+      }}
+    >
+      <option value="">Spacing</option>
+      {LINE_HEIGHTS.map(height => (
+        <option key={height} value={height}>{height}</option>
+      ))}
+    </select>
+  )
 }

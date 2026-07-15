@@ -14,6 +14,7 @@ import QuickStoryView     from '@/components/reader/QuickStoryView'
 import BibleRefActivator  from '@/components/reader/BibleRefActivator'
 import MediaSection       from '@/components/reader/MediaSection'
 import { processBibleRefs } from '@/lib/bible-parse'
+import { extractedTextToHtml } from '@/lib/pdf'
 import '@/components/editor/editor.css'
 
 interface Item {
@@ -142,7 +143,12 @@ function ContentReaderInner({
 
   const hasKeyPoints = !!(item.summary_points && item.summary_points.length > 0)
   const isPdfMode    = item.source_mode === 'pdf'
-  const readMin = item.read_time_minutes ?? readTimeMinutes(isPdfMode ? item.extracted_text : item.body_html)
+  /* PDF-mode items now save the (admin-reviewed) extraction into body_html
+     at upload/edit time, same as editor-mode content — the admin is fully
+     in control of the published display. `extracted_text` only still
+     drives rendering for legacy rows saved before that existed. */
+  const hasBody = !!item.body_html || (isPdfMode && !!item.extracted_text)
+  const readMin = item.read_time_minutes ?? readTimeMinutes(item.body_html ?? item.extracted_text)
 
   /* If Quick is requested but the item has no summary points, silently
      fall back to Full — the Quick view would be empty anyway. */
@@ -405,7 +411,7 @@ function ContentReaderInner({
             }} />
           )}
 
-          {isPdfMode && !item.extracted_text ? (
+          {!hasBody ? (
             <div style={{
               padding: '40px 24px',
               background: 'var(--bg-raised)',
@@ -428,7 +434,7 @@ function ContentReaderInner({
                 lineHeight: 1.75,
                 textAlign: 'start',
               }}
-              dangerouslySetInnerHTML={{ __html: isPdfMode ? processedExtractedText : processedHtml }}
+              dangerouslySetInnerHTML={{ __html: item.body_html ? processedHtml : processedExtractedText }}
               />
               <BibleRefActivator containerId={ARTICLE_ID} />
             </>
@@ -514,25 +520,6 @@ function ContentReaderInner({
       )}
     </article>
   )
-}
-
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
-
-/**
- * PDF mode has no rich body — only the plain text extracted at upload time
- * (one block per PDF page, see `extractTextFromPDF`). Wrapping each block in
- * a <p> lets it share the editor-content styling and run through
- * `processBibleRefs` just like a normal article body, instead of embedding
- * the PDF itself (the browser's native PDF chrome — toolbar, page thumbnails,
- * zoom controls — doesn't fit the reader's design).
- */
-function extractedTextToHtml(text: string): string {
-  return text
-    .split(/\n{2,}/)
-    .map(block => `<p>${escapeHtml(block.trim())}</p>`)
-    .join('')
 }
 
 function AttachmentRow({ att }: { att: Attachment }) {

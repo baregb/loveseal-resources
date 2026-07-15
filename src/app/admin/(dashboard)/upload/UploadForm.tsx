@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { extractTextFromPDF } from '@/lib/pdf'
+import { extractTextFromPDF, extractedTextToHtml } from '@/lib/pdf'
 import RichEditor from '@/components/editor/RichEditor'
 import AttachmentsPanel, { type PendingAttachment, uploadAttachments } from '@/components/editor/AttachmentsPanel'
 import AuthorPicker, { type AuthorPickerOption } from '@/components/admin/AuthorPicker'
@@ -48,6 +48,8 @@ export default function UploadForm({
   const [sourceMode, setSourceMode]     = useState<SourceMode>('editor')
   const [bodyHtml, setBodyHtml]         = useState('')
   const [pdfFile, setPdfFile]           = useState<File | null>(null)
+  const [pdfExtracting, setPdfExtracting] = useState(false)
+  const [extractedText, setExtractedText] = useState<string | null>(null)
   const [coverFile, setCoverFile]       = useState<File | null>(null)
   const [coverPreview, setCoverPreview] = useState<string | null>(null)
   const [attachments, setAttachments]   = useState<PendingAttachment[]>([])
@@ -88,7 +90,7 @@ export default function UploadForm({
     if (next !== 'manual') setSourceMode('editor')
   }
 
-  function handlePDFChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handlePDFChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
     if (file.type !== 'application/pdf') {
@@ -101,6 +103,30 @@ export default function UploadForm({
     }
     setPdfFile(file)
     if (!title) setTitle(file.name.replace(/\.pdf$/i, '').replace(/[-_]/g, ' '))
+
+    /* Extraction happens immediately on file pick, not at submit time — the
+       result seeds the rich editor below so the admin reviews and formats
+       it before anything is published, instead of the raw extraction being
+       what readers see. */
+    setPdfExtracting(true)
+    setExtractedText(null)
+    setBodyHtml('')
+    try {
+      const text = await extractTextFromPDF(file)
+      setExtractedText(text)
+      setBodyHtml(extractedTextToHtml(text))
+      if (!text.trim()) {
+        toast.warning('No text found in this PDF', {
+          description: 'It may be a scanned image — you can still write the content manually below.',
+        })
+      }
+    } catch (err) {
+      toast.error('Could not read text from this PDF', {
+        description: err instanceof Error ? err.message : 'You can still write the content manually below.',
+      })
+    } finally {
+      setPdfExtracting(false)
+    }
   }
 
   function handleCoverChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -122,7 +148,11 @@ export default function UploadForm({
       toast.error('Please select a PDF file.')
       return
     }
-    if (effectiveMode === 'editor' && !bodyHtml.trim()) {
+    if (effectiveMode === 'pdf' && pdfExtracting) {
+      toast.error('Still extracting text from the PDF — one moment.')
+      return
+    }
+    if (!bodyHtml.trim()) {
       toast.error('Please write some content in the editor.')
       return
     }
@@ -152,13 +182,9 @@ export default function UploadForm({
     try {
       const supabase = createClient()
 
-      let pdfPath:        string | null = null
-      let extractedText:  string | null = null
+      let pdfPath: string | null = null
 
       if (effectiveMode === 'pdf' && pdfFile) {
-        updateProgress('Extracting text from PDF…')
-        extractedText = await extractTextFromPDF(pdfFile)
-
         updateProgress('Uploading PDF…')
         pdfPath = `${Date.now()}-${pdfFile.name.replace(/\s+/g, '-')}`
         const { error: pdfError } = await supabase.storage
@@ -204,8 +230,8 @@ export default function UploadForm({
           date_preached:   datePreached || null,
           scripture_refs:  scriptureRefs.split(';').map(s => s.trim()).filter(Boolean),
           tags:            tags.split(',').map(t => t.trim()).filter(Boolean),
-          extracted_text:  extractedText,
-          body_html:       effectiveMode === 'editor' ? bodyHtml : null,
+          extracted_text:  effectiveMode === 'pdf' ? extractedText : null,
+          body_html:       bodyHtml,
           summary_points:  summaryPoints.split('\n').map(s => s.trim()).filter(Boolean).length
                             ? summaryPoints.split('\n').map(s => s.trim()).filter(Boolean) : null,
           pdf_url:         pdfPath,
@@ -395,27 +421,56 @@ export default function UploadForm({
             )}
 
             {effectiveMode === 'pdf' ? (
-              <div onClick={() => pdfRef.current?.click()} style={{
-                border: `0.09375rem dashed ${pdfFile ? 'var(--brand-gold)' : 'var(--border-strong)'}`,
-                borderRadius: '0.5rem', padding: '2rem 1rem', textAlign: 'center', cursor: 'pointer',
-              }}>
-                {pdfFile ? (
+              <>
+                <div onClick={() => pdfRef.current?.click()} style={{
+                  border: `0.09375rem dashed ${pdfFile ? 'var(--brand-gold)' : 'var(--border-strong)'}`,
+                  borderRadius: '0.5rem',
+                  padding: pdfFile ? '0.875rem 1rem' : '2rem 1rem',
+                  textAlign: pdfFile ? 'left' : 'center',
+                  cursor: 'pointer',
+                  marginBottom: pdfFile ? '0.875rem' : 0,
+                }}>
+                  {pdfFile ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem' }}>
+                      <span style={{ fontSize: '1.25rem' }}>📄</span>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <p style={{ fontSize: '0.8125rem', color: 'var(--brand-gold)', fontWeight: 500, wordBreak: 'break-all' }}>{pdfFile.name}</p>
+                        <p style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', marginTop: '0.125rem' }}>
+                          {(pdfFile.size / 1024 / 1024).toFixed(2)} MB · click to replace
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>📎</div>
+                      <p style={{ fontSize: '0.8125rem', color: 'var(--text-tertiary)' }}>Click to select PDF</p>
+                      <p style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Max 50 MB</p>
+                    </>
+                  )}
+                  <input ref={pdfRef} type="file" accept="application/pdf" onChange={handlePDFChange} style={{ display: 'none' }} />
+                </div>
+
+                {pdfExtracting && (
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', fontStyle: 'italic' }}>
+                    Extracting text from the PDF…
+                  </p>
+                )}
+
+                {pdfFile && !pdfExtracting && (
                   <>
-                    <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>📄</div>
-                    <p style={{ fontSize: '0.8125rem', color: 'var(--brand-gold)', fontWeight: 500, wordBreak: 'break-all' }}>{pdfFile.name}</p>
-                    <p style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                      {(pdfFile.size / 1024 / 1024).toFixed(2)} MB · click to change
+                    <p style={{ fontSize: '0.6875rem', color: 'var(--text-faint)', marginBottom: '0.5rem' }}>
+                      Extracted from the PDF below — review and format it like any other content. This is what
+                      readers will see; the PDF itself is only kept as a downloadable attachment.
                     </p>
-                  </>
-                ) : (
-                  <>
-                    <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>📎</div>
-                    <p style={{ fontSize: '0.8125rem', color: 'var(--text-tertiary)' }}>Click to select PDF</p>
-                    <p style={{ fontSize: '0.6875rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Max 50 MB</p>
+                    <RichEditor
+                      key={pdfFile.name + pdfFile.size}
+                      initialHtml={bodyHtml}
+                      onChange={setBodyHtml}
+                      placeholder="Extracted text will appear here…"
+                    />
                   </>
                 )}
-                <input ref={pdfRef} type="file" accept="application/pdf" onChange={handlePDFChange} style={{ display: 'none' }} />
-              </div>
+              </>
             ) : (
               <RichEditor
                 onChange={setBodyHtml}
