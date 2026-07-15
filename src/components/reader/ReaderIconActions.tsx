@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import { toast } from '@/lib/toast'
 
 export default function ReaderIconActions({
   shareTitle,
@@ -60,7 +61,7 @@ export default function ReaderIconActions({
       setCopied(true)
       setTimeout(() => setCopied(false), 1800)
     } catch {
-      alert(window.location.href)
+      toast.info('Copy this link', { description: window.location.href, duration: 8000 })
     }
   }
 

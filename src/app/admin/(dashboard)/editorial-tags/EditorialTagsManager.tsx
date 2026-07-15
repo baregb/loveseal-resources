@@ -10,6 +10,7 @@ import {
 } from './actions'
 import type { EditorialTagRow } from './page'
 import ButtonSpinner from '@/components/ui/ButtonSpinner'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 import { toast } from '@/lib/toast'
 
 /**
@@ -41,6 +42,7 @@ export default function EditorialTagsManager({
   const [newTag, setNewTag]     = useState('')
   const [editingId, setEditing] = useState<string | null>(null)
   const [editValue, setEditVal] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState<EditorialTagRow | null>(null)
 
   function refresh() {
     /* router.refresh() re-runs the server component and gives us the
@@ -112,11 +114,13 @@ export default function EditorialTagsManager({
     refresh()
   }
 
-  async function handleDelete(row: EditorialTagRow) {
-    if (!confirm(`Delete "${row.tag}"? This cannot be undone.`)) return
+  async function confirmDelete() {
+    if (!deleteTarget) return
+    const row = deleteTarget
     setBusy(row.id)
     const result = await deleteEditorialTag(row.id)
     setBusy(null)
+    setDeleteTarget(null)
     if (!result.ok) {
       toast.error('Failed to delete', {
         description: result.error ?? 'Please try again.',
@@ -342,7 +346,7 @@ export default function EditorialTagsManager({
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleDelete(row)}
+                  onClick={() => setDeleteTarget(row)}
                   disabled={busy !== null}
                   aria-label="Delete"
                   style={{
@@ -362,6 +366,17 @@ export default function EditorialTagsManager({
           ))}
         </ul>
       )}
+
+      <ConfirmModal
+        open={!!deleteTarget}
+        title="Delete tag"
+        message={`Delete "${deleteTarget?.tag}"? This cannot be undone.`}
+        confirmLabel="Delete"
+        danger
+        busy={busy === deleteTarget?.id}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   )
 }

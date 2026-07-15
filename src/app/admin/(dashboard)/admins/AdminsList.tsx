@@ -6,6 +6,7 @@ import { inviteAdmin, removeAdmin, changeAdminRole, resendInvite } from './actio
 import type { AdminRole } from '@/types'
 import type { AdminListItem } from './page'
 import ButtonSpinner from '@/components/ui/ButtonSpinner'
+import ConfirmModal from '@/components/ui/ConfirmModal'
 import { toast } from '@/lib/toast'
 
 interface Props {
@@ -20,6 +21,7 @@ export default function AdminsList({ admins, currentAdminId, canManage }: Props)
 
   const [showInvite, setShowInvite] = useState(false)
   const [busy, setBusy]             = useState<string | null>(null)
+  const [removeTarget, setRemoveTarget] = useState<AdminListItem | null>(null)
 
   // Invite form state
   const [inviteEmail, setInviteEmail] = useState('')
@@ -49,10 +51,11 @@ export default function AdminsList({ admins, currentAdminId, canManage }: Props)
     })
   }
 
-  function handleRemove(admin: AdminListItem) {
-    const msg = `Remove ${admin.email}? They will lose all access immediately.`
-    if (!confirm(msg)) return
+  function confirmRemove() {
+    if (!removeTarget) return
+    const admin = removeTarget
     setBusy(admin.id)
+    setRemoveTarget(null)
     const toastId = toast.loading(`Removing ${admin.email}…`)
     startTransition(async () => {
       const result = await removeAdmin(admin.id)
@@ -257,7 +260,7 @@ export default function AdminsList({ admins, currentAdminId, canManage }: Props)
                         {!isMe && (
                           <button
                             type="button"
-                            onClick={() => handleRemove(admin)}
+                            onClick={() => setRemoveTarget(admin)}
                             disabled={isBusy}
                             style={{ ...iconBtn, color: 'var(--danger-fg)' }}
                             title="Remove"
@@ -398,6 +401,16 @@ export default function AdminsList({ admins, currentAdminId, canManage }: Props)
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={!!removeTarget}
+        title="Remove admin"
+        message={`Remove ${removeTarget?.email}? They will lose all access immediately.`}
+        confirmLabel="Remove"
+        danger
+        onConfirm={confirmRemove}
+        onCancel={() => setRemoveTarget(null)}
+      />
     </>
   )
 }
