@@ -256,6 +256,7 @@ drop policy if exists "Admin can upload cover images" on storage.objects;
 drop policy if exists "Admin can delete PDFs"        on storage.objects;
 drop policy if exists "Admin can delete cover images" on storage.objects;
 drop policy if exists "Public can read cover images"  on storage.objects;
+drop policy if exists "Public can read PDFs"          on storage.objects;
 
 create policy "Admin can upload PDFs"
   on storage.objects for insert to authenticated
@@ -276,6 +277,18 @@ create policy "Admin can delete cover images"
 create policy "Public can read cover images"
   on storage.objects for select
   using (bucket_id = 'cover-images');
+
+-- The content-pdfs bucket is private (no public URL access) so that files
+-- can't be listed or guessed at random paths — readers only ever reach a
+-- file through a time-limited signed URL minted server-side. But minting
+-- that signed URL still requires a SELECT grant on storage.objects for the
+-- caller (anon/authenticated visitors on the public reader pages), which
+-- was missing entirely. Without it, createSignedUrl() silently returns
+-- null and every PDF-mode manual/prophecy shows "PDF is currently
+-- unavailable" for everyone, including admins.
+create policy "Public can read PDFs"
+  on storage.objects for select
+  using (bucket_id = 'content-pdfs');
 
 -- ── Seed: default categories ─────────────────────────────────────────────────
 
