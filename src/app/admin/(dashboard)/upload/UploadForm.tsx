@@ -127,7 +127,7 @@ export default function UploadForm({
       return
     }
     if (!coverFile) {
-      toast.error('Cover image is required.', { description: 'Recommended size: 1200 × 630 px.' })
+      toast.error('Featured image is required.', { description: 'Recommended size: 1200 × 630 px.' })
       return
     }
 
@@ -264,7 +264,7 @@ export default function UploadForm({
 
           {/* Cover */}
           <div style={cardStyle}>
-            <SectionHeader label="COVER IMAGE" hint="required" />
+            <SectionHeader label="FEATURED IMAGE" hint="required" />
             <div onClick={() => imgRef.current?.click()} style={{
               border: `0.09375rem dashed ${coverFile ? 'var(--brand-blue)' : 'var(--border-strong)'}`,
               borderRadius: '0.5rem', overflow: 'hidden', cursor: 'pointer',
@@ -277,12 +277,17 @@ export default function UploadForm({
               ) : (
                 <div style={{ textAlign: 'center', padding: '1rem' }}>
                   <div style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>🖼</div>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', fontWeight: 500 }}>Add cover image</p>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', fontWeight: 500 }}>Add featured image</p>
                   <p style={{ fontSize: '0.625rem', color: 'var(--brand-gold)', marginTop: '0.25rem', fontWeight: 600 }}>Recommended: 1200 × 630 px</p>
                   <p style={{ fontSize: '0.5625rem', color: 'var(--text-muted)', marginTop: '0.125rem' }}>JPEG · PNG · WebP · Max 5 MB</p>
                 </div>
               )}
             </div>
+            {coverPreview && (
+              <p style={{ fontSize: '0.625rem', color: 'var(--text-faint)', marginTop: '0.5rem' }}>
+                Keep the subject centered — this crops to square, 4:3, 3:2 and 16:9 boxes across cards, hero banners and social previews on every screen size.
+              </p>
+            )}
             <input ref={imgRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleCoverChange} style={{ display: 'none' }} />
           </div>
 

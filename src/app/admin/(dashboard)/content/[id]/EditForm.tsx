@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import RichEditor from '@/components/editor/RichEditor'
@@ -30,6 +30,7 @@ interface Item {
   read_time_minutes: number | null
   /* Pass 5c — relational link to the authors table. */
   author_id: string | null
+  cover_image_url: string | null
 }
 
 interface AttachmentRow {
@@ -92,6 +93,19 @@ export default function EditForm({
   const [summaryPoints, setSummaryPoints] = useState((item.summary_points ?? []).join('\n'))
   const [status, setStatus]             = useState<'draft' | 'published'>(item.status)
 
+  // Featured image — required. Starts from the existing stored URL;
+  // replaced with a fresh upload only if the user picks a new file.
+  const imgRef = useRef<HTMLInputElement>(null)
+  const [coverFile, setCoverFile]       = useState<File | null>(null)
+  const [coverPreview, setCoverPreview] = useState<string | null>(item.cover_image_url)
+
+  function handleCoverChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setCoverFile(file)
+    setCoverPreview(URL.createObjectURL(file))
+  }
+
   // Attachments — convert existing rows to PendingAttachment format
   const [attachments, setAttachments] = useState<PendingAttachment[]>([])
 
@@ -125,6 +139,12 @@ export default function EditForm({
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     if (saving) return
+
+    if (!coverFile && !coverPreview) {
+      toast.error('Featured image is required.', { description: 'Recommended size: 1200 × 630 px.' })
+      return
+    }
+
     setSaving(true)
 
     /* A persistent loading toast covers the whole save sequence (DB update,
@@ -134,6 +154,18 @@ export default function EditForm({
 
     try {
       const supabase = createClient()
+
+      let coverImageUrl = item.cover_image_url
+      if (coverFile) {
+        toast.loading('Saving changes…', { id: toastId, description: 'Uploading featured image…' })
+        const coverPath = `${Date.now()}-${coverFile.name.replace(/\s+/g, '-')}`
+        const { error: coverError } = await supabase.storage
+          .from('cover-images')
+          .upload(coverPath, coverFile, { contentType: coverFile.type })
+        if (coverError) throw new Error(`Featured image upload failed: ${coverError.message}`)
+        const { data: { publicUrl } } = supabase.storage.from('cover-images').getPublicUrl(coverPath)
+        coverImageUrl = publicUrl
+      }
 
       const { error: updateError } = await supabase.from('content').update({
         title: title.trim(),
@@ -150,6 +182,7 @@ export default function EditForm({
         published_at:  publishedAt + 'T00:00:00.000Z',
         audio_url:     audioUrl.trim() || null,
         video_url:     videoUrl.trim() || null,
+        cover_image_url: coverImageUrl,
         date_preached: datePreached || null,
         scripture_refs: scriptureRefs.split(';').map(s => s.trim()).filter(Boolean),
         tags:          tags.split(',').map(t => t.trim()).filter(Boolean),
@@ -259,6 +292,34 @@ export default function EditForm({
       <div style={{ display: 'grid', gridTemplateColumns: '20rem 1fr', gap: '1.25rem', alignItems: 'start' }}>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', position: 'sticky', top: '4.5rem' }}>
+
+          <div style={cardStyle}>
+            <SectionHeader label="FEATURED IMAGE" hint="required" />
+            <div onClick={() => imgRef.current?.click()} style={{
+              border: `0.09375rem dashed ${coverPreview ? 'var(--brand-blue)' : 'var(--border-strong)'}`,
+              borderRadius: '0.5rem', overflow: 'hidden', cursor: 'pointer',
+              minHeight: '6.875rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'border-color 0.15s',
+            }}>
+              {coverPreview ? (
+                // eslint-disable-next-line @next/next/no-img-element -- blob: preview or remote Supabase URL, kept as <img> to match the create-form pattern
+                <img src={coverPreview} alt="" style={{ width: '100%', height: '8.75rem', objectFit: 'cover' }} />
+              ) : (
+                <div style={{ textAlign: 'center', padding: '1rem' }}>
+                  <div style={{ fontSize: '1.25rem', marginBottom: '0.25rem' }}>🖼</div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', fontWeight: 500 }}>Add featured image</p>
+                  <p style={{ fontSize: '0.625rem', color: 'var(--brand-gold)', marginTop: '0.25rem', fontWeight: 600 }}>Recommended: 1200 × 630 px</p>
+                  <p style={{ fontSize: '0.5625rem', color: 'var(--text-muted)', marginTop: '0.125rem' }}>JPEG · PNG · WebP · Max 5 MB</p>
+                </div>
+              )}
+            </div>
+            {coverPreview && (
+              <p style={{ fontSize: '0.625rem', color: 'var(--text-faint)', marginTop: '0.5rem' }}>
+                Click image to replace. Keep the subject centered — this crops to square, 4:3, 3:2 and 16:9 boxes across cards, hero banners and social previews on every screen size.
+              </p>
+            )}
+            <input ref={imgRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleCoverChange} style={{ display: 'none' }} />
+          </div>
 
           <div style={cardStyle}>
             <SectionHeader label="ATTACHMENTS" />
