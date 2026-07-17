@@ -101,7 +101,7 @@ export default function BibleRefActivator({ containerId }: { containerId: string
       hoverTimer.current = setTimeout(() => openRef(el), 350)
     }
 
-    function onMouseLeave(e: MouseEvent) {
+    function onMouseLeave() {
       if (hoverTimer.current) clearTimeout(hoverTimer.current)
       // Small grace period — lets user move cursor from text into the popover
       leaveTimer.current = setTimeout(() => {
