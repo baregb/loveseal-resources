@@ -24,6 +24,7 @@ interface AuthorTypeFilterProps {
     prophecy: number
     article:  number
     blog:     number
+    sermon:   number
     total:    number
   }
 }
@@ -54,6 +55,7 @@ function Inner({ counts }: AuthorTypeFilterProps) {
     { value: 'prophecy', label: tNav('prophecies'),  count: counts.prophecy },
     { value: 'article',  label: tNav('articles'),    count: counts.article  },
     { value: 'blog',     label: tNav('blog'),        count: counts.blog     },
+    { value: 'sermon',   label: tNav('sermons'),     count: counts.sermon   },
   ].filter(s => s.value === 'all' || s.count > 0)
 
   function select(value: string) {

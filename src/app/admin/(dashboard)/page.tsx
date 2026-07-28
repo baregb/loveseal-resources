@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentAdmin } from '@/lib/admin-user'
 import RecentUploadsTable from '@/components/admin/RecentUploadsTable'
+import { CONTENT_TYPE_ACCENT } from '@/lib/content-type'
 
 export const metadata = { title: 'Admin Dashboard' }
 
@@ -31,6 +32,7 @@ export default async function AdminPage() {
     { count: prophecies },
     { count: articles },
     { count: blogs },
+    { count: sermons },
     { data: recent },
   ] = await Promise.all([
     supabase.from('content').select('*', { count: 'exact', head: true }),
@@ -40,6 +42,7 @@ export default async function AdminPage() {
     supabase.from('content').select('*', { count: 'exact', head: true }).eq('content_type', 'prophecy'),
     supabase.from('content').select('*', { count: 'exact', head: true }).eq('content_type', 'article'),
     supabase.from('content').select('*', { count: 'exact', head: true }).eq('content_type', 'blog'),
+    supabase.from('content').select('*', { count: 'exact', head: true }).eq('content_type', 'sermon'),
     supabase
       .from('content')
       .select('id, title, content_type, status, language, theme, speaker, date_preached, created_at')
@@ -54,10 +57,11 @@ export default async function AdminPage() {
   ]
 
   const typeStats = [
-    { label: 'Manuals',    value: manuals ?? 0,    color: '#4498CC' },
-    { label: 'Prophecies', value: prophecies ?? 0, color: '#C32126' },
-    { label: 'Articles',   value: articles ?? 0,   color: '#F5AE41' },
-    { label: 'Blog',       value: blogs ?? 0,      color: '#3C3C3C' },
+    { label: 'Manuals',      value: manuals ?? 0,    color: CONTENT_TYPE_ACCENT.manual   },
+    { label: 'Prophecies',   value: prophecies ?? 0, color: CONTENT_TYPE_ACCENT.prophecy },
+    { label: 'Articles',     value: articles ?? 0,   color: CONTENT_TYPE_ACCENT.article  },
+    { label: 'Blog',         value: blogs ?? 0,      color: CONTENT_TYPE_ACCENT.blog     },
+    { label: 'Sermon Notes', value: sermons ?? 0,    color: CONTENT_TYPE_ACCENT.sermon   },
   ]
 
   return (

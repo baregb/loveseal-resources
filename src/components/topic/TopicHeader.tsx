@@ -2,7 +2,7 @@
  * Shared hero header for topic landing pages.
  *
  * Desktop layout (≥ 768px) — two columns per design:
- *   LEFT: eyebrow dot + "CONTENT TYPE · N of 4" label + giant display heading + intro copy
+ *   LEFT: eyebrow dot + "CONTENT TYPE · N of 5" label + giant display heading + intro copy
  *   RIGHT: count badge + Follow pill (future) + digest hint
  *
  * Mobile: single column stack.
@@ -21,6 +21,10 @@ const TYPE_INDEX: Record<string, number> = {
   prophecy: 2,
   article:  3,
   blog:     4,
+  /* "Sermon Notes" survives the trailing-s strip as "sermon note"; keep both
+     spellings so the index resolves either way. */
+  'sermon note':  5,
+  'sermon notes': 5,
 }
 
 export default function TopicHeader({
@@ -66,7 +70,7 @@ export default function TopicHeader({
               margin:        0,
             }}>
               {typeIdx
-                ? `${eyebrow} · ${String(typeIdx).padStart(2, '0')} OF 04`
+                ? `${eyebrow} · ${String(typeIdx).padStart(2, '0')} OF 05`
                 : eyebrow}
             </p>
           </div>

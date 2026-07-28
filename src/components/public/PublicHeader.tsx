@@ -12,13 +12,7 @@ import ThemeToggleGrid from '@/components/theme/ThemeToggleGrid'
 import { useTheme } from '@/components/theme/ThemeProvider'
 import { fetchDiscoverItems, type DiscoverItem } from '@/app/(public)/_actions/discoverItems'
 import { contentHref } from '@/lib/content-url'
-
-const TYPE_COLORS: Record<string, string> = {
-  manual:   '#4498CC',
-  prophecy: '#C32126',
-  article:  '#F5AE41',
-  blog:     '#3C3C3C',
-}
+import { contentTypeAccent } from '@/lib/content-type'
 
 const STRIPE_BG = `repeating-linear-gradient(135deg, #d9c6a0 0 10px, #c9b58a 10px 20px)`
 
@@ -43,6 +37,7 @@ export default function PublicHeader() {
     { href: { pathname: '/topic/[type]' as const, params: { type: 'prophecy' } }, label: t('prophecies') },
     { href: { pathname: '/topic/[type]' as const, params: { type: 'article'  } }, label: t('articles') },
     { href: { pathname: '/topic/[type]' as const, params: { type: 'blog'     } }, label: t('blog') },
+    { href: { pathname: '/topic/[type]' as const, params: { type: 'sermon'   } }, label: t('sermons') },
   ]
 
   useEffect(() => {
@@ -175,11 +170,22 @@ export default function PublicHeader() {
       <style>{`
         .public-nav-link:hover { color: rgba(255,255,255,0.85) !important; }
         .public-nav-link--active, .public-nav-link--active:hover { color: #FFFFFF !important; }
-        @media (max-width: 64rem) {
+
+        /* The pill carries six items since Sermon Notes joined, and its links
+           are nowrap — so it can only be given less room, never less width.
+           Step it down in three stages instead of letting it run under the
+           logo: drop the date, tighten the items, then collapse to the
+           hamburger (which already carries the theme + language controls).
+           The !important beats the inline styles on these same elements. */
+        @media (max-width: 78rem) {
           .public-header-grid { grid-template-columns: auto 1fr auto !important; gap: 0.75rem !important; }
           .header-date { display: none !important; }
         }
-        @media (max-width: 55rem) {
+        @media (max-width: 68rem) {
+          .public-nav-pill { gap: 0.125rem !important; padding: 0.4375rem 0.5rem !important; }
+          .public-nav-link { padding: 0.5rem 0.75rem !important; font-size: 0.8125rem !important; }
+        }
+        @media (max-width: 62rem) {
           .public-nav-pill        { display: none !important; }
           .public-nav-hamburger   { display: inline-flex !important; }
           .public-header-theme,
@@ -474,7 +480,7 @@ function DiscoverCarousel() {
 }
 
 function DiscoverCard({ item }: { item: DiscoverItem }) {
-  const typeColor = TYPE_COLORS[item.content_type] ?? '#3C3C3C'
+  const typeColor = contentTypeAccent(item.content_type)
   const fact      = item.summary_points?.[0] ?? item.theme ?? item.title
 
   return (

@@ -25,21 +25,21 @@ export type Database = {
           id: string
           name: string
           slug: string
-          content_type: 'manual' | 'prophecy' | 'article' | 'blog' | null
+          content_type: 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon' | null
           created_at: string
         }
         Insert: {
           id?: string
           name: string
           slug: string
-          content_type?: 'manual' | 'prophecy' | 'article' | 'blog' | null
+          content_type?: 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon' | null
           created_at?: string
         }
         Update: {
           id?: string
           name?: string
           slug?: string
-          content_type?: 'manual' | 'prophecy' | 'article' | 'blog' | null
+          content_type?: 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon' | null
           created_at?: string
         }
       }
@@ -48,7 +48,7 @@ export type Database = {
           id: string
           slug: string | null
           title: string
-          content_type: 'manual' | 'prophecy' | 'article' | 'blog'
+          content_type: 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
           source_mode: 'pdf' | 'editor'
           category: string
           tags: string[]
@@ -77,7 +77,7 @@ export type Database = {
         Insert: {
           id?: string
           title: string
-          content_type: 'manual' | 'prophecy' | 'article' | 'blog'
+          content_type: 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
           source_mode?: 'pdf' | 'editor'
           category?: string
           tags?: string[]
@@ -106,7 +106,7 @@ export type Database = {
         Update: {
           id?: string
           title?: string
-          content_type?: 'manual' | 'prophecy' | 'article' | 'blog'
+          content_type?: 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
           source_mode?: 'pdf' | 'editor'
           category?: string
           tags?: string[]
@@ -360,7 +360,7 @@ export type Database = {
       }
     }
     Enums: {
-      content_type: 'manual' | 'prophecy' | 'article' | 'blog'
+      content_type: 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
       content_status: 'draft' | 'published'
       supported_locale: 'en' | 'es' | 'fr' | 'pt' | 'ar'
       admin_role: AdminRole

@@ -16,12 +16,13 @@ import MediaSection       from '@/components/reader/MediaSection'
 import { processBibleRefs } from '@/lib/bible-parse'
 import { extractedTextToHtml } from '@/lib/pdf'
 import '@/components/editor/editor.css'
+import { CONTENT_TYPE_ACCENT, contentTypeAccent, contentTypeTint } from '@/lib/content-type'
 
 interface Item {
   id: string
   slug: string | null
   title: string
-  content_type: 'manual' | 'prophecy' | 'article' | 'blog'
+  content_type: 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
   source_mode: 'pdf' | 'editor'
   category: string
   tags: string[]
@@ -79,9 +80,7 @@ interface SeriesItem {
   published_at: string
 }
 
-const TYPE_COLORS: Record<string, string> = {
-  manual: '#4498CC', prophecy: '#C32126', article: '#F5AE41', blog: '#3C3C3C',
-}
+const TYPE_COLORS = CONTENT_TYPE_ACCENT
 
 type ReadMode = 'full' | 'quick'
 
@@ -592,9 +591,6 @@ const sectionHeadingStyle: React.CSSProperties = {
   fontFamily: 'var(--font-body)',
 }
 
-const TYPE_BG: Record<string, string> = {
-  manual: '#D5E9F6', prophecy: '#F9D6D7', article: '#FEF0D5', blog: '#C8BFEC',
-}
 
 function SeriesStrip({ series, items }: { series: string; items: SeriesItem[] }) {
   return (
@@ -617,6 +613,11 @@ function ContentCardGrid({
   heading: React.ReactNode
   items:   SeriesItem[]
 }) {
+  /* These cards used to print the raw enum ("SERMON", "MANUAL") as their
+     eyebrow, which stayed English in every locale. Translate it like the
+     rest of the reader does. */
+  const tTypes = useTranslations('content.types')
+
   return (
     <section style={{ marginTop: '48px', paddingTop: '24px', borderTop: '0.5px solid var(--border-subtle)' }}>
       <div style={{ marginBottom: '14px' }}>
@@ -647,14 +648,14 @@ function ContentCardGrid({
           >
             <div style={{
               borderRadius: '0.75rem',
-              background:   TYPE_BG[si.content_type] ?? '#F0EDE8',
+              background:   contentTypeTint(si.content_type),
               overflow:     'hidden',
             }}>
               <div style={{
                 aspectRatio: '3 / 2',
                 background:  si.cover_image_url
                   ? `url(${si.cover_image_url}) center/cover`
-                  : TYPE_BG[si.content_type] ?? '#F0EDE8',
+                  : contentTypeTint(si.content_type),
               }} />
               <div style={{ padding: '0.625rem 0.75rem 0.75rem' }}>
                 <div style={{
@@ -662,10 +663,10 @@ function ContentCardGrid({
                   fontWeight:    600,
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
-                  color:         TYPE_COLORS[si.content_type] ?? 'var(--text-secondary)',
+                  color:         contentTypeAccent(si.content_type),
                   marginBottom:  '0.25rem',
                 }}>
-                  {si.content_type}
+                  {tTypes(si.content_type as 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon')}
                 </div>
                 <div style={{
                   fontFamily:      'var(--font-display), Barlow Condensed, sans-serif',

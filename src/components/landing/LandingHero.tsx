@@ -5,12 +5,13 @@ import { motion, AnimatePresence, type PanInfo } from 'framer-motion'
 import { useTranslations, useLocale } from 'next-intl'
 import Image from 'next/image'
 import { Link, useRouter } from '@/i18n/navigation'
+import { CONTENT_TYPE_INK, CONTENT_TYPE_TINT } from '@/lib/content-type'
 
 interface HeroItem {
   id:              string
   slug:            string | null
   title:           string
-  content_type:    'manual' | 'prophecy' | 'article' | 'blog'
+  content_type:    'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
   theme:           string | null
   series:          string | null
   speaker:         string | null
@@ -18,23 +19,13 @@ interface HeroItem {
   published_at:    string
 }
 
-const TYPE_ORDER: HeroItem['content_type'][] = ['manual', 'prophecy', 'article', 'blog']
+const TYPE_ORDER: HeroItem['content_type'][] = ['manual', 'prophecy', 'article', 'blog', 'sermon']
 
 // Light tints derived from the design token brand colors:
-// Blue #4498CC → manual, Red #C32126 → prophecy, Gold #F5AE41 → article, Lilac #C8BFEC → blog
-const TYPE_BG: Record<HeroItem['content_type'], string> = {
-  manual:   '#D5E9F6',
-  prophecy: '#F9D6D7',
-  article:  '#FEF0D5',
-  blog:     '#C8BFEC',
-}
-
-const TYPE_COLORS: Record<HeroItem['content_type'], string> = {
-  manual:   '#2F87C3',   // brand blue
-  prophecy: '#C32126',   // brand red
-  article:  '#B87D0A',   // brand gold, darkened for text contrast
-  blog:     '#6E5FAE',   // brand lilac, darkened for text contrast
-}
+// Blue #4498CC → manual, Red #C32126 → prophecy, Gold #F5AE41 → article, Lilac #C8BFEC → blog,
+// Sage #2E8B6B → sermon
+const TYPE_BG     = CONTENT_TYPE_TINT
+const TYPE_COLORS = CONTENT_TYPE_INK
 
 // Placeholder stripe backgrounds — matched to each type's token color family
 const TYPE_PLACEHOLDER: Record<HeroItem['content_type'], string> = {
@@ -42,6 +33,7 @@ const TYPE_PLACEHOLDER: Record<HeroItem['content_type'], string> = {
   prophecy: 'linear-gradient(180deg,rgba(255,255,255,0)0%,rgba(20,17,13,0.18)100%),repeating-linear-gradient(135deg,#d9b6a3 0 16px,#c69680 16px 32px)',
   article:  'linear-gradient(180deg,rgba(255,255,255,0)0%,rgba(20,17,13,0.20)100%),repeating-linear-gradient(135deg,#f1c97a 0 16px,#d8a94f 16px 32px)',
   blog:     'linear-gradient(180deg,rgba(255,255,255,0)0%,rgba(20,17,13,0.18)100%),repeating-linear-gradient(135deg,#b8a8c8 0 16px,#9a87b0 16px 32px)',
+  sermon:   'linear-gradient(180deg,rgba(255,255,255,0)0%,rgba(20,17,13,0.18)100%),repeating-linear-gradient(135deg,#a8c6ba 0 16px,#86ab9c 16px 32px)',
 }
 
 export default function LandingHero({ items }: { items: HeroItem[] }) {
@@ -396,11 +388,12 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
   )
 }
 
-function typeNavKey(type: HeroItem['content_type']): 'manuals' | 'prophecies' | 'articles' | 'blog' {
+function typeNavKey(type: HeroItem['content_type']): 'manuals' | 'prophecies' | 'articles' | 'blog' | 'sermons' {
   switch (type) {
     case 'manual':   return 'manuals'
     case 'prophecy': return 'prophecies'
     case 'article':  return 'articles'
+    case 'sermon':   return 'sermons'
     default:         return 'blog'
   }
 }
@@ -450,6 +443,7 @@ function Card({
       prophecy: '/prophecies/[slug]',
       article:  '/articles/[slug]',
       blog:     '/blogs/[slug]',
+      sermon:   '/sermon-notes/[slug]',
     } as const
     router.push({ pathname: TYPE_PATHNAME[item.content_type], params: { slug: item.slug ?? item.id } })
   }

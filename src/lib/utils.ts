@@ -2,6 +2,7 @@ import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import type { ContentType, Locale } from '@/types'
 import { getBaseUrl } from '@/lib/locale-urls'
+import { CONTENT_TYPE_ACCENT, CONTENT_TYPE_LABEL } from '@/lib/content-type'
 
 /* ── Tailwind class merger ── */
 
@@ -12,13 +13,14 @@ export function cn(...inputs: ClassValue[]) {
 /* ── Content type helpers ── */
 
 export const CONTENT_TYPES: Record<ContentType, { label: string; color: string }> = {
-  manual:   { label: 'Manual',   color: 'var(--color-manual)'   },
-  prophecy: { label: 'Prophecy', color: 'var(--color-prophecy)' },
-  article:  { label: 'Article',  color: 'var(--color-article)'  },
-  blog:     { label: 'Blog',     color: 'var(--color-blog)'     },
+  manual:   { label: CONTENT_TYPE_LABEL.manual,   color: CONTENT_TYPE_ACCENT.manual   },
+  prophecy: { label: CONTENT_TYPE_LABEL.prophecy, color: CONTENT_TYPE_ACCENT.prophecy },
+  article:  { label: CONTENT_TYPE_LABEL.article,  color: CONTENT_TYPE_ACCENT.article  },
+  blog:     { label: CONTENT_TYPE_LABEL.blog,     color: CONTENT_TYPE_ACCENT.blog     },
+  sermon:   { label: CONTENT_TYPE_LABEL.sermon,   color: CONTENT_TYPE_ACCENT.sermon   },
 }
 
-export const CONTENT_TYPE_ORDER: ContentType[] = ['manual', 'prophecy', 'article', 'blog']
+export const CONTENT_TYPE_ORDER: ContentType[] = ['manual', 'prophecy', 'article', 'blog', 'sermon']
 
 export function getContentTypeLabel(type: ContentType): string {
   return CONTENT_TYPES[type]?.label ?? type

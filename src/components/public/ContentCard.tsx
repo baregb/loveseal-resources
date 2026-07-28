@@ -4,12 +4,13 @@ import { useTranslations, useLocale } from 'next-intl'
 import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import { contentHref } from '@/lib/content-url'
+import { contentTypeAccent } from '@/lib/content-type'
 
 interface ContentItemForCard {
   id:              string
   slug:            string | null
   title:           string
-  content_type:    'manual' | 'prophecy' | 'article' | 'blog'
+  content_type:    'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
   theme:           string | null
   speaker:         string | null
   series?:         string | null
@@ -17,13 +18,6 @@ interface ContentItemForCard {
   cover_image_url: string | null
   published_at:    string
   summary_points:  string[] | null
-}
-
-const TYPE_COLORS: Record<string, string> = {
-  manual:   '#C32126',
-  prophecy: '#4498CC',
-  article:  '#F5AE41',
-  blog:     '#3C3C3C',
 }
 
 /* Diagonal-stripe placeholder — matches design's warm placeholder pattern */
@@ -41,7 +35,7 @@ export default function ContentCard({
 }) {
   const tTypes  = useTranslations('content.types')
   const locale  = useLocale()
-  const typeColor = TYPE_COLORS[item.content_type]
+  const typeColor = contentTypeAccent(item.content_type)
 
   const dateString = item.date_preached
     ? new Date(item.date_preached).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' })
@@ -263,7 +257,7 @@ function TypePill({ type, label }: { type: string; label: string }) {
       display:       'inline-flex',
       alignItems:    'center',
       padding:       '3px 9px',
-      background:    TYPE_COLORS[type],
+      background:    contentTypeAccent(type),
       color:         '#FFFFFF',
       fontSize:      '10px',
       fontWeight:    500,

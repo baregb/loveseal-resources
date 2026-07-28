@@ -14,7 +14,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { tagSlug } from '@/lib/topic'
 
-type ContentType = 'manual' | 'prophecy' | 'article' | 'blog'
+type ContentType = 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
 
 export interface TypeTag {
   tag:         string
@@ -137,7 +137,7 @@ export async function getAllTagsWithCounts(
         b = {
           slug,
           total:  0,
-          byType: { manual: 0, prophecy: 0, article: 0, blog: 0 },
+          byType: { manual: 0, prophecy: 0, article: 0, blog: 0, sermon: 0 },
           labels: new Map(),
         }
         buckets.set(slug, b)

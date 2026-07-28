@@ -2,15 +2,9 @@ import { Link } from '@/i18n/navigation'
 import { getTranslations } from 'next-intl/server'
 import ContentCard from '@/components/public/ContentCard'
 import RevealOnScroll from '@/components/landing/RevealOnScroll'
+import { contentTypeAccent } from '@/lib/content-type'
 
-type ContentType = 'manual' | 'prophecy' | 'article' | 'blog'
-
-const TYPE_ACCENT: Record<ContentType, string> = {
-  manual:   '#C32126',   /* brand-red */
-  prophecy: '#4498CC',   /* brand-blue */
-  article:  '#F5AE41',   /* brand-gold */
-  blog:     '#C8BFEC',   /* lilac */
-}
+type ContentType = 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
 
 type CardItem = Parameters<typeof ContentCard>[0]['item']
 
@@ -45,7 +39,7 @@ export default async function LatestSection({
 }) {
   const tSections = await getTranslations('sections')
   const titleKey  = sectionTitleKey(type)
-  const accent    = TYPE_ACCENT[type]
+  const accent    = contentTypeAccent(type)
 
   if (items.length === 0) return null
 
@@ -157,11 +151,12 @@ export default async function LatestSection({
   )
 }
 
-function sectionTitleKey(type: ContentType): 'manuals' | 'prophecies' | 'articles' | 'blog' {
+function sectionTitleKey(type: ContentType): 'manuals' | 'prophecies' | 'articles' | 'blog' | 'sermons' {
   switch (type) {
     case 'manual':   return 'manuals'
     case 'prophecy': return 'prophecies'
     case 'article':  return 'articles'
+    case 'sermon':   return 'sermons'
     default:         return 'blog'
   }
 }

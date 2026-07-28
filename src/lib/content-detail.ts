@@ -6,7 +6,7 @@ import { localeUrl, metadataAlternates } from '@/lib/locale-urls'
 import { BRAND } from '@/components/brand/Brand'
 import { CONTENT_TYPE_PREFIX } from '@/lib/content-url'
 
-export type ContentType = 'manual' | 'prophecy' | 'article' | 'blog'
+export type ContentType = 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 

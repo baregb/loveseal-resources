@@ -25,6 +25,34 @@
   --brand-blue:     #4498CC;
   --brand-red:      #C32126;
 
+  /* Content types — one triple per `content_type` enum value:
+       …-accent  solid brand colour: dots, pills, eyebrows, borders
+       …-tint    light "paper" wash used as a card/placeholder background
+       …-ink     accent darkened enough to read as text on its own tint
+     Same in both themes on purpose: the tinted cards read as paper laid on
+     the page, light or dark. src/lib/content-type.ts is the module that
+     hands these to components — import from there rather than redeclaring
+     hexes, so adding a sixth type stays a two-line change. */
+  --color-manual:          #4498CC;
+  --color-manual-tint:     #D5E9F6;
+  --color-manual-ink:      #2F87C3;
+
+  --color-prophecy:        #C32126;
+  --color-prophecy-tint:   #F9D6D7;
+  --color-prophecy-ink:    #C32126;
+
+  --color-article:         #F5AE41;
+  --color-article-tint:    #FEF0D5;
+  --color-article-ink:     #B87D0A;
+
+  --color-blog:            #3C3C3C;
+  --color-blog-tint:       #C8BFEC;
+  --color-blog-ink:        #6E5FAE;
+
+  --color-sermon:          #2E8B6B;
+  --color-sermon-tint:     #D3EAE1;
+  --color-sermon-ink:      #267056;
+
   /* Surfaces */
   --bg-base:        #0f1012;   /* page background        */
   --bg-raised:      #1a1b1e;   /* card / panel           */
@@ -54,6 +82,9 @@
   /* Sidebar specific */
   --sidebar-bg:     #0f1012;
   --topbar-bg:      #0f1012;
+
+  /* Keyboard focus ring — gold clears 10:1 on the dark page background. */
+  --focus-ring:     #F5AE41;
 }
 
 [data-theme="light"] {
@@ -88,6 +119,10 @@
   /* Sidebar specific */
   --sidebar-bg:     #FFFFFF;
   --topbar-bg:      #FFFFFF;
+
+  /* Keyboard focus ring — gold is only ~1.9:1 on white, so light theme uses
+     brand red (5.9:1) to stay above the 3:1 non-text contrast minimum. */
+  --focus-ring:     #C32126;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -131,6 +166,7 @@ body {
   background: var(--bg-base);
   color: var(--text-primary);
   font-family: var(--font-body);
+  font-weight: 300;
   transition: background-color 0.18s ease, color 0.18s ease;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -151,6 +187,29 @@ body {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ── Keyboard focus ────────────────────────────────────────────────────────
+   Almost every interactive element on the public site is an inline-styled
+   <a> or <button> with no class of its own, so there was nowhere for a focus
+   style to live and keyboard users got only the browser default — which the
+   dark surfaces swallow entirely. One global rule covers all of them.
+
+   :focus-visible, not :focus, so the ring shows for keyboard and assistive
+   tech but never on a mouse click. The ring colour flips per theme because
+   no single hue clears 3:1 on both #FFFFFF and #0f1012 — gold reads on dark,
+   red reads on light. Surfaces that stay dark in BOTH themes (the nav pill,
+   the footer) opt back into gold below. */
+:focus-visible {
+  outline:        0.125rem solid var(--focus-ring);
+  outline-offset: 0.125rem;
+}
+
+/* Elements that live on permanently-dark surfaces regardless of theme. */
+.public-nav-link:focus-visible,
+.public-nav-hamburger:focus-visible,
+footer :focus-visible {
+  outline-color: var(--brand-gold);
 }
 
 /* ── Content titles ────────────────────────────────────────────────────── */
