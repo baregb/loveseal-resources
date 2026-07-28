@@ -5,12 +5,13 @@ import { useTranslations } from 'next-intl'
 import { useSearchParams } from 'next/navigation'
 import ContentCard from '@/components/public/ContentCard'
 import { searchContentAction } from './search-action'
+import { contentTypeAccent } from '@/lib/content-type'
 
 interface PublicItem {
   id: string
   slug: string | null
   title: string
-  content_type: 'manual' | 'prophecy' | 'article' | 'blog'
+  content_type: 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
   language: string
   category: string
   tags: string[]
@@ -23,10 +24,6 @@ interface PublicItem {
   cover_image_url: string | null
   summary_points: string[] | null
   published_at: string
-}
-
-const TYPE_COLORS: Record<string, string> = {
-  manual: '#4498CC', prophecy: '#C32126', article: '#F5AE41', blog: '#3C3C3C',
 }
 
 type Layout = 'grid' | 'list'
@@ -91,7 +88,7 @@ export default function PublicContentList({
 
   useEffect(() => {
     const tp = searchParams?.get('type')
-    if (tp && ['manual', 'prophecy', 'article', 'blog'].includes(tp)) {
+    if (tp && ['manual', 'prophecy', 'article', 'blog', 'sermon'].includes(tp)) {
       setSelectedTypes(new Set([tp]))
     }
   }, [searchParams])
@@ -286,8 +283,8 @@ export default function PublicContentList({
         values={Object.entries(facets.types)}
         selected={selectedTypes}
         onToggle={v => toggle(selectedTypes, setSelectedTypes, v)}
-        formatLabel={v => tContent(v as 'manual' | 'prophecy' | 'article' | 'blog')}
-        accentColor={v => TYPE_COLORS[v]}
+        formatLabel={v => tContent(v as 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon')}
+        accentColor={v => contentTypeAccent(v)}
       />
       {Object.keys(facets.themes).length > 0 && (
         <FacetGroup

@@ -22,7 +22,7 @@ interface HeroItem {
   id:              string
   slug:            string | null
   title:           string
-  content_type:    'manual' | 'prophecy' | 'article' | 'blog'
+  content_type:    'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
   theme:           string | null
   series:          string | null
   speaker:         string | null
@@ -72,7 +72,7 @@ export default async function HomePage({
   /* Latest sections — for each content type fetch (a) the first 4 cards
      and (b) the total published count, in parallel. The count powers the
      inline "XX entries" label per design. */
-  const types = ['manual', 'prophecy', 'article', 'blog'] as const
+  const types = ['manual', 'prophecy', 'article', 'blog', 'sermon'] as const
 
   const cardFetches = types.map(t =>
     supabase

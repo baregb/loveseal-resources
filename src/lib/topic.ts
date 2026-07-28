@@ -4,7 +4,7 @@
  * Two flavours of topic page:
  *   - `/topic/[type]`   — filter the library by `content_type`. The slug IS
  *                         the enum value (singular: manual / prophecy /
- *                         article / blog). Pass 5b.
+ *                         article / blog / sermon). Pass 5b.
  *   - `/topics/[slug]`  — filter by a tag from `content.tags[]`. Pass 5b.
  *
  * `/topics` (plural) is the index of all tags with counts.
@@ -12,9 +12,11 @@
  * Pass 5c will add `/authors` + `/authors/[slug]` alongside these.
  */
 
-export type ContentType = 'manual' | 'prophecy' | 'article' | 'blog'
+import { contentTypeAccent } from '@/lib/content-type'
 
-export const CONTENT_TYPES: readonly ContentType[] = ['manual', 'prophecy', 'article', 'blog'] as const
+export type ContentType = 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
+
+export const CONTENT_TYPES: readonly ContentType[] = ['manual', 'prophecy', 'article', 'blog', 'sermon'] as const
 
 /**
  * Type guard so `/topic/[type]/page.tsx` can validate the route param before
@@ -33,27 +35,23 @@ export function isContentType(value: string): value is ContentType {
  * that's how the header reads. Slugs are singular (`manual`) but display
  * is plural ("Manuals") — these are different concerns.
  */
-export function typeNavKey(type: ContentType): 'manuals' | 'prophecies' | 'articles' | 'blog' {
+export function typeNavKey(type: ContentType): 'manuals' | 'prophecies' | 'articles' | 'blog' | 'sermons' {
   switch (type) {
     case 'manual':   return 'manuals'
     case 'prophecy': return 'prophecies'
     case 'article':  return 'articles'
     case 'blog':     return 'blog'
+    case 'sermon':   return 'sermons'
   }
 }
 
 /**
  * Brand colour for the type chip and eyebrow accent on the topic page hero.
- * Identical to the `TYPE_COLORS` constants in ContentReader and ContentCard;
- * centralised here so a future palette tweak only touches one place.
+ * Thin re-export of the shared palette — kept so existing `@/lib/topic`
+ * imports keep working, but lib/content-type.ts owns the values.
  */
 export function typeAccentColor(type: ContentType): string {
-  switch (type) {
-    case 'manual':   return '#4498CC' // steel blue
-    case 'prophecy': return '#C32126' // firebrick
-    case 'article':  return '#F5AE41' // sandy gold
-    case 'blog':     return '#3C3C3C' // dark2
-  }
+  return contentTypeAccent(type)
 }
 
 /**

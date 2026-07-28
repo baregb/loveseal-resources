@@ -25,7 +25,7 @@ export default function Breadcrumb({
   topicsLabel: string
   typeLabel:   string
   title:       string
-  contentType: 'manual' | 'prophecy' | 'article' | 'blog'
+  contentType: 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
 }) {
   return (
     <nav

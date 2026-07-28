@@ -5,11 +5,12 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toggleContentStatus, deleteContent } from './actions'
 import ConfirmModal from '@/components/ui/ConfirmModal'
+import { contentTypeAccent, contentTypeLabel } from '@/lib/content-type'
 
 interface Item {
   id: string
   title: string
-  content_type: 'manual' | 'prophecy' | 'article' | 'blog'
+  content_type: 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
   status: 'draft' | 'published'
   language: string
   category: string
@@ -24,12 +25,6 @@ interface Item {
   created_at: string
 }
 
-const TYPE_COLORS: Record<string, string> = {
-  manual: '#4498CC', prophecy: '#C32126', article: '#F5AE41', blog: '#3C3C3C',
-}
-const TYPE_LABELS: Record<string, string> = {
-  manual: 'Manual', prophecy: 'Prophecy', article: 'Article', blog: 'Blog',
-}
 const LANGUAGE_LABELS: Record<string, string> = {
   en: 'English', es: 'Spanish', fr: 'French', pt: 'Portuguese', ar: 'Arabic',
 }
@@ -214,7 +209,7 @@ export default function ContentList({ items }: { items: Item[] }) {
 
         <FacetGroup label="Type" values={Object.entries(facets.types)} selected={selectedTypes}
           onToggle={v => toggle(selectedTypes, setSelectedTypes, v)}
-          formatLabel={v => TYPE_LABELS[v] ?? v} accentColor={v => TYPE_COLORS[v]} />
+          formatLabel={v => contentTypeLabel(v)} accentColor={v => contentTypeAccent(v)} />
         <FacetGroup label="Status" values={Object.entries(facets.status)} selected={selectedStatus}
           onToggle={v => toggle(selectedStatus, setSelectedStatus, v)}
           formatLabel={v => v.charAt(0).toUpperCase() + v.slice(1)} />
@@ -306,8 +301,8 @@ export default function ContentList({ items }: { items: Item[] }) {
                           display: 'inline-flex', alignItems: 'center', gap: '6px',
                           fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'capitalize',
                         }}>
-                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: TYPE_COLORS[item.content_type] }} />
-                          {item.content_type}
+                          <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: contentTypeAccent(item.content_type) }} />
+                          {contentTypeLabel(item.content_type)}
                         </span>
                       </td>
                       <td style={tdStyle}>

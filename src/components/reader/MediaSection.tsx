@@ -1,26 +1,19 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { useTranslations } from 'next-intl'
+import { contentTypeAccent } from '@/lib/content-type'
 
-const TYPE_COLORS: Record<string, string> = {
-  manual:   '#4498CC',
-  prophecy: '#C32126',
-  article:  '#F5AE41',
-  blog:     '#8B5CF6',
-}
+/* The listen/watch captions used to be hardcoded English maps here, so an
+   Arabic or French reader got "Listen to this Prophecy" under an otherwise
+   fully translated page. They now come from the `content.media` namespace. */
+type MediaContentType = 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
 
-const LISTEN_LABEL: Record<string, string> = {
-  manual:   'Listen to this Teaching',
-  prophecy: 'Listen to this Prophecy',
-  article:  'Listen to this Article',
-  blog:     'Listen to this Message',
-}
+const MEDIA_TYPES: readonly string[] = ['manual', 'prophecy', 'article', 'blog', 'sermon']
 
-const WATCH_LABEL: Record<string, string> = {
-  manual:   'Watch this Teaching',
-  prophecy: 'Watch this Prophecy',
-  article:  'Watch this Article',
-  blog:     'Watch this Message',
+/* Falls back to the blog wording, which is the type-neutral one ("Message"). */
+function mediaKey(contentType: string): MediaContentType {
+  return (MEDIA_TYPES.includes(contentType) ? contentType : 'blog') as MediaContentType
 }
 
 function extractYouTubeId(url: string): string | null {
@@ -371,12 +364,16 @@ export default function MediaSection({
   videoUrl:    string | null | undefined
   contentType: string
 }) {
+  const tListen = useTranslations('content.media.listen')
+  const tWatch  = useTranslations('content.media.watch')
+
   if (!audioUrl && !videoUrl) return null
 
-  const accent   = TYPE_COLORS[contentType] ?? '#F5AE41'
-  const listenLabel = LISTEN_LABEL[contentType] ?? 'Listen to this Message'
-  const watchLabel  = WATCH_LABEL[contentType]  ?? 'Watch this Message'
-  const videoId  = videoUrl ? extractYouTubeId(videoUrl) : null
+  const key         = mediaKey(contentType)
+  const accent      = contentTypeAccent(contentType)
+  const listenLabel = tListen(key)
+  const watchLabel  = tWatch(key)
+  const videoId     = videoUrl ? extractYouTubeId(videoUrl) : null
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem', margin: '1.75rem 0 2.25rem' }}>

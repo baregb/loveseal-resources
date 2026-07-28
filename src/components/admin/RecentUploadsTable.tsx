@@ -5,11 +5,12 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { toggleContentStatus, deleteContent } from '@/app/admin/(dashboard)/content/actions'
 import ConfirmModal from '@/components/ui/ConfirmModal'
+import { CONTENT_TYPE_ACCENT } from '@/lib/content-type'
 
 interface RecentItem {
   id: string
   title: string
-  content_type: 'manual' | 'prophecy' | 'article' | 'blog'
+  content_type: 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
   status: 'draft' | 'published'
   language: string
   theme: string | null
@@ -18,12 +19,7 @@ interface RecentItem {
   created_at: string
 }
 
-const TYPE_COLORS: Record<string, string> = {
-  manual:   '#4498CC',
-  prophecy: '#C32126',
-  article:  '#F5AE41',
-  blog:     '#3C3C3C',
-}
+const TYPE_COLORS = CONTENT_TYPE_ACCENT
 
 export default function RecentUploadsTable({ items }: { items: RecentItem[] }) {
   const router = useRouter()

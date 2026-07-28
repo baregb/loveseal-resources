@@ -100,6 +100,7 @@ export default function PublicFooter() {
               <FooterLink href={{ pathname: '/topic/[type]', params: { type: 'prophecy' } }}>{t('links.prophecies')}</FooterLink>
               <FooterLink href={{ pathname: '/topic/[type]', params: { type: 'article'  } }}>{t('links.articles')}</FooterLink>
               <FooterLink href={{ pathname: '/topic/[type]', params: { type: 'blog'     } }}>{t('links.blog')}</FooterLink>
+              <FooterLink href={{ pathname: '/topic/[type]', params: { type: 'sermon'   } }}>{t('links.sermons')}</FooterLink>
             </FooterColumn>
           </div>
 

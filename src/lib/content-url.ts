@@ -3,6 +3,7 @@ export const CONTENT_TYPE_PREFIX = {
   prophecy: 'prophecies',
   article:  'articles',
   blog:     'blogs',
+  sermon:   'sermon-notes',
 } as const
 
 export const CONTENT_TYPE_ROUTE = {
@@ -10,6 +11,7 @@ export const CONTENT_TYPE_ROUTE = {
   prophecy: '/prophecies/[slug]',
   article:  '/articles/[slug]',
   blog:     '/blogs/[slug]',
+  sermon:   '/sermon-notes/[slug]',
 } as const
 
 type ContentTypeKey = keyof typeof CONTENT_TYPE_ROUTE
@@ -24,4 +26,5 @@ export function contentHref(item: { content_type: string; slug: string | null; i
     | { pathname: '/prophecies/[slug]'; params: { slug: string } }
     | { pathname: '/articles/[slug]';  params: { slug: string } }
     | { pathname: '/blogs/[slug]';     params: { slug: string } }
+    | { pathname: '/sermon-notes/[slug]'; params: { slug: string } }
 }

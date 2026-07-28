@@ -82,7 +82,7 @@ export default async function TopicTagPage({ params }: PageParams) {
     id:              string
     slug:            string | null
     title:           string
-    content_type:    'manual' | 'prophecy' | 'article' | 'blog'
+    content_type:    'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
     theme:           string | null
     speaker:         string | null
     series:          string | null

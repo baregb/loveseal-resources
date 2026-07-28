@@ -49,6 +49,7 @@ interface Category { id: string; name: string; slug: string; content_type: strin
 const CONTENT_TYPES: { value: ContentType; label: string }[] = [
   { value: 'manual', label: 'Manual' }, { value: 'prophecy', label: 'Prophecy' },
   { value: 'article', label: 'Article' }, { value: 'blog', label: 'Blog' },
+  { value: 'sermon', label: 'Sermon Notes' },
 ]
 
 const LOCALES: { value: Locale; label: string }[] = [

@@ -20,6 +20,7 @@
     "prophecies": "Profecias",
     "articles": "Artigos",
     "blog": "Blog",
+    "sermons": "Notas de Sermão",
     "search": "Buscar conteúdo",
     "menu": "Abrir menu",
     "close": "Fechar",
@@ -59,6 +60,7 @@
     "prophecies": "Profecias",
     "articles": "Artigos",
     "blog": "Blog",
+    "sermons": "Notas de Sermão",
     "viewAll": "Ver tudo",
     "latest": "{type} recentes",
     "entries": "{count, plural, =0 {sem entradas} =1 {1 entrada} other {# entradas}}",
@@ -99,7 +101,24 @@
       "manual": "Manual",
       "prophecy": "Profecia",
       "article": "Artigo",
-      "blog": "Blog"
+      "blog": "Blog",
+      "sermon": "Notas de Sermão"
+    },
+    "media": {
+      "listen": {
+        "manual": "Ouça este ensino",
+        "prophecy": "Ouça esta profecia",
+        "article": "Ouça este artigo",
+        "blog": "Ouça esta mensagem",
+        "sermon": "Ouça este sermão"
+      },
+      "watch": {
+        "manual": "Assista a este ensino",
+        "prophecy": "Assista a esta profecia",
+        "article": "Assista a este artigo",
+        "blog": "Assista a esta mensagem",
+        "sermon": "Assista a este sermão"
+      }
     },
     "lesson": "Lição {number}",
     "minRead": "{count} min de leitura",
@@ -197,7 +216,7 @@
       "_todo_translation": true,
       "label": "404",
       "title": "Topic not found",
-      "body": "That isn't one of our content types. Try manuals, prophecies, articles, or blog.",
+      "body": "That isn't one of our content types. Try manuals, prophecies, articles, sermon notes, or blog.",
       "browse": "Browse all content"
     },
     "tag": {
@@ -242,6 +261,7 @@
       "prophecies": "Profecias",
       "articles": "Artigos",
       "blog": "Blog",
+      "sermons": "Notas de Sermão",
       "allContent": "Todo o conteúdo",
       "latest": "Recentes",
       "topics": "Temas",

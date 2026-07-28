@@ -1,6 +1,6 @@
 export type { Database, AdminRole, AuditAction } from './database'
 
-export type ContentType = 'manual' | 'prophecy' | 'article' | 'blog'
+export type ContentType = 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
 export type ContentStatus = 'draft' | 'published'
 export type Locale = 'en' | 'es' | 'fr' | 'pt' | 'ar'
 export type SourceMode = 'pdf' | 'editor'

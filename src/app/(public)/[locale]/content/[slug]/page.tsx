@@ -7,7 +7,8 @@ import { CONTENT_TYPE_PREFIX } from '@/lib/content-url'
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 /* This route now only exists for backward-compat redirects.
-   All content is served from /manuals/, /prophecies/, /articles/, /blogs/. */
+   All content is served from /manuals/, /prophecies/, /articles/, /blogs/,
+   /sermon-notes/. */
 export default async function ContentSlugRedirect({
   params,
 }: {

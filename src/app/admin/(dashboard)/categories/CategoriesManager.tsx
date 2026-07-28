@@ -6,13 +6,15 @@ import { createCategory, renameCategory, deleteCategory } from './actions'
 import type { ContentType } from '@/types'
 import type { CategoryWithCount } from './page'
 import ConfirmModal from '@/components/ui/ConfirmModal'
+import { CONTENT_TYPE_ACCENT } from '@/lib/content-type'
 
 const TYPE_GROUPS: { key: ContentType | 'all'; label: string; color: string }[] = [
   { key: 'all',      label: 'All content types',  color: 'var(--text-tertiary)' },
-  { key: 'manual',   label: 'Manuals',            color: '#4498CC' },
-  { key: 'prophecy', label: 'Prophecies',         color: '#C32126' },
-  { key: 'article',  label: 'Articles',           color: '#F5AE41' },
-  { key: 'blog',     label: 'Blog',               color: '#3C3C3C' },
+  { key: 'manual',   label: 'Manuals',            color: CONTENT_TYPE_ACCENT.manual   },
+  { key: 'prophecy', label: 'Prophecies',         color: CONTENT_TYPE_ACCENT.prophecy },
+  { key: 'article',  label: 'Articles',           color: CONTENT_TYPE_ACCENT.article  },
+  { key: 'blog',     label: 'Blog',               color: CONTENT_TYPE_ACCENT.blog     },
+  { key: 'sermon',   label: 'Sermon Notes',       color: CONTENT_TYPE_ACCENT.sermon   },
 ]
 
 export default function CategoriesManager({
@@ -37,7 +39,7 @@ export default function CategoriesManager({
 
   const grouped = useMemo(() => {
     const map: Record<string, CategoryWithCount[]> = {
-      all: [], manual: [], prophecy: [], article: [], blog: [],
+      all: [], manual: [], prophecy: [], article: [], blog: [], sermon: [],
     }
     initialCategories.forEach(cat => {
       const key = cat.content_type ?? 'all'

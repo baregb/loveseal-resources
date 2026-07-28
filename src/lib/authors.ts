@@ -78,7 +78,7 @@ export async function getAuthorBySlug(slug: string): Promise<AuthorRow | null> {
  */
 export async function getContentByAuthor(
   authorId:    string,
-  contentType: 'manual' | 'prophecy' | 'article' | 'blog' | 'all' = 'all',
+  contentType: 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon' | 'all' = 'all',
 ) {
   const supabase = await createClient()
 
@@ -101,7 +101,7 @@ export async function getContentByAuthor(
     id:              string
     slug:            string | null
     title:           string
-    content_type:    'manual' | 'prophecy' | 'article' | 'blog'
+    content_type:    'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
     theme:           string | null
     speaker:         string | null
     series:          string | null
@@ -121,6 +121,7 @@ export async function getContentTypesForAuthor(authorId: string): Promise<{
   prophecy: number
   article:  number
   blog:     number
+  sermon:   number
   total:    number
 }> {
   const supabase = await createClient()
@@ -130,8 +131,8 @@ export async function getContentTypesForAuthor(authorId: string): Promise<{
     .eq('status', 'published')
     .eq('author_id', authorId)
 
-  const breakdown = { manual: 0, prophecy: 0, article: 0, blog: 0, total: 0 }
-  for (const row of (data ?? []) as Array<{ content_type: 'manual' | 'prophecy' | 'article' | 'blog' }>) {
+  const breakdown = { manual: 0, prophecy: 0, article: 0, blog: 0, sermon: 0, total: 0 }
+  for (const row of (data ?? []) as Array<{ content_type: 'manual' | 'prophecy' | 'article' | 'blog' | 'sermon' }>) {
     breakdown[row.content_type] += 1
     breakdown.total += 1
   }

@@ -39,6 +39,7 @@ export const routing = defineRouting({
     '/prophecies/[slug]':   '/prophecies/[slug]',
     '/articles/[slug]':     '/articles/[slug]',
     '/blogs/[slug]':        '/blogs/[slug]',
+    '/sermon-notes/[slug]': '/sermon-notes/[slug]',
     '/topic/[type]':        '/topic/[type]',
     '/topics':              '/topics',
     '/topics/[slug]':       '/topics/[slug]',

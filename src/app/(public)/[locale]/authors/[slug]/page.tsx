@@ -19,7 +19,7 @@ interface PageParams {
   searchParams: Promise<{ type?: string }>
 }
 
-const CONTENT_TYPES = ['manual', 'prophecy', 'article', 'blog'] as const
+const CONTENT_TYPES = ['manual', 'prophecy', 'article', 'blog', 'sermon'] as const
 type ContentTypeFilter = typeof CONTENT_TYPES[number] | 'all'
 
 function parseTypeFilter(raw: string | undefined): ContentTypeFilter {

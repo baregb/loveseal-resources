@@ -14,9 +14,15 @@ create extension if not exists "pg_trgm";
 -- Postgres has no CREATE TYPE IF NOT EXISTS; DO blocks swallow duplicate errors.
 
 do $$ begin
-  create type content_type as enum ('manual', 'prophecy', 'article', 'blog');
+  create type content_type as enum ('manual', 'prophecy', 'article', 'blog', 'sermon');
 exception when duplicate_object then null;
 end $$;
+
+-- Upgrade path for databases created before 'sermon' existed. Must stay at the
+-- top level — ALTER TYPE ... ADD VALUE cannot run inside a DO block, and the
+-- new value cannot be *used* until this statement's transaction commits, which
+-- is why nothing further down this file inserts a 'sermon' row.
+alter type content_type add value if not exists 'sermon';
 
 do $$ begin
   create type content_status as enum ('draft', 'published');

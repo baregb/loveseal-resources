@@ -20,6 +20,7 @@
     "prophecies": "Prophéties",
     "articles": "Articles",
     "blog": "Blog",
+    "sermons": "Notes de Prédication",
     "search": "Rechercher du contenu",
     "menu": "Ouvrir le menu",
     "close": "Fermer",
@@ -59,6 +60,7 @@
     "prophecies": "Prophéties",
     "articles": "Articles",
     "blog": "Blog",
+    "sermons": "Notes de Prédication",
     "viewAll": "Voir tout",
     "latest": "Derniers {type}",
     "entries": "{count, plural, =0 {aucune entrée} =1 {1 entrée} other {# entrées}}",
@@ -99,7 +101,24 @@
       "manual": "Manuel",
       "prophecy": "Prophétie",
       "article": "Article",
-      "blog": "Blog"
+      "blog": "Blog",
+      "sermon": "Notes de Prédication"
+    },
+    "media": {
+      "listen": {
+        "manual": "Écouter cet enseignement",
+        "prophecy": "Écouter cette prophétie",
+        "article": "Écouter cet article",
+        "blog": "Écouter ce message",
+        "sermon": "Écouter cette prédication"
+      },
+      "watch": {
+        "manual": "Regarder cet enseignement",
+        "prophecy": "Regarder cette prophétie",
+        "article": "Regarder cet article",
+        "blog": "Regarder ce message",
+        "sermon": "Regarder cette prédication"
+      }
     },
     "lesson": "Leçon {number}",
     "minRead": "{count} min de lecture",
@@ -194,7 +213,7 @@
     "topic": {
       "label": "404",
       "title": "Sujet introuvable",
-      "body": "Ce n'est pas l'un de nos types de contenu. Essaie manuels, prophéties, articles ou blog.",
+      "body": "Ce n'est pas l'un de nos types de contenu. Essaie manuels, prophéties, articles, notes de prédication ou blog.",
       "browse": "Parcourir tout le contenu"
     },
     "tag": {
@@ -237,6 +256,7 @@
       "prophecies": "Prophéties",
       "articles": "Articles",
       "blog": "Blog",
+      "sermons": "Notes de Prédication",
       "allContent": "Tout le contenu",
       "latest": "Récents",
       "topics": "Sujets",

@@ -5,12 +5,13 @@ import Image from 'next/image'
 import { Link } from '@/i18n/navigation'
 import RevealOnScroll from './RevealOnScroll'
 import { contentHref } from '@/lib/content-url'
+import { CONTENT_TYPE_ACCENT } from '@/lib/content-type'
 
 interface FeaturedItem {
   id:                 string
   slug:               string | null
   title:              string
-  content_type:       'manual' | 'prophecy' | 'article' | 'blog'
+  content_type:       'manual' | 'prophecy' | 'article' | 'blog' | 'sermon'
   theme:              string | null
   category:           string | null
   speaker:            string | null
@@ -25,12 +26,7 @@ interface FeaturedItem {
    "Keep type colors but hide them on landing only" — the secondary card type
    tags surface category color subtly via the eyebrow). Primary card type pill
    is neutral white (design-accurate). */
-const TYPE_COLORS: Record<string, string> = {
-  manual:   '#4498CC',
-  prophecy: '#C32126',
-  article:  '#F5AE41',
-  blog:     '#3C3C3C',
-}
+const TYPE_COLORS = CONTENT_TYPE_ACCENT
 
 export default function FeaturedSection({ items }: { items: FeaturedItem[] }) {
   const t      = useTranslations('featured')
@@ -135,7 +131,7 @@ export default function FeaturedSection({ items }: { items: FeaturedItem[] }) {
             display:        'flex',
             flexDirection:  'column',
             gap:            '0.75rem',
-            justifyContent: 'space-between',
+            justifyContent: 'flex-start',
             height:         '100%',
           }}
         >
@@ -458,7 +454,7 @@ function SecondaryCard({
             marginBottom:  '0.25rem',
           }}
         >
-          {typeLabel.toUpperCase()}{eyebrowLabel ? ` · ${eyebrowLabel.toUpperCase()}` : ''}
+          {eyebrowLabel ? `${eyebrowLabel.toUpperCase()} · ` : ''}{typeLabel.toUpperCase()}
         </div>
         <h4
           style={{

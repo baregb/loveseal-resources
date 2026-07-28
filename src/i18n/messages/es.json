@@ -20,6 +20,7 @@
     "prophecies": "Profecías",
     "articles": "Artículos",
     "blog": "Blog",
+    "sermons": "Notas de Sermón",
     "search": "Buscar contenido",
     "menu": "Abrir menú",
     "close": "Cerrar",
@@ -59,6 +60,7 @@
     "prophecies": "Profecías",
     "articles": "Artículos",
     "blog": "Blog",
+    "sermons": "Notas de Sermón",
     "viewAll": "Ver todo",
     "latest": "Lo más reciente: {type}",
     "entries": "{count, plural, =0 {sin entradas} =1 {1 entrada} other {# entradas}}",
@@ -99,7 +101,24 @@
       "manual": "Manual",
       "prophecy": "Profecía",
       "article": "Artículo",
-      "blog": "Blog"
+      "blog": "Blog",
+      "sermon": "Notas de Sermón"
+    },
+    "media": {
+      "listen": {
+        "manual": "Escucha esta enseñanza",
+        "prophecy": "Escucha esta profecía",
+        "article": "Escucha este artículo",
+        "blog": "Escucha este mensaje",
+        "sermon": "Escucha este sermón"
+      },
+      "watch": {
+        "manual": "Mira esta enseñanza",
+        "prophecy": "Mira esta profecía",
+        "article": "Mira este artículo",
+        "blog": "Mira este mensaje",
+        "sermon": "Mira este sermón"
+      }
     },
     "lesson": "Lección {number}",
     "minRead": "{count} min de lectura",
@@ -194,7 +213,7 @@
     "topic": {
       "label": "404",
       "title": "Tema no encontrado",
-      "body": "Ese no es uno de nuestros tipos de contenido. Prueba con manuales, profecías, artículos o blog.",
+      "body": "Ese no es uno de nuestros tipos de contenido. Prueba con manuales, profecías, artículos, notas de sermón o blog.",
       "browse": "Ver todo el contenido"
     },
     "tag": {
@@ -237,6 +256,7 @@
       "prophecies": "Profecías",
       "articles": "Artículos",
       "blog": "Blog",
+      "sermons": "Notas de Sermón",
       "allContent": "Todo el contenido",
       "latest": "Lo más reciente",
       "topics": "Temas",
