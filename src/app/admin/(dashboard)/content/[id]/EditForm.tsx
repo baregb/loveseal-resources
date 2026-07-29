@@ -11,6 +11,7 @@ import ButtonSpinner from '@/components/ui/ButtonSpinner'
 import { toast } from '@/lib/toast'
 import type { ContentType, Locale } from '@/types'
 import { slugify } from '@/lib/slugify'
+import { normalizeMediaUrl } from '@/lib/media-url'
 import { logContentUpdated } from '../actions'
 import { translateContent } from '../translate-actions'
 
@@ -190,7 +191,7 @@ export default function EditForm({
         speaker:       speakerDisplayName.trim() || null,
         series:        series.trim() || null,
         published_at:  publishedAt + 'T00:00:00.000Z',
-        audio_url:     audioUrl.trim() || null,
+        audio_url:     normalizeMediaUrl(audioUrl),
         video_url:     videoUrl.trim() || null,
         cover_image_url: coverImageUrl,
         date_preached: datePreached || null,

@@ -10,6 +10,7 @@ import ButtonSpinner from '@/components/ui/ButtonSpinner'
 import { toast } from '@/lib/toast'
 import type { ContentType, Locale } from '@/types'
 import { slugify } from '@/lib/slugify'
+import { normalizeMediaUrl } from '@/lib/media-url'
 import { logContentCreated } from '../content/actions'
 
 interface Category {
@@ -226,7 +227,7 @@ export default function UploadForm({
           speaker:         speakerDisplayName.trim() || null,
           series:          series.trim() || null,
           published_at:    publishedAt + 'T00:00:00.000Z',
-          audio_url:       audioUrl.trim() || null,
+          audio_url:       normalizeMediaUrl(audioUrl),
           video_url:       videoUrl.trim() || null,
           date_preached:   datePreached || null,
           scripture_refs:  scriptureRefs.split(';').map(s => s.trim()).filter(Boolean),

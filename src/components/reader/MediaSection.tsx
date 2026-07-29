@@ -172,9 +172,15 @@ function AudioPlayer({
         </div>
 
         {/* Download */}
+        {/* `download` only binds on same-origin files (our Supabase uploads).
+            Sermon audio sits on CloudFront, where the attribute is ignored and
+            the browser navigates to the mp3 instead — so open that in a new tab
+            rather than letting it replace the reader page mid-listen. */}
         <a
           href={url}
           download
+          target="_blank"
+          rel="noopener noreferrer"
           title="Download audio"
           aria-label="Download audio"
           style={{

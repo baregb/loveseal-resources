@@ -5,7 +5,7 @@ import { motion, AnimatePresence, type PanInfo } from 'framer-motion'
 import { useTranslations, useLocale } from 'next-intl'
 import Image from 'next/image'
 import { Link, useRouter } from '@/i18n/navigation'
-import { CONTENT_TYPE_INK, CONTENT_TYPE_TINT } from '@/lib/content-type'
+import { CONTENT_TYPE_ACCENT, CONTENT_TYPE_INK, CONTENT_TYPE_TINT } from '@/lib/content-type'
 
 interface HeroItem {
   id:              string
@@ -80,6 +80,9 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
   const activeType    = activeItem?.content_type
   const activeTypeIdx = activeType ? TYPE_ORDER.indexOf(activeType) : 0
   const activeColor   = activeType ? TYPE_COLORS[activeType] : 'var(--brand-red)'
+  // Offset underlay behind the active type name — takes the vivid accent of the
+  // card currently on display, so the word shifts blue/red/gold/lilac/sage with it.
+  const activeAccent  = activeType ? CONTENT_TYPE_ACCENT[activeType] : 'var(--brand-red)'
 
   function jumpToType(type: HeroItem['content_type']) {
     const next = items.findIndex((item, j) => item.content_type === type && j !== activeIdx)
@@ -250,6 +253,7 @@ export default function LandingHero({ items }: { items: HeroItem[] }) {
                 key={type}
                 label={tNav(typeNavKey(type))}
                 isActive={isActive}
+                underlayColor={activeAccent}
                 onClick={() => jumpToType(type)}
               />
             )
@@ -633,11 +637,12 @@ function EmptyStack({ message }: { message: string }) {
 }
 
 function CategoryRow({
-  label, isActive, onClick,
+  label, isActive, underlayColor, onClick,
 }: {
-  label:    string
-  isActive: boolean
-  onClick:  () => void
+  label:         string
+  isActive:      boolean
+  underlayColor: string
+  onClick:       () => void
 }) {
   return (
     <button
@@ -665,12 +670,13 @@ function CategoryRow({
           <span
             aria-hidden="true"
             style={{
-              position:  'absolute',
-              inset:     0,
-              color:     'var(--brand-red)',
-              transform: 'translate(8px, 6px)',
-              zIndex:    0,
-              opacity:   0.9,
+              position:   'absolute',
+              inset:      0,
+              color:      underlayColor,
+              transform:  'translate(8px, 6px)',
+              zIndex:     0,
+              opacity:    0.9,
+              transition: 'color 0.35s ease',
             }}
           >
             {label}
