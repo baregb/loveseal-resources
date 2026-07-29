@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server'
 import { translateContent } from '@/app/admin/(dashboard)/content/translate-actions'
 
+/* Translating a long article into 4 locales — now split into multiple
+   requests per field when the body is large — can run past the platform's
+   default. 300s is the max Vercel allows on Hobby anyway; raise to 800 in
+   vercel.json if this project moves to Pro and still needs more headroom. */
+export const maxDuration = 300
+
 /**
  * Fire-and-forget endpoint the upload form calls after a save succeeds.
  * Triggers Microsoft Translator translation of the new content into all

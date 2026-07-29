@@ -5,6 +5,13 @@ import EditForm from './EditForm'
 
 export const metadata = { title: 'Edit content' }
 
+/* The "Translate" button on this page calls translateContent() as a Server
+   Action, which runs in this page's own function — so the route.ts
+   maxDuration bump for the fire-and-forget /api/translate path doesn't cover
+   it. Same reasoning as there: long bodies now span multiple requests per
+   locale, so give it the same headroom. */
+export const maxDuration = 300
+
 export default async function ContentEditPage({
   params,
 }: {

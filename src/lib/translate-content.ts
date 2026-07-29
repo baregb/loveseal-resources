@@ -109,7 +109,11 @@ async function translateOne(
       ? translateText(source.body_html, target, { ...opts, isHtml: true })
       : Promise.resolve(null),
     source.extracted_text
-      ? translateText(source.extracted_text, target, opts)
+      // PDF-extracted plain text can contain a stray "<" (e.g. "<3" or a
+      // scripture range like "John 3<4"); without forcing isHtml:false here,
+      // translateText's regex heuristic can misfire and send it as HTML,
+      // which Azure then silently mangles instead of erroring.
+      ? translateText(source.extracted_text, target, { ...opts, isHtml: false })
       : Promise.resolve(null),
     source.summary_points && source.summary_points.length > 0
       ? translateArray(source.summary_points, target, opts)
